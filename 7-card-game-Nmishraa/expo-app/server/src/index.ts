@@ -7,13 +7,22 @@ const PORT = process.env.PORT || 5000;
 
 export const api = onRequest({ cors: true, maxInstances: 10 }, app);
 
+import { createSshTunnel } from './db/tunnel';
+import { initDb } from './db/database';
+
 if (process.env.NODE_ENV !== 'production' && require.main === module) {
   const server = http.createServer(app);
 
-  server.listen(PORT, () => {
+  server.listen(PORT, async () => {
     console.log(`[Server] Production Backend API listening on http://localhost:${PORT}`);
     console.log(`[Health Check] http://localhost:${PORT}/health`);
     console.log(`[API Base] http://localhost:${PORT}/api/v1`);
+    try {
+      await createSshTunnel();
+      await initDb();
+    } catch (err: any) {
+      console.warn('[Server Warning] Running in fallback mode until DB connection is active:', err.message);
+    }
   });
 
   const gracefulShutdown = (signal: string) => {

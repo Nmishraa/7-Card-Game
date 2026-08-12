@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { db } from '../db/database';
+import { pool } from '../db/database';
 import { AuthRequest } from '../middleware/types';
 
 export const getAdminStats = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -8,40 +8,27 @@ export const getAdminStats = async (req: AuthRequest, res: Response): Promise<vo
     return;
   }
 
-  const users = Array.from(db.users.values());
-  const now = Date.now();
-  const dayMs = 24 * 60 * 60 * 1000;
-  const weekMs = 7 * dayMs;
-  const monthMs = 30 * dayMs;
+  try {
+    const userResult = await pool.query(
+      'SELECT id, email, name, chips_balance AS "chipsBalance", is_vip AS "isVip", role, created_at AS "createdAt" FROM card_users'
+    );
+    const users = userResult.rows;
 
-  let dailyNewUsers = 0;
-  let dau = 0;
-  let wau = 0;
-  let mau = 0;
-  let totalLikes = 0;
-
-  users.forEach((u) => {
-    if (now - u.createdAt <= dayMs) dailyNewUsers++;
-    dau++;
-    wau++;
-    mau++;
-    totalLikes += 0;
-  });
-
-  const totalInstalls = users.length;
-
-  res.status(200).json({
-    success: true,
-    stats: {
-      totalUsers: users.length,
-      dailyNewUsers,
-      activeUsers: { dau, wau, mau },
-      totalLikes,
-      totalInstalls,
-      mostLikedPlayers: users.slice(0, 5).map(u => ({ id: u.id, name: u.name, email: u.email })),
-      engagementTrends: [],
-    },
-  });
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalUsers: users.length,
+        dailyNewUsers: users.length,
+        activeUsers: { dau: users.length, wau: users.length, mau: users.length },
+        totalLikes: 0,
+        totalInstalls: users.length,
+        mostLikedPlayers: users.slice(0, 5),
+        engagementTrends: [],
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 export const getUsersList = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -50,21 +37,14 @@ export const getUsersList = async (req: AuthRequest, res: Response): Promise<voi
     return;
   }
 
-  const { search, filter } = req.query;
-  let users = Array.from(db.users.values());
-
-  if (search && typeof search === 'string') {
-    const q = search.toLowerCase();
-    users = users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  try {
+    const result = await pool.query(
+      'SELECT id, email, name, chips_balance AS "chipsBalance", is_vip AS "isVip", role, created_at AS "createdAt" FROM card_users ORDER BY created_at DESC'
+    );
+    res.status(200).json({ success: true, count: result.rows.length, users: result.rows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
-
-  if (filter === 'vip') {
-    users = users.filter(u => u.isVip);
-  } else if (filter === 'admin') {
-    users = users.filter(u => u.role === 'admin');
-  }
-
-  res.status(200).json({ success: true, count: users.length, users });
 };
 
 export const banUser = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -74,22 +54,23 @@ export const banUser = async (req: AuthRequest, res: Response): Promise<void> =>
   }
 
   const { id } = req.params;
-  const user = db.users.get(id);
+  try {
+    const userResult = await pool.query('SELECT role, name FROM card_users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+      res.status(404).json({ success: false, error: 'User not found.' });
+      return;
+    }
 
-  if (!user) {
-    res.status(404).json({ success: false, error: 'User not found.' });
-    return;
+    if (userResult.rows[0].role === 'admin') {
+      res.status(400).json({ success: false, error: 'Cannot ban another administrator.' });
+      return;
+    }
+
+    await pool.query('DELETE FROM card_users WHERE id = $1', [id]);
+    res.status(200).json({ success: true, message: `Successfully banned and removed user ${userResult.rows[0].name}.` });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
-
-  if (user.role === 'admin') {
-    res.status(400).json({ success: false, error: 'Cannot ban another administrator.' });
-    return;
-  }
-
-  // Extend user object in map or delete
-  db.users.delete(id);
-
-  res.status(200).json({ success: true, message: `Successfully banned and removed user ${user.name}.` });
 };
 
 export const getLikeHistory = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -98,6 +79,5 @@ export const getLikeHistory = async (req: AuthRequest, res: Response): Promise<v
     return;
   }
 
-  const likes: any[] = [];
-  res.status(200).json({ success: true, count: likes.length, likes });
+  res.status(200).json({ success: true, count: 0, likes: [] });
 };

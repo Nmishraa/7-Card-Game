@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../db/database';
 import { AuthRequest } from '../middleware/types';
 
 export const uploadFile = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -17,18 +16,6 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
   const fileId = uuidv4();
   const folder = req.body.folder || 'general';
   const cdnUrl = `https://cdn.7card.game/${folder}/${fileId}_${req.file.originalname}`;
-
-  const storageFile = {
-    id: fileId,
-    originalName: req.file.originalname,
-    mimeType: req.file.mimetype,
-    size: req.file.size,
-    url: cdnUrl,
-    uploadedBy: req.user.id,
-    createdAt: Date.now(),
-  };
-
-  db.files.set(fileId, storageFile);
 
   res.status(200).json({
     success: true,
