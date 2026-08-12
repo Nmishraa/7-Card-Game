@@ -2,6 +2,13 @@ import { GameRoom } from '../engine/types';
 import { GameHistoryEntry, PlayerHistoryEntry } from './types';
 import { apiService } from '../apiService';
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/api/v1`;
+  }
+  return 'http://2.24.200.44:8087/api/v1';
+};
+
 export const saveCompletedGameToHistory = async (room: GameRoom): Promise<void> => {
   if (!room || room.status !== 'game-over') return;
 
@@ -30,8 +37,7 @@ export const saveCompletedGameToHistory = async (room: GameRoom): Promise<void> 
       players: playerList,
     };
 
-    // Save to PostgreSQL Neha_data database via server API
-    await fetch('http://localhost:5000/api/v1/analytics/track', {
+    await fetch(`${getBaseUrl()}/analytics/track`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

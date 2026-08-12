@@ -1,6 +1,13 @@
 import { AnalyticsEvent } from './analyticsService';
 import { apiService } from '../apiService';
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/api/v1`;
+  }
+  return 'http://2.24.200.44:8087/api/v1';
+};
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -46,7 +53,7 @@ export const syncUserProfile = async (
 ): Promise<void> => {
   if (!uid) return;
   try {
-    await fetch(`http://localhost:5000/api/v1/users/${uid}`, {
+    await fetch(`${getBaseUrl()}/users/${uid}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: displayName }),
@@ -58,7 +65,7 @@ export const syncUserProfile = async (
 
 export const fetchAllUsers = async (): Promise<UserProfile[]> => {
   try {
-    const res = await fetch('http://localhost:5000/api/v1/users');
+    const res = await fetch(`${getBaseUrl()}/users`);
     const data = await res.json();
     if (data && data.users) {
       return data.users.map((u: any) => ({
@@ -111,7 +118,6 @@ export const calculateAdminStats = (
   events: AnalyticsEvent[] = []
 ): AdminStatsSummary => {
   const now = Date.now();
-  const dayMs = 24 * 60 * 60 * 1000;
 
   return {
     totalUsers: users.length,
