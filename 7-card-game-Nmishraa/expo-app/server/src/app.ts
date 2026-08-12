@@ -54,7 +54,22 @@ v1Router.use('/analytics', analyticsRoutes);
 v1Router.use('/payments', paymentRoutes);
 v1Router.use('/admin', adminRoutes);
 
+import path from 'path';
+import fs from 'fs';
+
+const webDistPath = path.join(__dirname, '../../dist');
+if (fs.existsSync(webDistPath)) {
+  app.use(express.static(webDistPath));
+}
+
 app.use('/api/v1', v1Router);
+
+if (fs.existsSync(webDistPath)) {
+  app.get('*', (req: Request, res: Response, next) => {
+    if (req.path.startsWith('/api') || req.path === '/health') return next();
+    res.sendFile(path.join(webDistPath, 'index.html'));
+  });
+}
 
 app.use(errorHandler);
 
