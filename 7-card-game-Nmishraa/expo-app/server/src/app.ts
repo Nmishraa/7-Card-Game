@@ -20,8 +20,26 @@ app.use(apiRateLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() });
+import { pool } from './db/database';
+
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    const dbResult = await pool.query('SELECT NOW()');
+    res.status(200).json({
+      status: 'connected',
+      ssh_host: process.env.SSH_HOST || '2.24.200.44',
+      database: process.env.DB_NAME || 'Neha_data',
+      db_timestamp: dbResult.rows[0].now,
+      uptime: process.uptime(),
+      timestamp: Date.now()
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+      database: process.env.DB_NAME || 'Neha_data'
+    });
+  }
 });
 
 const v1Router = express.Router();
