@@ -1,0 +1,443 @@
+openapi: 3.0.3
+info:
+  title: 7-cards Least Game Production API
+  description: Premium production-ready backend REST API for authentication, user management, game rooms CRUD, API keys, storage, push notifications, analytics, and monetization.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Current API version v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Unauthorized access or invalid request parameters"
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        chipsBalance:
+          type: number
+        isVip:
+          type: boolean
+        createdAt:
+          type: number
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+        hostId:
+          type: string
+        status:
+          type: string
+        maxRounds:
+          type: number
+        currentRound:
+          type: number
+    ApiKey:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: number
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user profile
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string }
+                password: { type: string }
+                name: { type: string }
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        "400": { $ref: '#/components/schemas/ErrorResponse' }
+  /auth/login:
+    post:
+      summary: Authenticate user and issue JWT
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        "401": { $ref: '#/components/schemas/ErrorResponse' }
+  /auth/profile:
+    get:
+      summary: Get authenticated user profile
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  user: { $ref: '#/components/schemas/User' }
+        "401": { $ref: '#/components/schemas/ErrorResponse' }
+  /users:
+    get:
+      summary: List all users (Admin or API Key auth)
+      tags: [Users]
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      responses:
+        "200":
+          description: List of registered users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  count: { type: number }
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: User details
+        "404": { $ref: '#/components/schemas/ErrorResponse' }
+    put:
+      summary: Update user profile
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                chipsBalance: { type: number }
+      responses:
+        "200":
+          description: Updated user details
+  /users/{id}/vip:
+    post:
+      summary: Upgrade user to VIP status
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: VIP upgrade successful
+  /api-keys:
+    post:
+      summary: Generate a new developer API key
+      tags: [API Keys]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, example: "Production Backend Server Key" }
+      responses:
+        "201":
+          description: API key successfully generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  apiKey: { $ref: '#/components/schemas/ApiKey' }
+    get:
+      summary: List all active API keys for authenticated user
+      tags: [API Keys]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of API keys
+  /api-keys/{id}:
+    delete:
+      summary: Revoke an API key
+      tags: [API Keys]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: API key revoked
+  /rooms:
+    post:
+      summary: Create a new game room
+      tags: [Rooms]
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                maxRounds: { type: number, default: 5 }
+                hostName: { type: string }
+      responses:
+        "201":
+          description: Room created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  room: { $ref: '#/components/schemas/Room' }
+    get:
+      summary: List all active game rooms
+      tags: [Rooms]
+      responses:
+        "200":
+          description: Active rooms list
+  /rooms/{id}:
+    get:
+      summary: Get room state by ID
+      tags: [Rooms]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Current room state
+    delete:
+      summary: Close game room
+      tags: [Rooms]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Room successfully closed
+  /storage/upload:
+    post:
+      summary: Upload a file (avatar / game replay)
+      tags: [Storage]
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                folder:
+                  type: string
+                  example: "avatars"
+      responses:
+        "200":
+          description: File uploaded and CDN URL returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  fileId: { type: string }
+                  url: { type: string }
+                  size: { type: number }
+  /notifications/push:
+    post:
+      summary: Dispatch push notification to a user
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, title, body]
+              properties:
+                userId: { type: string }
+                title: { type: string }
+                body: { type: string }
+      responses:
+        "200":
+          description: Notification dispatched
+  /notifications/webhook:
+    post:
+      summary: Register a webhook for game events
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, secret]
+              properties:
+                url: { type: string }
+                secret: { type: string }
+      responses:
+        "200":
+          description: Webhook registered
+  /analytics/summary:
+    get:
+      summary: Get high-level analytics summary (DAU, Events, Cohorts)
+      tags: [Analytics]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Analytics summary object
+  /analytics/events:
+    post:
+      summary: Track custom analytics event
+      tags: [Analytics]
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, eventType]
+              properties:
+                userId: { type: string }
+                userName: { type: string }
+                eventType: { type: string }
+                metadata: { type: object }
+      responses:
+        "201":
+          description: Event tracked successfully
+  /payments/checkout:
+    post:
+      summary: Create Stripe checkout session for chip purchases or VIP subscription
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [itemId, amount]
+              properties:
+                itemId: { type: string, example: "bundle_1000_chips" }
+                amount: { type: number, example: 9.99 }
+      responses:
+        "200":
+          description: Checkout session URL returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  sessionId: { type: string }
+                  checkoutUrl: { type: string }
+  /payments/webhook:
+    post:
+      summary: Handle Stripe payment webhooks
+      tags: [Payments]
+      responses:
+        "200":
+          description: Webhook acknowledged
