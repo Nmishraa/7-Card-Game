@@ -1,5 +1,12 @@
 import { apiService } from '../apiService';
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/api/v1`;
+  }
+  return 'http://2.24.200.44:8087/api/v1';
+};
+
 export type EventType = 'login' | 'guest_login' | 'auth_failure' | 'create_room' | 'join_room' | 'start_game' | 'play_turn' | 'call_least' | 'complete_game' | 'leave_room' | 'system_error';
 
 export interface AnalyticsEvent {
@@ -42,7 +49,7 @@ export const trackUserEvent = async (
       metadata,
     };
 
-    await fetch('http://localhost:5000/api/v1/analytics/track', {
+    await fetch(`${getBaseUrl()}/analytics/track`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -68,7 +75,7 @@ export const fetchAllUserEvents = async (): Promise<AnalyticsSummary> => {
   };
 
   try {
-    const res = await fetch('http://localhost:5000/api/v1/analytics/summary');
+    const res = await fetch(`${getBaseUrl()}/analytics/summary`);
     const data = await res.json();
 
     if (data && data.summary) {
