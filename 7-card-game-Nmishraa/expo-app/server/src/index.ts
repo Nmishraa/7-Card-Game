@@ -3,7 +3,7 @@ import http from 'http';
 import { onRequest } from 'firebase-functions/v2/https';
 import app from './app';
 
-const PORT = process.env.PORT || 5004;
+const PORT = 5004;
 
 export const api = onRequest({ cors: true, maxInstances: 10 }, app);
 
