@@ -3,11 +3,12 @@ const http = require('http');
 const app = require('./dist/app.js').default;
 const { pool, initDb } = require('./dist/db/database.js');
 
-const PORT = process.env.PORT || 5004;
+// Always use port 5004 for 7 Card Game backend
+const PORT = 5004;
 
 async function start() {
   try {
-    console.log('[Direct Remote DB] Connecting to local PostgreSQL database Neha_data on port ' + (process.env.DB_PORT || 5432) + '...');
+    console.log('[Direct Remote DB] Connecting to local PostgreSQL database Neha_data on port 5432...');
     await initDb();
     const server = http.createServer(app);
     server.listen(PORT, () => {
