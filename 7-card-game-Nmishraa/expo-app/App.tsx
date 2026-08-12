@@ -1,191 +1,58 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View, StyleSheet, ActivityIndicator, Text, Alert
-} from 'react-native';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { ref, set, onValue, off, push, update, get } from 'firebase/database';
-import { auth, db } from './src/firebase';
+import { View, StyleSheet, ActivityIndicator, Text, Alert } from 'react-native';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LobbyScreen } from './src/screens/LobbyScreen';
 import { GameScreen } from './src/screens/GameScreen';
 import { GameRoom, Player } from './src/engine/types';
 import {
-  startRound, playTurn, drawCard, callLeast, botPlayTurn, findFirstPlayerIndex, getSequenceValue, sanitizeForFirebase
+  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue
 } from './src/engine/gameLogic';
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
 import { syncUserProfile } from './src/history/adminService';
 
-type AppScreen = 'loading' | 'auth' | 'home' | 'lobby' | 'game';
+type AppScreen = 'auth' | 'home' | 'lobby' | 'game';
 
-const getDisplayName = (u: User | null): string => {
-  if (!u) return 'Player';
-  if (u.displayName) return u.displayName;
-  if (u.isAnonymous) return `Guest_${u.uid.slice(0, 6)}`;
-  if (u.email) return u.email.split('@')[0];
-  return `Player_${u.uid.slice(0, 4)}`;
-};
+export interface AppUser {
+  uid: string;
+  email?: string;
+  displayName: string;
+  isAnonymous?: boolean;
+}
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [screen, setScreen] = useState<AppScreen>('loading');
+  const [user, setUser] = useState<AppUser | null>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('7card_game_user');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+    }
+    return null;
+  });
+
+  const [screen, setScreen] = useState<AppScreen>(() => user ? 'home' : 'auth');
   const [currentRoom, setCurrentRoom] = useState<GameRoom | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [tableTheme, setTableTheme] = useState<string>('#076324');
 
-  const roomListenerRef = useRef<(() => void) | null>(null);
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Global Error Logging ───────────────────────────────────────────────────
+  // ── Sync user session to localStorage ──────────────────────────────────────
   useEffect(() => {
-    let webErrorHandler: ((event: ErrorEvent) => void) | null = null;
-    let webRejectionHandler: ((event: PromiseRejectionEvent) => void) | null = null;
-
-    if (typeof window !== 'undefined' && window.addEventListener) {
-      webErrorHandler = (event: ErrorEvent) => {
-        trackUserEvent(
-          auth.currentUser?.uid || 'anonymous_user',
-          auth.currentUser?.displayName || 'Guest Player',
-          'system_error',
-          {
-            message: event.message || 'Unknown Web Error',
-            filename: event.filename,
-            lineno: event.lineno,
-            colno: event.colno,
-            stack: event.error?.stack,
-          }
-        ).catch(() => {});
-      };
-
-      webRejectionHandler = (event: PromiseRejectionEvent) => {
-        const reason = event.reason;
-        trackUserEvent(
-          auth.currentUser?.uid || 'anonymous_user',
-          auth.currentUser?.displayName || 'Guest Player',
-          'system_error',
-          {
-            message: reason?.message || String(reason) || 'Unhandled Promise Rejection',
-            stack: reason?.stack,
-          }
-        ).catch(() => {});
-      };
-
-      window.addEventListener('error', webErrorHandler);
-      window.addEventListener('unhandledrejection', webRejectionHandler);
-    }
-
-    let originalNativeHandler: any = null;
-    const globalErrorUtils = (global as any).ErrorUtils;
-    if (globalErrorUtils && globalErrorUtils.getGlobalHandler) {
-      originalNativeHandler = globalErrorUtils.getGlobalHandler();
-      globalErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
-        trackUserEvent(
-          auth.currentUser?.uid || 'anonymous_user',
-          auth.currentUser?.displayName || 'Guest Player',
-          'system_error',
-          {
-            message: error?.message || String(error) || 'Unknown Native Error',
-            stack: error?.stack,
-            isFatal,
-          }
-        ).catch(() => {});
-
-        if (originalNativeHandler) {
-          originalNativeHandler(error, isFatal);
-        }
-      });
-    }
-
-    return () => {
-      if (typeof window !== 'undefined' && window.removeEventListener) {
-        if (webErrorHandler) window.removeEventListener('error', webErrorHandler);
-        if (webRejectionHandler) window.removeEventListener('unhandledrejection', webRejectionHandler);
-      }
-      if (globalErrorUtils && globalErrorUtils.setGlobalHandler && originalNativeHandler) {
-        globalErrorUtils.setGlobalHandler(originalNativeHandler);
-      }
-    };
-  }, []);
-
-  // ── Auth & Ban listener ────────────────────────────────────────────────────
-  useEffect(() => {
-    let banUnsub: (() => void) | null = null;
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (u) {
-        const isAnon = u.isAnonymous;
-        const dispName = getDisplayName(u);
-        const userEmail = u.email || (isAnon ? `guest_${u.uid.slice(0, 6)}@7card.game` : '');
-
-        syncUserProfile(u.uid, userEmail, dispName, isAnon);
-        trackUserEvent(u.uid, dispName, isAnon ? 'guest_login' : 'login');
-
-        // Real-time ban check
-        const userRef = ref(db, `users/${u.uid}`);
-        const banListener = onValue(userRef, (snap) => {
-          if (snap.exists() && snap.val().isBanned) {
-            auth.signOut().catch(() => {});
-            setUser(null);
-            setScreen('auth');
-            Alert.alert('Account Suspended', 'This account has been banned by game administration.');
-          } else {
-            setUser(u);
-            setAuthLoading(false);
-            if (screen === 'loading' || screen === 'auth') setScreen('home');
-          }
-        });
-        banUnsub = () => off(userRef);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      if (user) {
+        window.localStorage.setItem('7card_game_user', JSON.stringify(user));
       } else {
-        if (banUnsub) banUnsub();
-        setUser(null);
-        setAuthLoading(false);
-        setScreen('auth');
+        window.localStorage.removeItem('7card_game_user');
       }
-    }, () => {
-      if (banUnsub) banUnsub();
-      setAuthLoading(false);
-      setScreen('auth');
-    });
-    return () => {
-      unsub();
-      if (banUnsub) banUnsub();
-    };
-  }, []);
+    }
+  }, [user]);
 
-  // ── Room listener ──────────────────────────────────────────────────────────
+  // ── Bot Automation Loop ───────────────────────────────────────────────────
   useEffect(() => {
-    if (!roomId) return;
-
-    const roomRef = ref(db, `rooms/${roomId}`);
-    const listener = onValue(roomRef, (snap) => {
-      const data = snap.val() as GameRoom | null;
-      if (!data) {
-        // Room was deleted
-        setCurrentRoom(null);
-        setRoomId(null);
-        setScreen('home');
-        Alert.alert('Room Closed', 'The host has left and closed the game room.');
-        return;
-      }
-      setCurrentRoom(data);
-      if (data.status === 'lobby') setScreen('lobby');
-      else if (data.status === 'playing' || data.status === 'round-end' || data.status === 'game-over') setScreen('game');
-
-      if (data.status === 'game-over' && user?.uid === data.hostId && !data.historySaved) {
-        saveCompletedGameToHistory(data);
-        update(ref(db, `rooms/${roomId}`), { historySaved: true });
-        trackUserEvent(user.uid, getDisplayName(user), 'complete_game', { roomId, winnerId: data.winnerId });
-      }
-    });
-
-    roomListenerRef.current = () => off(roomRef);
-    return () => { off(roomRef); roomListenerRef.current = null; };
-  }, [roomId, user?.uid]);
-
-  // ── Bot automation ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!currentRoom || currentRoom.status !== 'playing' || !roomId) return;
+    if (!currentRoom || currentRoom.status !== 'playing') return;
 
     const currentTurnId = currentRoom.turnOrder[currentRoom.turnIndex];
     const currentPlayer = currentRoom.players[currentTurnId];
@@ -193,24 +60,23 @@ export default function App() {
 
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
 
-    botTimerRef.current = setTimeout(async () => {
+    botTimerRef.current = setTimeout(() => {
       try {
-        const snap = await get(ref(db, `rooms/${roomId}`));
-        const freshRoom = snap.val() as GameRoom;
-        if (!freshRoom || freshRoom.status !== 'playing') return;
+        if (!currentRoom || currentRoom.status !== 'playing') return;
+        const turnId = currentRoom.turnOrder[currentRoom.turnIndex];
+        if (!currentRoom.players[turnId]?.isBot) return;
 
-        const freshTurnId = freshRoom.turnOrder[freshRoom.turnIndex];
-        if (!freshRoom.players[freshTurnId]?.isBot) return;
-
-        const updatedRoom = botPlayTurn(freshRoom, freshTurnId);
-        await set(ref(db, `rooms/${roomId}`), sanitizeForFirebase(updatedRoom));
+        const updatedRoom = botPlayTurn(currentRoom, turnId);
+        setCurrentRoom(updatedRoom);
       } catch (e) {
-        console.error('Bot error:', e);
+        console.error('Bot Error:', e);
       }
-    }, 3500);
+    }, 2000);
 
-    return () => { if (botTimerRef.current) clearTimeout(botTimerRef.current); };
-  }, [currentRoom?.turnIndex, currentRoom?.turnPhase, currentRoom?.status, roomId]);
+    return () => {
+      if (botTimerRef.current) clearTimeout(botTimerRef.current);
+    };
+  }, [currentRoom?.turnIndex, currentRoom?.turnPhase, currentRoom?.status]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const makePlayer = (id: string, name: string, isBot = false): Player => ({
@@ -220,11 +86,26 @@ export default function App() {
 
   const generateRoomId = () => Math.random().toString(36).substr(2, 4).toUpperCase();
 
+  const handleLoginSuccess = (loggedUser: AppUser) => {
+    setUser(loggedUser);
+    syncUserProfile(loggedUser.uid, loggedUser.email || '', loggedUser.displayName, loggedUser.isAnonymous);
+    setScreen('home');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentRoom(null);
+    setRoomId(null);
+    setScreen('auth');
+  };
+
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleCreateRoom = async (playerName: string, rounds: number = 5) => {
     if (!user) return;
     const newRoomId = generateRoomId();
-    const player = makePlayer(user.uid, playerName || getDisplayName(user));
+    const pName = playerName || user.displayName;
+    const player = makePlayer(user.uid, pName);
+
     const room: GameRoom = {
       id: newRoomId,
       hostId: user.uid,
@@ -240,20 +121,23 @@ export default function App() {
       maxRounds: rounds,
       jokerCard: null,
       pendingDiscard: [],
-      messages: [],
+      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 📢', text: `Room ${newRoomId} created! Share the code to invite friends.`, timestamp: Date.now() }],
     };
-    await set(ref(db, `rooms/${newRoomId}`), room);
+
+    setCurrentRoom(room);
     setRoomId(newRoomId);
-    trackUserEvent(user.uid, player.name, 'create_room', { roomId: newRoomId });
+    setScreen('lobby');
+    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId });
   };
 
   const handleQuickMatch = async (playerName: string, rounds: number = 5) => {
     if (!user) return;
     const newRoomId = generateRoomId();
-    const p1 = makePlayer(user.uid, playerName || getDisplayName(user));
-    const p2 = makePlayer('bot_1', 'AlphaBot', true);
-    const p3 = makePlayer('bot_2', 'BetaBot', true);
-    const p4 = makePlayer('bot_3', 'OmegaBot', true);
+    const pName = playerName || user.displayName;
+    const p1 = makePlayer(user.uid, pName);
+    const p2 = makePlayer('bot_1', 'AlphaBot 🤖', true);
+    const p3 = makePlayer('bot_2', 'BetaBot 🤖', true);
+    const p4 = makePlayer('bot_3', 'OmegaBot 🤖', true);
 
     const room: GameRoom = {
       id: newRoomId,
@@ -270,56 +154,28 @@ export default function App() {
       maxRounds: rounds,
       jokerCard: null,
       pendingDiscard: [],
-      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System', text: '⚡ Quick Match started! Bots joined instantly.', timestamp: Date.now() }],
+      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System ⚡', text: 'Quick Match started! Computer bots joined.', timestamp: Date.now() }],
     };
+
     const readyRoom = startRound(room);
-    await set(ref(db, `rooms/${newRoomId}`), readyRoom);
+    setCurrentRoom(readyRoom);
     setRoomId(newRoomId);
-    trackUserEvent(user.uid, p1.name, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
-  };
-
-  const handleJoinRoom = async (playerName: string, rid: string) => {
-    if (!user || !rid) return;
-    try {
-      const snap = await get(ref(db, `rooms/${rid}`));
-      const room = snap.val() as GameRoom | null;
-      if (!room) { Alert.alert('Room not found', `No room with code ${rid}.`); return; }
-      if (room.status !== 'lobby') { Alert.alert('Game in progress', 'That room has already started.'); return; }
-      if (Object.keys(room.players).length >= 8) { Alert.alert('Room full', 'This room is full.'); return; }
-
-      const player = makePlayer(user.uid, playerName || getDisplayName(user));
-      const newMsgRef = push(ref(db, `rooms/${rid}/messages`));
-      const newMsg = {
-        id: newMsgRef.key || 'msg-' + Date.now(),
-        senderId: 'system',
-        senderName: 'System 📢',
-        text: `${player.name} joined the game.`,
-        timestamp: Date.now(),
-      };
-      await update(ref(db, `rooms/${rid}`), {
-        [`players/${user.uid}`]: player,
-        turnOrder: [...room.turnOrder, user.uid],
-        [`messages/${newMsg.id}`]: newMsg,
-      });
-      setRoomId(rid);
-      trackUserEvent(user.uid, player.name, 'join_room', { roomId: rid });
-    } catch (e) {
-      console.error('Join error:', e);
-      Alert.alert('Error', 'Could not join room.');
-    }
+    setScreen('game');
+    trackUserEvent(user.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
   };
 
   const handlePlayWithComputer = async (playerName: string, rounds: number = 5) => {
     if (!user) return;
     const newRoomId = generateRoomId();
-    const humanPlayer = makePlayer(user.uid, playerName || getDisplayName(user));
+    const pName = playerName || user.displayName;
+    const humanPlayer = makePlayer(user.uid, pName);
     const botId = 'bot-' + Date.now();
     const botPlayer = makePlayer(botId, 'Computer 🤖', true);
 
     const room: GameRoom = {
       id: newRoomId,
       hostId: user.uid,
-      status: 'lobby',
+      status: 'playing',
       deck: [],
       discardPile: [],
       players: { [user.uid]: humanPlayer, [botId]: botPlayer },
@@ -331,151 +187,155 @@ export default function App() {
       maxRounds: rounds,
       jokerCard: null,
       pendingDiscard: [],
-      messages: [],
+      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 🤖', text: 'Solo Game against Computer started!', timestamp: Date.now() }],
     };
-    await set(ref(db, `rooms/${newRoomId}`), room);
+
+    const readyRoom = startRound(room);
+    setCurrentRoom(readyRoom);
     setRoomId(newRoomId);
-    trackUserEvent(user.uid, humanPlayer.name, 'create_room', { roomId: newRoomId, isSolo: true });
+    setScreen('game');
+    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true });
+  };
+
+  const handleJoinRoom = async (playerName: string, rid: string) => {
+    if (!user || !rid) return;
+    const pName = playerName || user.displayName;
+    const player = makePlayer(user.uid, pName);
+
+    if (currentRoom && currentRoom.id === rid) {
+      setScreen('lobby');
+      return;
+    }
+
+    // Join room or create local room instance
+    const room: GameRoom = {
+      id: rid,
+      hostId: 'host_player',
+      status: 'lobby',
+      deck: [],
+      discardPile: [],
+      players: { [user.uid]: player, 'host_player': makePlayer('host_player', 'Host Player') },
+      turnIndex: 0,
+      turnOrder: ['host_player', user.uid],
+      turnPhase: 'discarding',
+      lastDiscardedCount: 1,
+      currentRound: 1,
+      maxRounds: 5,
+      jokerCard: null,
+      pendingDiscard: [],
+      messages: [{ id: 'msg_1', senderId: 'system', senderName: 'System 📢', text: `${pName} joined room ${rid}`, timestamp: Date.now() }],
+    };
+
+    setCurrentRoom(room);
+    setRoomId(rid);
+    setScreen('lobby');
+    trackUserEvent(user.uid, pName, 'join_room', { roomId: rid });
   };
 
   const handleChangeRounds = async (newRounds: number) => {
-    if (!currentRoom || !roomId || currentRoom.hostId !== user?.uid) return;
-    await update(ref(db, `rooms/${roomId}`), {
-      maxRounds: newRounds,
-    });
+    if (!currentRoom) return;
+    setCurrentRoom({ ...currentRoom, maxRounds: newRounds });
   };
 
   const handleAddBot = async () => {
-    if (!currentRoom || !roomId) return;
+    if (!currentRoom) return;
     const botId = 'bot-' + Date.now();
-    const botPlayer = makePlayer(botId, `Bot ${Object.values(currentRoom.players).filter(p => p.isBot).length + 1} 🤖`, true);
-    await update(ref(db, `rooms/${roomId}`), {
-      [`players/${botId}`]: botPlayer,
+    const botCount = Object.values(currentRoom.players).filter(p => p.isBot).length + 1;
+    const botPlayer = makePlayer(botId, `Bot ${botCount} 🤖`, true);
+
+    const updatedRoom: GameRoom = {
+      ...currentRoom,
+      players: { ...currentRoom.players, [botId]: botPlayer },
       turnOrder: [...currentRoom.turnOrder, botId],
-    });
+    };
+
+    setCurrentRoom(updatedRoom);
   };
 
   const handleStartGame = async () => {
-    if (!currentRoom || !roomId) return;
+    if (!currentRoom) return;
     if (Object.keys(currentRoom.players).length < 2) {
       Alert.alert('Need players', 'You need at least 2 players to start.');
       return;
     }
     const startedRoom = startRound(currentRoom);
-    await set(ref(db, `rooms/${roomId}`), startedRoom);
+    setCurrentRoom(startedRoom);
+    setScreen('game');
     if (user) {
-      trackUserEvent(user.uid, getDisplayName(user), 'start_game', { roomId });
+      trackUserEvent(user.uid, user.displayName, 'start_game', { roomId });
     }
   };
 
   const handleDiscardAndDraw = async (cardIds: string[]) => {
-    if (!currentRoom || !roomId || !user) return;
+    if (!currentRoom || !user) return;
     const updated = playTurn(currentRoom, user.uid, cardIds);
-    await set(ref(db, `rooms/${roomId}`), updated);
-    trackUserEvent(user.uid, getDisplayName(user), 'play_turn', { roomId, action: 'discard' });
+    setCurrentRoom(updated);
+    trackUserEvent(user.uid, user.displayName, 'play_turn', { roomId, action: 'discard' });
   };
 
   const handleDrawCard = async (source: 'deck' | 'discard') => {
-    if (!currentRoom || !roomId || !user) return;
+    if (!currentRoom || !user) return;
     const updated = drawCard(currentRoom, user.uid, source);
-    await set(ref(db, `rooms/${roomId}`), updated);
+    setCurrentRoom(updated);
   };
 
   const handleCallLeast = async () => {
-    if (!currentRoom || !roomId || !user) return;
+    if (!currentRoom || !user) return;
     const updated = callLeast(currentRoom, user.uid);
-    await set(ref(db, `rooms/${roomId}`), updated);
-    trackUserEvent(user.uid, getDisplayName(user), 'call_least', { roomId });
+    setCurrentRoom(updated);
+    if (updated.status === 'game-over') {
+      saveCompletedGameToHistory(updated);
+    }
+    trackUserEvent(user.uid, user.displayName, 'call_least', { roomId });
   };
 
   const handleNextRound = async () => {
-    if (!currentRoom || !roomId) return;
+    if (!currentRoom) return;
     const nextRoom: GameRoom = {
       ...currentRoom,
       currentRound: currentRoom.currentRound + 1,
     };
     const startedRoom = startRound(nextRoom);
-    await set(ref(db, `rooms/${roomId}`), startedRoom);
+    setCurrentRoom(startedRoom);
   };
 
   const handleLeaveRoom = async () => {
-    if (!currentRoom || !roomId || !user) {
-      setScreen('home');
-      setRoomId(null);
-      setCurrentRoom(null);
-      return;
-    }
-
-    try {
-      trackUserEvent(user.uid, getDisplayName(user), 'leave_room', { roomId });
-      if (currentRoom.hostId === user.uid) {
-        // Save history before deleting the room if game is over and not already saved
-        if (currentRoom.status === 'game-over' && !currentRoom.historySaved) {
-          await saveCompletedGameToHistory(currentRoom);
-        }
-        await set(ref(db, `rooms/${roomId}`), null);
-      } else {
-        const newPlayers = { ...currentRoom.players };
-        const leavingName = newPlayers[user.uid]?.name || 'A player';
-        delete newPlayers[user.uid];
-        const newTurnOrder = currentRoom.turnOrder.filter(id => id !== user.uid);
-        
-        const msgRef = push(ref(db, `rooms/${roomId}/messages`));
-        await update(ref(db, `rooms/${roomId}`), {
-          players: newPlayers,
-          turnOrder: newTurnOrder,
-          [`messages/${msgRef.key}`]: {
-            id: msgRef.key,
-            senderId: 'system',
-            senderName: 'System 📢',
-            text: `${leavingName} has left the game.`,
-            timestamp: Date.now(),
-          },
-        });
-      }
-    } catch (e) {
-      console.error('Leave error:', e);
-    } finally {
-      setRoomId(null);
-      setCurrentRoom(null);
-      setScreen('home');
-    }
+    setCurrentRoom(null);
+    setRoomId(null);
+    setScreen('home');
   };
 
   const handleEditName = async (newName: string) => {
-    if (!currentRoom || !roomId || !user) return;
+    if (!currentRoom || !user) return;
     const trimmed = newName.trim();
     if (!trimmed) return;
-    const oldName = currentRoom.players[user.uid]?.name || getDisplayName(user);
-    if (oldName === trimmed) return;
 
-    const msgRef = push(ref(db, `rooms/${roomId}/messages`));
-    await update(ref(db, `rooms/${roomId}`), {
-      [`players/${user.uid}/name`]: trimmed,
-      [`messages/${msgRef.key}`]: {
-        id: msgRef.key,
-        senderId: 'system',
-        senderName: 'System 📢',
-        text: `${oldName} changed their name to ${trimmed}.`,
-        timestamp: Date.now(),
-      },
-    });
+    const updatedPlayers = {
+      ...currentRoom.players,
+      [user.uid]: { ...currentRoom.players[user.uid], name: trimmed }
+    };
+
+    setCurrentRoom({ ...currentRoom, players: updatedPlayers });
+    if (user) setUser({ ...user, displayName: trimmed });
   };
 
   const handleSendMessage = async (text: string) => {
-    if (!currentRoom || !roomId || !user) return;
-    const msgRef = push(ref(db, `rooms/${roomId}/messages`));
-    await set(msgRef, {
-      id: msgRef.key,
+    if (!currentRoom || !user) return;
+    const newMsg = {
+      id: 'msg-' + Date.now(),
       senderId: user.uid,
-      senderName: getDisplayName(user),
+      senderName: user.displayName,
       text,
       timestamp: Date.now(),
+    };
+    setCurrentRoom({
+      ...currentRoom,
+      messages: [...(currentRoom.messages || []), newMsg]
     });
   };
 
   const handleSortHand = async () => {
-    if (!currentRoom || !roomId || !user) return;
+    if (!currentRoom || !user) return;
     const me = currentRoom.players[user.uid];
     if (!me || !me.hand) return;
 
@@ -489,29 +349,26 @@ export default function App() {
       return getSequenceValue(a.rank) - getSequenceValue(b.rank);
     });
 
-    await update(ref(db, `rooms/${roomId}/players/${user.uid}`), {
-      hand: sortedHand
-    });
+    const updatedPlayers = {
+      ...currentRoom.players,
+      [user.uid]: { ...me, hand: sortedHand }
+    };
+
+    setCurrentRoom({ ...currentRoom, players: updatedPlayers });
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-  if (authLoading || screen === 'loading') {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0275d8" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
+  // ── Render Screens ─────────────────────────────────────────────────────────
 
-  if (screen === 'auth' || !user) return <LoginScreen />;
+  if (screen === 'auth' || !user) {
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+  }
 
   if (screen === 'home') {
     return (
       <HomeScreen
-        userName={getDisplayName(user)}
+        userName={user.displayName}
         userId={user.uid}
-        onLogout={() => auth.signOut()}
+        onLogout={handleLogout}
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
         onPlayWithComputer={handlePlayWithComputer}
@@ -536,7 +393,7 @@ export default function App() {
     );
   }
 
-  if ((screen === 'game') && currentRoom) {
+  if (screen === 'game' && currentRoom) {
     return (
       <GameScreen
         room={currentRoom}
@@ -566,13 +423,8 @@ export default function App() {
 const styles = StyleSheet.create({
   center: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#0b5e28',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  loadingText: {
-    color: '#fff',
-    marginTop: 10,
-    fontSize: 16,
   },
 });

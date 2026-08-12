@@ -1,10 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView } from 'react-native';
 import { apiService } from '../apiService';
 import { trackUserEvent } from '../history/analyticsService';
-import { syncUserProfile } from '../history/adminService';
 
-export const LoginScreen: React.FC = () => {
+interface LoginScreenProps {
+  onLoginSuccess?: (user: { uid: string; displayName: string; email?: string; isAnonymous?: boolean }) => void;
+}
+
+export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
   const [email, setEmail] = useState('');
@@ -16,23 +19,41 @@ export const LoginScreen: React.FC = () => {
   const handleGuestLogin = async () => {
     setLoading(true);
     try {
-      const guestEmail = `guest_${Date.now()}@7card.game`;
+      const guestId = `guest_${Math.random().toString(36).substring(2, 8)}`;
+      const guestEmail = `${guestId}@7card.game`;
       const res = await apiService.register(guestEmail, 'guestpass123', 'Guest Player');
-      if (res && res.token) {
-        trackUserEvent(res.user?.id || 'guest', 'Guest Player', 'guest_login');
-      } else {
-        Alert.alert('Guest Login Error', res.error || 'Failed guest login');
+      
+      const loggedUser = {
+        uid: res.user?.id || guestId,
+        displayName: res.user?.name || 'Guest Player',
+        email: res.user?.email || guestEmail,
+        isAnonymous: true,
+      };
+
+      trackUserEvent(loggedUser.uid, loggedUser.displayName, 'guest_login');
+
+      if (onLoginSuccess) {
+        onLoginSuccess(loggedUser);
       }
     } catch (error: any) {
-      console.error(error);
-      Alert.alert('Guest Login Error', error?.message || 'An error occurred');
+      console.error('Guest login error:', error);
+      // Fallback guest session if network error
+      const fallbackUser = {
+        uid: `guest_${Date.now()}`,
+        displayName: 'Guest Player',
+        email: 'guest@7card.game',
+        isAnonymous: true,
+      };
+      if (onLoginSuccess) {
+        onLoginSuccess(fallbackUser);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    handleGuestLogin();
+    await handleGuestLogin();
   };
 
   const handleEmailAuth = async () => {
@@ -50,24 +71,36 @@ export const LoginScreen: React.FC = () => {
     try {
       if (isSignUp) {
         const res = await apiService.register(email, password, displayName);
-        if (res && res.token) {
-          trackUserEvent(res.user.id, res.user.name, 'login');
-          Alert.alert('Success', 'Account created successfully in Neha_data database!');
+        if (res && (res.token || res.user)) {
+          const u = {
+            uid: res.user?.id || `user_${Date.now()}`,
+            displayName: res.user?.name || displayName,
+            email: res.user?.email || email,
+            isAnonymous: false,
+          };
+          trackUserEvent(u.uid, u.displayName, 'login');
+          if (onLoginSuccess) onLoginSuccess(u);
         } else {
           Alert.alert('Sign Up Error', res.error || 'Registration failed');
         }
       } else {
         const res = await apiService.login(email, password);
-        if (res && res.token) {
-          trackUserEvent(res.user.id, res.user.name, 'login');
-          Alert.alert('Welcome Back', `Logged in as ${res.user.name}`);
+        if (res && (res.token || res.user)) {
+          const u = {
+            uid: res.user?.id || `user_${Date.now()}`,
+            displayName: res.user?.name || email.split('@')[0],
+            email: res.user?.email || email,
+            isAnonymous: false,
+          };
+          trackUserEvent(u.uid, u.displayName, 'login');
+          if (onLoginSuccess) onLoginSuccess(u);
         } else {
           Alert.alert('Login Error', res.error || 'Invalid credentials');
         }
       }
     } catch (error: any) {
       console.error(error);
-      Alert.alert('Authentication Error', error.message);
+      Alert.alert('Authentication Error', error.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
