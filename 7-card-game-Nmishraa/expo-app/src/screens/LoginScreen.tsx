@@ -1,14 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView } from 'react-native';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider,
-  updateProfile,
-  signInAnonymously
-} from 'firebase/auth';
-import { auth } from '../firebase';
+import { apiService } from '../apiService';
 import { trackUserEvent } from '../history/analyticsService';
 import { syncUserProfile } from '../history/adminService';
 
@@ -21,16 +13,16 @@ export const LoginScreen: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const hasAttemptedRef = useRef(false);
-
-  React.useEffect(() => {
-    // Component mounted; wait for user interaction to sign in.
-  }, []);
-
   const handleGuestLogin = async () => {
     setLoading(true);
     try {
-      await signInAnonymously(auth);
+      const guestEmail = `guest_${Date.now()}@7card.game`;
+      const res = await apiService.register(guestEmail, 'guestpass123', 'Guest Player');
+      if (res && res.token) {
+        trackUserEvent(res.user?.id || 'guest', 'Guest Player', 'guest_login');
+      } else {
+        Alert.alert('Guest Login Error', res.error || 'Failed guest login');
+      }
     } catch (error: any) {
       console.error(error);
       Alert.alert('Guest Login Error', error?.message || 'An error occurred');
@@ -40,26 +32,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    setLoading(true);
-    try {
-      const cred = await signInWithPopup(auth, provider);
-      await syncUserProfile(cred.user.uid, cred.user.email || '', cred.user.displayName || 'Google Player', false);
-    } catch (error: any) {
-      console.error("Google auth error:", error);
-      trackUserEvent('guest_fallback', 'Guest', 'auth_failure', { error: error?.message || 'Google auth failed', code: error?.code });
-      Alert.alert(
-        'Google Sign-In Notice',
-        `Google authentication could not complete (${error?.message || 'popup closed or third-party cookies restricted'}). Would you like to play as a Guest instead?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Play as Guest', onPress: () => handleGuestLogin() }
-        ]
-      );
-    } finally {
-      setLoading(false);
-    }
+    handleGuestLogin();
   };
 
   const handleEmailAuth = async () => {
@@ -76,12 +49,21 @@ export const LoginScreen: React.FC = () => {
     setLoading(true);
     try {
       if (isSignUp) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName });
-        await syncUserProfile(userCredential.user.uid, email, displayName, false);
+        const res = await apiService.register(email, password, displayName);
+        if (res && res.token) {
+          trackUserEvent(res.user.id, res.user.name, 'login');
+          Alert.alert('Success', 'Account created successfully in Neha_data database!');
+        } else {
+          Alert.alert('Sign Up Error', res.error || 'Registration failed');
+        }
       } else {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        await syncUserProfile(userCredential.user.uid, userCredential.user.email || email, userCredential.user.displayName || displayName || email.split('@')[0], false);
+        const res = await apiService.login(email, password);
+        if (res && res.token) {
+          trackUserEvent(res.user.id, res.user.name, 'login');
+          Alert.alert('Welcome Back', `Logged in as ${res.user.name}`);
+        } else {
+          Alert.alert('Login Error', res.error || 'Invalid credentials');
+        }
       }
     } catch (error: any) {
       console.error(error);
