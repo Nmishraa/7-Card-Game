@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView, Modal } from 'react-native';
 import { apiService } from '../apiService';
 import { trackUserEvent } from '../history/analyticsService';
 
@@ -15,6 +15,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [displayName, setDisplayName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Google Account Selector Modal state
+  const [googleModalVisible, setGoogleModalVisible] = useState(false);
+  const [googleEmailInput, setGoogleEmailInput] = useState('');
+  const [googleNameInput, setGoogleNameInput] = useState('');
 
   const handleGuestLogin = async () => {
     setLoading(true);
@@ -46,20 +51,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleOpenGoogleModal = () => {
+    setGoogleEmailInput('');
+    setGoogleNameInput('');
+    setGoogleModalVisible(true);
+  };
+
+  const handleConfirmGoogleLogin = async (selectedEmail?: string, selectedName?: string) => {
+    const gEmail = (selectedEmail || googleEmailInput).trim() || `google_${Math.random().toString(36).substring(2, 6)}@gmail.com`;
+    const gName = (selectedName || googleNameInput).trim() || gEmail.split('@')[0] || 'Google User';
+
     setLoading(true);
+    setGoogleModalVisible(false);
+
     try {
-      const googleId = `google_${Math.random().toString(36).substring(2, 8)}`;
-      const googleEmail = `${googleId}@7card.game`;
-      let res = await apiService.login(googleEmail, 'googlepass123').catch(() => null);
+      let res = await apiService.login(gEmail, 'googlepass123').catch(() => null);
       if (!res || (!res.token && !res.user)) {
-        res = await apiService.register(googleEmail, 'googlepass123', 'Google Player').catch(() => null);
+        res = await apiService.register(gEmail, 'googlepass123', gName).catch(() => null);
       }
 
       const loggedUser = {
-        uid: res?.user?.id || googleId,
-        displayName: res?.user?.name || 'Google Player',
-        email: res?.user?.email || googleEmail,
+        uid: res?.user?.id || `google_${Date.now()}`,
+        displayName: res?.user?.name || gName,
+        email: res?.user?.email || gEmail,
         isAnonymous: false,
       };
 
@@ -67,44 +81,98 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       if (onLoginSuccess) onLoginSuccess(loggedUser);
     } catch (error: any) {
       console.error('Google login error:', error);
-      await handleGuestLogin();
+      const fallbackUser = {
+        uid: `google_${Date.now()}`,
+        displayName: gName,
+        email: gEmail,
+        isAnonymous: false,
+      };
+      if (onLoginSuccess) onLoginSuccess(fallbackUser);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEmailAuth = async () => {
-    const targetEmail = email.trim() || `player_${Math.random().toString(36).substring(2, 6)}@7card.game`;
-    const targetPassword = password.trim() || 'pass12345';
+    if (!email.trim()) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      Alert.alert('Error', 'Please enter your password');
+      return;
+    }
+    
+    if (isSignUp && !displayName.trim()) {
+      Alert.alert('Error', 'Please enter a display name');
+      return;
+    }
+
+    const targetEmail = email.trim();
+    const targetPassword = password.trim();
     const targetName = displayName.trim() || targetEmail.split('@')[0] || 'Player';
 
     setLoading(true);
     try {
-      let res = await apiService.login(targetEmail, targetPassword).catch(() => null);
-      
-      if (!res || (!res.token && !res.user)) {
-        // If login failed, try auto-registering in PostgreSQL Neha_data
-        res = await apiService.register(targetEmail, targetPassword, targetName).catch(() => null);
+      if (isSignUp) {
+        const res = await apiService.register(targetEmail, targetPassword, targetName);
+        if (res && (res.token || res.user)) {
+          const u = {
+            uid: res.user?.id || `user_${Date.now()}`,
+            displayName: res.user?.name || targetName,
+            email: res.user?.email || targetEmail,
+            isAnonymous: false,
+          };
+          trackUserEvent(u.uid, u.displayName, 'login');
+          if (onLoginSuccess) onLoginSuccess(u);
+        } else {
+          Alert.alert('Sign Up Error', res.error || 'Registration failed');
+        }
+      } else {
+        let res = await apiService.login(targetEmail, targetPassword).catch(() => null);
+        
+        if (!res || (!res.token && !res.user)) {
+          // If account not found on login, prompt user to register
+          Alert.alert(
+            'Account Not Found',
+            `No account found for ${targetEmail}. Would you like to create an account?`,
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Create Account',
+                onPress: async () => {
+                  setLoading(true);
+                  const regRes = await apiService.register(targetEmail, targetPassword, targetName).catch(() => null);
+                  const u = {
+                    uid: regRes?.user?.id || `user_${Date.now()}`,
+                    displayName: regRes?.user?.name || targetName,
+                    email: regRes?.user?.email || targetEmail,
+                    isAnonymous: false,
+                  };
+                  if (onLoginSuccess) onLoginSuccess(u);
+                  setLoading(false);
+                }
+              }
+            ]
+          );
+          setLoading(false);
+          return;
+        }
+
+        const loggedUser = {
+          uid: res.user?.id || `user_${Date.now()}`,
+          displayName: res.user?.name || targetName,
+          email: res.user?.email || targetEmail,
+          isAnonymous: false,
+        };
+
+        trackUserEvent(loggedUser.uid, loggedUser.displayName, 'login');
+        if (onLoginSuccess) onLoginSuccess(loggedUser);
       }
-
-      const loggedUser = {
-        uid: res?.user?.id || `user_${Date.now()}`,
-        displayName: res?.user?.name || targetName,
-        email: res?.user?.email || targetEmail,
-        isAnonymous: false,
-      };
-
-      trackUserEvent(loggedUser.uid, loggedUser.displayName, 'login');
-      if (onLoginSuccess) onLoginSuccess(loggedUser);
     } catch (error: any) {
       console.error('Email auth error:', error);
-      const fallbackUser = {
-        uid: `user_${Date.now()}`,
-        displayName: targetName,
-        email: targetEmail,
-        isAnonymous: false,
-      };
-      if (onLoginSuccess) onLoginSuccess(fallbackUser);
+      Alert.alert('Authentication Error', error.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -123,7 +191,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
       <View style={styles.contentBox}>
         <Text style={styles.instructions}>
-          Sign in to keep track of your scores and play with friends.
+          {isSignUp ? 'Create an account to save your scores & stats.' : 'Sign in to keep track of your scores and play with friends.'}
         </Text>
 
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -185,7 +253,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
           <TouchableOpacity 
             style={[styles.button, styles.googleButton, loading && styles.buttonDisabled]} 
-            onPress={handleGoogleLogin}
+            onPress={handleOpenGoogleModal}
             disabled={loading}
           >
             <Text style={styles.googleButtonText}>Continue with Google</Text>
@@ -209,6 +277,70 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </TouchableOpacity>
         </ScrollView>
       </View>
+
+      {/* Google Account Selector Modal */}
+      <Modal
+        visible={googleModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setGoogleModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.googleModalBox}>
+            <Text style={styles.googleModalTitle}>Choose Google Account</Text>
+            <Text style={styles.googleModalSubtitle}>Select or enter the Google account to sign in with:</Text>
+
+            <TouchableOpacity 
+              style={styles.accountOption}
+              onPress={() => handleConfirmGoogleLogin('player1@gmail.com', 'Google Player')}
+            >
+              <Text style={styles.accountIcon}>👤</Text>
+              <View>
+                <Text style={styles.accountName}>Google Player</Text>
+                <Text style={styles.accountEmail}>player1@gmail.com</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.dividerRowModal}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR ENTER OTHER GOOGLE ACCOUNT</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="yourname@gmail.com"
+              placeholderTextColor="#888"
+              value={googleEmailInput}
+              onChangeText={setGoogleEmailInput}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Your Name (Optional)"
+              placeholderTextColor="#888"
+              value={googleNameInput}
+              onChangeText={setGoogleNameInput}
+            />
+
+            <TouchableOpacity 
+              style={styles.confirmGoogleBtn}
+              onPress={() => handleConfirmGoogleLogin()}
+            >
+              <Text style={styles.confirmGoogleText}>Sign In with Google Account</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.cancelGoogleBtn}
+              onPress={() => setGoogleModalVisible(false)}
+            >
+              <Text style={styles.cancelGoogleText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 
@@ -369,6 +501,94 @@ const createStyles = (width: number, height: number) => {
       color: '#fff',
       fontWeight: 'bold',
       fontSize: 16,
+    },
+    // Google Chooser Modal Styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.75)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+    },
+    googleModalBox: {
+      width: '100%',
+      maxWidth: 400,
+      backgroundColor: '#1e293b',
+      borderRadius: 16,
+      padding: 24,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    googleModalTitle: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 6,
+    },
+    googleModalSubtitle: {
+      color: '#94a3b8',
+      fontSize: 14,
+      textAlign: 'center',
+      marginBottom: 16,
+    },
+    accountOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#334155',
+      padding: 12,
+      borderRadius: 10,
+      marginBottom: 12,
+    },
+    accountIcon: {
+      fontSize: 24,
+      marginRight: 12,
+    },
+    accountName: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 15,
+    },
+    accountEmail: {
+      color: '#94a3b8',
+      fontSize: 13,
+    },
+    dividerRowModal: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 12,
+    },
+    modalInput: {
+      backgroundColor: '#0f172a',
+      color: '#ffffff',
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      borderRadius: 8,
+      fontSize: 15,
+      borderWidth: 1,
+      borderColor: '#475569',
+      marginBottom: 10,
+    },
+    confirmGoogleBtn: {
+      backgroundColor: '#2563eb',
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    confirmGoogleText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 15,
+    },
+    cancelGoogleBtn: {
+      paddingVertical: 10,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    cancelGoogleText: {
+      color: '#94a3b8',
+      fontSize: 14,
     },
   });
 };
