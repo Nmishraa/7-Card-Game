@@ -53,11 +53,6 @@ async function update() {
 
   await execCommand(
     conn,
-    `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app && npm run build && cp public/robots.txt public/sitemap.xml public/google47c7fc12c5c2ee52.html dist/`
-  );
-
-  await execCommand(
-    conn,
     `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && npm run build`
   );
 
