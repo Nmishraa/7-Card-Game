@@ -62,8 +62,27 @@ export const apiService = {
   },
 
   getRoom: async (roomId: string) => {
-    const res = await fetch(`${getBaseUrl()}/rooms/${roomId}`);
-    return await res.json();
+    try {
+      const res = await fetch(`${getBaseUrl()}/rooms/${roomId}`);
+      return await res.json();
+    } catch (err: any) {
+      console.warn('[API Service] getRoom failed:', err.message);
+      return null;
+    }
+  },
+
+  syncRoom: async (room: any) => {
+    try {
+      const res = await fetch(`${getBaseUrl()}/rooms/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ room }),
+      });
+      return await res.json();
+    } catch (err: any) {
+      console.warn('[API Service] syncRoom failed:', err.message);
+      return null;
+    }
   },
 
   deleteRoom: async (roomId: string, token: string) => {
