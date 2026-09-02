@@ -458,20 +458,3 @@ export const botPlayTurn = (room: GameRoom, botId: string): GameRoom => {
 
   return currentState;
 };
-
-export const sanitizeForFirebase = (obj: any): any => {
-  if (obj === undefined || obj === null) return null;
-  if (Array.isArray(obj)) {
-    return obj.map(sanitizeForFirebase);
-  }
-  if (typeof obj === 'object') {
-    const clean: any = {};
-    for (const key in obj) {
-      if (obj[key] !== undefined) {
-        clean[key] = sanitizeForFirebase(obj[key]);
-      }
-    }
-    return clean;
-  }
-  return obj;
-};
