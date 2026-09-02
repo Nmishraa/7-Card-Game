@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, Alert } from 'react-native';
+import { ref, set, get, onValue } from 'firebase/database';
+import { db } from './src/firebase';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LobbyScreen } from './src/screens/LobbyScreen';
 import { GameScreen } from './src/screens/GameScreen';
 import { GameRoom, Player } from './src/engine/types';
 import {
-  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue
+  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sanitizeForFirebase
 } from './src/engine/gameLogic';
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
@@ -50,9 +52,53 @@ export default function App() {
     }
   }, [user]);
 
-  // ── Bot Automation Loop ───────────────────────────────────────────────────
+  // ── Firebase Realtime Sync for Room ──────────────────────────────────────
+  useEffect(() => {
+    if (!roomId) return;
+    const roomRef = ref(db, `rooms/${roomId}`);
+
+    const unsubscribe = onValue(roomRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const formattedRoom: GameRoom = {
+          ...val,
+          turnOrder: val.turnOrder || [],
+          discardPile: val.discardPile || [],
+          deck: val.deck || [],
+          pendingDiscard: val.pendingDiscard || [],
+          messages: val.messages
+            ? (Array.isArray(val.messages) ? val.messages : Object.values(val.messages))
+            : [],
+        };
+        setCurrentRoom(formattedRoom);
+
+        // Auto-navigate to game screen if host started game
+        if (formattedRoom.status === 'playing') {
+          setScreen('game');
+        } else if (formattedRoom.status === 'lobby') {
+          setScreen('lobby');
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [roomId]);
+
+  const updateFirebaseRoom = async (room: GameRoom) => {
+    try {
+      const clean = sanitizeForFirebase(room);
+      await set(ref(db, `rooms/${room.id}`), clean);
+    } catch (e) {
+      console.error('[Firebase Room Update Error]', e);
+    }
+  };
+
+  // ── Bot Automation Loop (Only executed by Room Host) ─────────────────────
   useEffect(() => {
     if (!currentRoom || currentRoom.status !== 'playing') return;
+
+    // Only host triggers bot turns to prevent multiple clients executing bot logic concurrently
+    if (user && currentRoom.hostId !== user.uid) return;
 
     const currentTurnId = currentRoom.turnOrder[currentRoom.turnIndex];
     const currentPlayer = currentRoom.players[currentTurnId];
@@ -60,7 +106,7 @@ export default function App() {
 
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
 
-    botTimerRef.current = setTimeout(() => {
+    botTimerRef.current = setTimeout(async () => {
       try {
         if (!currentRoom || currentRoom.status !== 'playing') return;
         const turnId = currentRoom.turnOrder[currentRoom.turnIndex];
@@ -68,6 +114,7 @@ export default function App() {
 
         const updatedRoom = botPlayTurn(currentRoom, turnId);
         setCurrentRoom(updatedRoom);
+        await updateFirebaseRoom(updatedRoom);
       } catch (e) {
         console.error('Bot Error:', e);
       }
@@ -76,7 +123,7 @@ export default function App() {
     return () => {
       if (botTimerRef.current) clearTimeout(botTimerRef.current);
     };
-  }, [currentRoom?.turnIndex, currentRoom?.turnPhase, currentRoom?.status]);
+  }, [currentRoom?.turnIndex, currentRoom?.turnPhase, currentRoom?.status, user?.uid]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const makePlayer = (id: string, name: string, isBot = false): Player => ({
@@ -124,9 +171,10 @@ export default function App() {
       messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 📢', text: `Room ${newRoomId} created! Share the code to invite friends.`, timestamp: Date.now() }],
     };
 
-    setCurrentRoom(room);
     setRoomId(newRoomId);
+    setCurrentRoom(room);
     setScreen('lobby');
+    await updateFirebaseRoom(room);
     trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId });
   };
 
@@ -158,9 +206,10 @@ export default function App() {
     };
 
     const readyRoom = startRound(room);
-    setCurrentRoom(readyRoom);
     setRoomId(newRoomId);
+    setCurrentRoom(readyRoom);
     setScreen('game');
+    await updateFirebaseRoom(readyRoom);
     trackUserEvent(user.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
   };
 
@@ -191,50 +240,63 @@ export default function App() {
     };
 
     const readyRoom = startRound(room);
-    setCurrentRoom(readyRoom);
     setRoomId(newRoomId);
+    setCurrentRoom(readyRoom);
     setScreen('game');
+    await updateFirebaseRoom(readyRoom);
     trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true });
   };
 
   const handleJoinRoom = async (playerName: string, rid: string) => {
     if (!user || !rid) return;
+    const cleanRid = rid.trim().toUpperCase();
     const pName = playerName || user.displayName;
     const player = makePlayer(user.uid, pName);
 
-    if (currentRoom && currentRoom.id === rid) {
-      setScreen('lobby');
-      return;
+    try {
+      const snapshot = await get(ref(db, `rooms/${cleanRid}`));
+      if (!snapshot.exists()) {
+        Alert.alert('Room Not Found', `No room exists with code "${cleanRid}". Check code and try again.`);
+        return;
+      }
+
+      const existingRoom: GameRoom = snapshot.val();
+      const existingPlayers = existingRoom.players || {};
+      const updatedPlayers = { ...existingPlayers, [user.uid]: player };
+
+      const turnOrder = existingRoom.turnOrder || [];
+      const updatedTurnOrder = turnOrder.includes(user.uid)
+        ? turnOrder
+        : [...turnOrder, user.uid];
+
+      const newMsg = { id: 'msg_' + Date.now(), senderId: 'system', senderName: 'System 📢', text: `${pName} joined room ${cleanRid}`, timestamp: Date.now() };
+      const rawMsgs = existingRoom.messages
+        ? (Array.isArray(existingRoom.messages) ? existingRoom.messages : Object.values(existingRoom.messages))
+        : [];
+      const updatedMessages = [...rawMsgs, newMsg];
+
+      const updatedRoom: GameRoom = {
+        ...existingRoom,
+        players: updatedPlayers,
+        turnOrder: updatedTurnOrder,
+        messages: updatedMessages,
+      };
+
+      setRoomId(cleanRid);
+      setCurrentRoom(updatedRoom);
+      setScreen(updatedRoom.status === 'playing' ? 'game' : 'lobby');
+      await updateFirebaseRoom(updatedRoom);
+      trackUserEvent(user.uid, pName, 'join_room', { roomId: cleanRid });
+    } catch (e: any) {
+      Alert.alert('Join Error', e.message || 'Could not join room.');
     }
-
-    // Join room or create local room instance
-    const room: GameRoom = {
-      id: rid,
-      hostId: 'host_player',
-      status: 'lobby',
-      deck: [],
-      discardPile: [],
-      players: { [user.uid]: player, 'host_player': makePlayer('host_player', 'Host Player') },
-      turnIndex: 0,
-      turnOrder: ['host_player', user.uid],
-      turnPhase: 'discarding',
-      lastDiscardedCount: 1,
-      currentRound: 1,
-      maxRounds: 5,
-      jokerCard: null,
-      pendingDiscard: [],
-      messages: [{ id: 'msg_1', senderId: 'system', senderName: 'System 📢', text: `${pName} joined room ${rid}`, timestamp: Date.now() }],
-    };
-
-    setCurrentRoom(room);
-    setRoomId(rid);
-    setScreen('lobby');
-    trackUserEvent(user.uid, pName, 'join_room', { roomId: rid });
   };
 
   const handleChangeRounds = async (newRounds: number) => {
     if (!currentRoom) return;
-    setCurrentRoom({ ...currentRoom, maxRounds: newRounds });
+    const updatedRoom = { ...currentRoom, maxRounds: newRounds };
+    setCurrentRoom(updatedRoom);
+    await updateFirebaseRoom(updatedRoom);
   };
 
   const handleAddBot = async () => {
@@ -250,6 +312,7 @@ export default function App() {
     };
 
     setCurrentRoom(updatedRoom);
+    await updateFirebaseRoom(updatedRoom);
   };
 
   const handleStartGame = async () => {
@@ -270,6 +333,7 @@ export default function App() {
     const startedRoom = startRound(roomToStart);
     setCurrentRoom(startedRoom);
     setScreen('game');
+    await updateFirebaseRoom(startedRoom);
     if (user) {
       trackUserEvent(user.uid, user.displayName, 'start_game', { roomId });
     }
@@ -279,6 +343,7 @@ export default function App() {
     if (!currentRoom || !user) return;
     const updated = playTurn(currentRoom, user.uid, cardIds);
     setCurrentRoom(updated);
+    await updateFirebaseRoom(updated);
     trackUserEvent(user.uid, user.displayName, 'play_turn', { roomId, action: 'discard' });
   };
 
@@ -286,12 +351,14 @@ export default function App() {
     if (!currentRoom || !user) return;
     const updated = drawCard(currentRoom, user.uid, source);
     setCurrentRoom(updated);
+    await updateFirebaseRoom(updated);
   };
 
   const handleCallLeast = async () => {
     if (!currentRoom || !user) return;
     const updated = callLeast(currentRoom, user.uid);
     setCurrentRoom(updated);
+    await updateFirebaseRoom(updated);
     if (updated.status === 'game-over') {
       saveCompletedGameToHistory(updated);
     }
@@ -306,6 +373,7 @@ export default function App() {
     };
     const startedRoom = startRound(nextRoom);
     setCurrentRoom(startedRoom);
+    await updateFirebaseRoom(startedRoom);
   };
 
   const handleLeaveRoom = async () => {
@@ -324,8 +392,10 @@ export default function App() {
       [user.uid]: { ...currentRoom.players[user.uid], name: trimmed }
     };
 
-    setCurrentRoom({ ...currentRoom, players: updatedPlayers });
+    const updated = { ...currentRoom, players: updatedPlayers };
+    setCurrentRoom(updated);
     if (user) setUser({ ...user, displayName: trimmed });
+    await updateFirebaseRoom(updated);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -337,10 +407,12 @@ export default function App() {
       text,
       timestamp: Date.now(),
     };
-    setCurrentRoom({
+    const updated = {
       ...currentRoom,
       messages: [...(currentRoom.messages || []), newMsg]
-    });
+    };
+    setCurrentRoom(updated);
+    await updateFirebaseRoom(updated);
   };
 
   const handleSortHand = async () => {
@@ -363,7 +435,9 @@ export default function App() {
       [user.uid]: { ...me, hand: sortedHand }
     };
 
-    setCurrentRoom({ ...currentRoom, players: updatedPlayers });
+    const updated = { ...currentRoom, players: updatedPlayers };
+    setCurrentRoom(updated);
+    await updateFirebaseRoom(updated);
   };
 
   // ── Render Screens ─────────────────────────────────────────────────────────
@@ -437,3 +511,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
