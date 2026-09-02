@@ -59,7 +59,16 @@ import fs from 'fs';
 
 const webDistPath = path.join(__dirname, '../../dist');
 if (fs.existsSync(webDistPath)) {
-  app.use(express.static(webDistPath));
+  app.use(express.static(webDistPath, {
+    dotfiles: 'allow',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+      }
+    }
+  }));
 }
 
 app.use('/api/v1', v1Router);
