@@ -90,6 +90,11 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
             <View style={styles.actionSection}>
               {isHost ? (
                 <>
+                  {players.length === 1 && (
+                    <Text style={styles.soloNoticeText}>
+                      💡 Single Player: Clicking "Start Game" auto-adds a Computer Bot 🤖
+                    </Text>
+                  )}
                   <TouchableOpacity 
                     style={[styles.button, styles.addBotButton, players.length >= 8 && styles.disabledButton]} 
                     onPress={onAddBot}
@@ -322,5 +327,6 @@ const createStyles = (width: number, height: number) => {
     lobbyRoundBtn: { backgroundColor: '#1e293b', width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#64748b' },
     lobbyRoundBtnText: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
     lobbyHostTag: { color: '#cbd5e1', fontSize: 14, fontWeight: '600', fontStyle: 'italic' },
+    soloNoticeText: { color: '#38bdf8', fontSize: 13, textAlign: 'center', marginBottom: 6, fontStyle: 'italic', fontWeight: '500' },
   });
 };

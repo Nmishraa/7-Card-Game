@@ -254,11 +254,20 @@ export default function App() {
 
   const handleStartGame = async () => {
     if (!currentRoom) return;
-    if (Object.keys(currentRoom.players).length < 2) {
-      Alert.alert('Need players', 'You need at least 2 players to start.');
-      return;
+    let roomToStart = currentRoom;
+
+    // If only 1 player is in the lobby, automatically add a computer bot so game starts seamlessly
+    if (Object.keys(roomToStart.players).length < 2) {
+      const botId = 'bot-' + Date.now();
+      const botPlayer = makePlayer(botId, 'Computer 🤖', true);
+      roomToStart = {
+        ...roomToStart,
+        players: { ...roomToStart.players, [botId]: botPlayer },
+        turnOrder: [...roomToStart.turnOrder, botId],
+      };
     }
-    const startedRoom = startRound(currentRoom);
+
+    const startedRoom = startRound(roomToStart);
     setCurrentRoom(startedRoom);
     setScreen('game');
     if (user) {
