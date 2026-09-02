@@ -2,14 +2,14 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
     return `${window.location.origin}/api/v1`;
   }
-  return 'http://2.24.200.44:8087/api/v1';
+  return 'https://cards.gnanamai.com/api/v1';
 };
 
 const getHealthUrl = () => {
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
     return `${window.location.origin}/health`;
   }
-  return 'http://2.24.200.44:8087/health';
+  return 'https://cards.gnanamai.com/health';
 };
 
 export const apiService = {
