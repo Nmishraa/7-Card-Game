@@ -347,8 +347,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
+        style={{ flex: 1, width: '100%' }}
       >
         <ScrollView contentContainerStyle={styles.scrollOverlay} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {renderContent()}

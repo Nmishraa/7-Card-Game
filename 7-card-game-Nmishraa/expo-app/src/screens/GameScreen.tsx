@@ -378,7 +378,7 @@ export const GameScreen: React.FC<Props> = ({
 
   const renderChatModal = () => (
     <Modal visible={showChat} transparent animationType="slide">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined} style={styles.modalOverlay}>
         <View style={styles.chatContainer}>
           <View style={styles.chatHeader}>
             <Text style={styles.chatTitle}>Game Chat</Text>
