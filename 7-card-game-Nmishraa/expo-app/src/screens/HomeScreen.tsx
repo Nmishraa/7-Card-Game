@@ -57,9 +57,6 @@ export const HomeScreen: React.FC<Props> = ({
             <TouchableOpacity style={styles.historyBtn} onPress={() => setShowHistory(true)}>
               <Text style={styles.historyBtnText}>📖 History</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.analyticsBtn} onPress={() => setShowAnalytics(true)}>
-              <Text style={styles.analyticsBtnText}>📊 Analytics</Text>
-            </TouchableOpacity>
           </ScrollView>
           <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
             <Text style={styles.logoutBtnText}>🚪 Exit</Text>
@@ -247,7 +244,7 @@ export const HomeScreen: React.FC<Props> = ({
         userId={userId}
         currentFeltColor={currentFeltColor}
         onSelectTheme={onSelectTheme}
-        onQuickMatch={() => onQuickMatch(name)}
+        onQuickMatch={() => onQuickMatch(name, selectedRounds)}
       />
 
       {/* Admin Login Modal */}

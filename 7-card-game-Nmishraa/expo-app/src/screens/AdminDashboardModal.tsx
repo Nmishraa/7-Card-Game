@@ -8,6 +8,7 @@ import {
   subscribeToAdminUpdates, toggleBanUser, deleteUserRecord, removeLikeEntry
 } from '../history/adminService';
 import { AnalyticsEvent } from '../history/analyticsService';
+import { getGAMeasurementId, isGAInitialized, sendTestGAEvent, setGAMeasurementId } from '../services/googleAnalytics';
 
 interface Props {
   visible: boolean;
@@ -25,6 +26,7 @@ export const AdminDashboardModal: React.FC<Props> = ({ visible, onClose, onLogou
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [stats, setStats] = useState<AdminStatsSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [gaMessage, setGaMessage] = useState('');
 
   // Tabs: 'kpis' | 'users' | 'likes' | 'logs'
   const [activeTab, setActiveTab] = useState<'kpis' | 'users' | 'likes' | 'logs'>('kpis');
@@ -205,6 +207,36 @@ export const AdminDashboardModal: React.FC<Props> = ({ visible, onClose, onLogou
                   <Text style={styles.kpiLabel}>Total Registered Users</Text>
                   <Text style={[styles.kpiVal, { color: '#ec4899' }]}>{stats.totalUsers}</Text>
                   <Text style={styles.kpiSub}>+{stats.dailyNewUsers} new today</Text>
+                </View>
+              </View>
+
+              {/* 🔥 Google Analytics 4 Status Banner */}
+              <View style={{ backgroundColor: '#1e293b', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#334155', marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>🔥 Google Analytics 4 Integration</Text>
+                  <View style={{ backgroundColor: isGAInitialized() ? 'rgba(34,197,94,0.2)' : 'rgba(234,179,8,0.2)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: isGAInitialized() ? '#22c55e' : '#eab308' }}>
+                    <Text style={{ color: isGAInitialized() ? '#4ade80' : '#facc15', fontSize: 11, fontWeight: 'bold' }}>
+                      {isGAInitialized() ? '● GA4 ONLINE' : '○ GA4 STANDBY'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={{ color: '#94a3b8', fontSize: 13, marginBottom: 12 }}>
+                  Active Property ID: <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>{getGAMeasurementId()}</Text> | Events & Pageviews Synced Automatically
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#0284c7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
+                    onPress={() => {
+                      sendTestGAEvent();
+                      setGaMessage('🚀 Test GA4 ping dispatched!');
+                      setTimeout(() => setGaMessage(''), 4000);
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>🚀 Send Test Ping to GA4</Text>
+                  </TouchableOpacity>
+                  {gaMessage !== '' && (
+                    <Text style={{ color: '#4ade80', fontSize: 12, fontWeight: 'bold' }}>{gaMessage}</Text>
+                  )}
                 </View>
               </View>
 

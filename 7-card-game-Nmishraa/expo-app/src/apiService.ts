@@ -43,6 +43,15 @@ export const apiService = {
     return await res.json();
   },
 
+  googleAuth: async (email: string, name?: string) => {
+    const res = await fetch(`${getBaseUrl()}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name }),
+    });
+    return await res.json();
+  },
+
   // Rooms
   createRoom: async (token: string, maxRounds = 5) => {
     const res = await fetch(`${getBaseUrl()}/rooms`, {

@@ -58,27 +58,40 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   };
 
   const handleConfirmGoogleLogin = async (selectedEmail?: string, selectedName?: string) => {
-    const gEmail = (selectedEmail || googleEmailInput).trim() || `google_${Math.random().toString(36).substring(2, 6)}@gmail.com`;
-    const gName = (selectedName || googleNameInput).trim() || gEmail.split('@')[0] || 'Google User';
+    const rawEmail = (selectedEmail || googleEmailInput).trim();
+    const gEmail = rawEmail || `google_${Math.random().toString(36).substring(2, 6)}@gmail.com`;
+    const rawName = (selectedName || googleNameInput).trim();
+    const gName = rawName || gEmail.split('@')[0] || 'Google User';
 
     setLoading(true);
     setGoogleModalVisible(false);
 
     try {
-      let res = await apiService.login(gEmail, 'googlepass123').catch(() => null);
-      if (!res || (!res.token && !res.user)) {
-        res = await apiService.register(gEmail, 'googlepass123', gName).catch(() => null);
+      let res = await apiService.googleAuth(gEmail, gName).catch(() => null);
+
+      if (res && res.success && res.user) {
+        const loggedUser = {
+          uid: res.user.id,
+          displayName: res.user.name || gName,
+          email: res.user.email || gEmail,
+          token: res.token,
+          isAnonymous: false,
+        };
+
+        trackUserEvent(loggedUser.uid, loggedUser.displayName, 'login');
+        if (onLoginSuccess) onLoginSuccess(loggedUser);
+      } else {
+        const errorMsg = res?.error || 'Could not connect to Google auth service.';
+        console.warn('Google Auth notice:', errorMsg);
+        const fallbackUser = {
+          uid: `google_${Date.now()}`,
+          displayName: gName,
+          email: gEmail,
+          isAnonymous: false,
+        };
+        trackUserEvent(fallbackUser.uid, fallbackUser.displayName, 'login');
+        if (onLoginSuccess) onLoginSuccess(fallbackUser);
       }
-
-      const loggedUser = {
-        uid: res?.user?.id || `google_${Date.now()}`,
-        displayName: res?.user?.name || gName,
-        email: res?.user?.email || gEmail,
-        isAnonymous: false,
-      };
-
-      trackUserEvent(loggedUser.uid, loggedUser.displayName, 'login');
-      if (onLoginSuccess) onLoginSuccess(loggedUser);
     } catch (error: any) {
       console.error('Google login error:', error);
       const fallbackUser = {
