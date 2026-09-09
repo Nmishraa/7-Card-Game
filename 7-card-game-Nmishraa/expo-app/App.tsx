@@ -12,6 +12,7 @@ import {
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
 import { syncUserProfile } from './src/history/adminService';
+import { initGA, trackGAPageView } from './src/services/googleAnalytics';
 
 type AppScreen = 'auth' | 'home' | 'lobby' | 'game';
 
@@ -39,6 +40,16 @@ export default function App() {
   const [tableTheme, setTableTheme] = useState<string>('#076324');
 
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Initialize Google Analytics 4 ──────────────────────────────────────────
+  useEffect(() => {
+    initGA();
+  }, []);
+
+  // ── Track GA4 Screen Views ────────────────────────────────────────────────
+  useEffect(() => {
+    trackGAPageView(screen);
+  }, [screen]);
 
   // ── Sync user session to localStorage ──────────────────────────────────────
   useEffect(() => {
@@ -282,7 +293,7 @@ export default function App() {
       const rawMsgs = existingRoom.messages
         ? (Array.isArray(existingRoom.messages) ? existingRoom.messages : Object.values(existingRoom.messages))
         : [];
-      const updatedMessages = [...rawMsgs, newMsg];
+      const updatedMessages = [...(rawMsgs as any[]), newMsg];
 
       const updatedRoom: GameRoom = {
         ...existingRoom,

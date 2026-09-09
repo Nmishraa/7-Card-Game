@@ -1,4 +1,5 @@
 import { apiService } from '../apiService';
+import { trackGAEvent } from '../services/googleAnalytics';
 
 const getBaseUrl = () => {
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
@@ -41,6 +42,18 @@ export const trackUserEvent = async (
   metadata?: Record<string, any>
 ): Promise<void> => {
   const resolvedUserId = userId || 'anonymous_user';
+  
+  // Track event in Google Analytics 4
+  try {
+    trackGAEvent(eventType, {
+      user_id: resolvedUserId,
+      user_name: userName || 'Player',
+      ...metadata,
+    });
+  } catch (e) {
+    console.warn('[GA4 Track Warning]', e);
+  }
+
   try {
     const payload = {
       userId: resolvedUserId,

@@ -17,6 +17,11 @@ const LoginInput = z.object({
   password: z.string(),
 });
 
+const GoogleAuthInput = z.object({
+  email: z.string().email(),
+  name: z.string().optional(),
+});
+
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const validated = RegisterInput.parse(req.body);
@@ -113,3 +118,53 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+export const googleAuth = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const validated = GoogleAuthInput.parse(req.body);
+    const userEmail = validated.email.trim().toLowerCase();
+    const rawName = validated.name ? validated.name.trim() : '';
+    const userName = rawName.length >= 2 ? rawName : (userEmail.split('@')[0] || 'Google User');
+
+    // Check if user exists
+    const existingResult = await pool.query(
+      'SELECT id, email, name, chips_balance AS "chipsBalance", is_vip AS "isVip", role FROM card_users WHERE email = $1',
+      [userEmail]
+    );
+
+    let targetUser: any;
+
+    if (existingResult.rows.length === 0) {
+      // Register new Google user
+      const userId = uuidv4();
+      const passwordHash = `$2b$10$GoogleAuthMockHash`;
+
+      const insertResult = await pool.query(
+        `INSERT INTO card_users (id, email, password_hash, name, chips_balance, is_vip, role)
+         VALUES ($1, $2, $3, $4, 1000, false, 'user')
+         RETURNING id, email, name, chips_balance AS "chipsBalance", is_vip AS "isVip", role;`,
+        [userId, userEmail, passwordHash, userName]
+      );
+      targetUser = insertResult.rows[0];
+    } else {
+      targetUser = existingResult.rows[0];
+    }
+
+    const token = jwt.sign({ id: targetUser.id, email: targetUser.email, role: targetUser.role }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: targetUser.id,
+        email: targetUser.email,
+        name: targetUser.name,
+        chipsBalance: targetUser.chipsBalance,
+        isVip: targetUser.isVip,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
