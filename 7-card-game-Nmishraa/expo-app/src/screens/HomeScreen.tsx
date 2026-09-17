@@ -231,56 +231,6 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
-          {/* ─── SEO CONTENT SECTIONS AROUND THE GAME ─── */}
-          <View style={[styles.seoContentContainer, isWide && styles.cardWide]}>
-            {/* Section 1 */}
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>How to Play 7 Card Game</Text>
-              <Text style={styles.seoSectionText}>
-                Playing 7 Card Game is fast and simple. Each player is dealt 7 cards from a standard 52-card deck. A special face-up Joker is selected to establish the 0-point rank, and the remaining cards form the draw deck and discard pile. Turns progress in an anticlockwise order where players discard valid card combinations (single cards, sets of matching ranks, or 3+ card runs) and draw a replacement card.
-              </Text>
-              <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/how-to-play')}>
-                <Text style={styles.inlineLinkText}>Read Beginner's Guide →</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Section 2 */}
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>7 Card Game Rules</Text>
-              <Text style={styles.seoSectionText}>
-                The goal in 7 Card Game is to minimize your total hand score. Aces count as 1 point, cards 2 to 10 count as face value, and face cards (J, Q, K) count as 10 points. Cards matching the face-up Joker rank count as 0 points. Matching a top discard rank ends your turn immediately without picking. Calling "Least!" when your hand is lowest wins the round, while an incorrect Least call incurs an 80-point penalty.
-              </Text>
-              <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/rules')}>
-                <Text style={styles.inlineLinkText}>View Complete Rules →</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Section 3 */}
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>7 Card Game Features</Text>
-              <View style={styles.featureGrid}>
-                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Online Multiplayer:</Text> Instant Quick Match or private 4-digit code tables</Text>
-                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Solo vs Computer:</Text> Play single-player matches against smart AI bots</Text>
-                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Interactive Card Controls:</Text> Smooth drag/tap discards, Joker highlights & auto-sort</Text>
-                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Score Tracking & Stats:</Text> Match history, analytics & live round scores</Text>
-                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Responsive Design:</Text> Playable on desktop, tablet, and mobile devices</Text>
-              </View>
-            </View>
-
-            {/* Section 4 */}
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>Play 7 Card Game Online</Text>
-              <Text style={styles.seoSectionText}>
-                Ready to test your strategy? Jump straight into a Quick Match, create a private table for your friends, or play solo against AI computer bots right now.
-              </Text>
-              <TouchableOpacity style={styles.primaryPlayCta} onPress={() => {
-                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}>
-                <Text style={styles.primaryPlayCtaText}>🎮 Start Playing Now</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
             <View style={styles.footerNav}>
