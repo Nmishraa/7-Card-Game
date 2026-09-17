@@ -16,11 +16,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Google Account Selector Modal state
-  const [googleModalVisible, setGoogleModalVisible] = useState(false);
-  const [googleEmailInput, setGoogleEmailInput] = useState('');
-  const [googleNameInput, setGoogleNameInput] = useState('');
-
   const handleGuestLogin = async () => {
     setLoading(true);
     try {
@@ -51,60 +46,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleOpenGoogleModal = () => {
-    setGoogleEmailInput('');
-    setGoogleNameInput('');
-    setGoogleModalVisible(true);
-  };
-
-  const handleConfirmGoogleLogin = async (selectedEmail?: string, selectedName?: string) => {
-    const rawEmail = (selectedEmail || googleEmailInput).trim();
-    const gEmail = rawEmail || `google_${Math.random().toString(36).substring(2, 6)}@gmail.com`;
-    const rawName = (selectedName || googleNameInput).trim();
-    const gName = rawName || gEmail.split('@')[0] || 'Google User';
-
-    setLoading(true);
-    setGoogleModalVisible(false);
-
-    try {
-      let res = await apiService.googleAuth(gEmail, gName).catch(() => null);
-
-      if (res && res.success && res.user) {
-        const loggedUser = {
-          uid: res.user.id,
-          displayName: res.user.name || gName,
-          email: res.user.email || gEmail,
-          token: res.token,
-          isAnonymous: false,
-        };
-
-        trackUserEvent(loggedUser.uid, loggedUser.displayName, 'login');
-        if (onLoginSuccess) onLoginSuccess(loggedUser);
-      } else {
-        const errorMsg = res?.error || 'Could not connect to Google auth service.';
-        console.warn('Google Auth notice:', errorMsg);
-        const fallbackUser = {
-          uid: `google_${Date.now()}`,
-          displayName: gName,
-          email: gEmail,
-          isAnonymous: false,
-        };
-        trackUserEvent(fallbackUser.uid, fallbackUser.displayName, 'login');
-        if (onLoginSuccess) onLoginSuccess(fallbackUser);
-      }
-    } catch (error: any) {
-      console.error('Google login error:', error);
-      const fallbackUser = {
-        uid: `google_${Date.now()}`,
-        displayName: gName,
-        email: gEmail,
-        isAnonymous: false,
-      };
-      if (onLoginSuccess) onLoginSuccess(fallbackUser);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEmailAuth = async () => {
     if (!email.trim()) {
@@ -265,14 +206,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </View>
 
           <TouchableOpacity 
-            style={[styles.button, styles.googleButton, loading && styles.buttonDisabled]} 
-            onPress={handleOpenGoogleModal}
-            disabled={loading}
-          >
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
             style={[styles.button, styles.guestButton, loading && styles.buttonDisabled]} 
             onPress={handleGuestLogin}
             disabled={loading}
@@ -290,74 +223,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </TouchableOpacity>
         </ScrollView>
       </View>
-
-      {/* Google Account Selector Modal */}
-      <Modal
-        visible={googleModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setGoogleModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.googleModalBox}>
-            <Text style={styles.googleModalTitle}>Choose Google Account</Text>
-            <Text style={styles.googleModalSubtitle}>Select or enter the Google account to sign in with:</Text>
-
-            <TouchableOpacity 
-              style={styles.accountOption}
-              onPress={() => handleConfirmGoogleLogin('player1@gmail.com', 'Google Player')}
-            >
-              <Text style={styles.accountIcon}>👤</Text>
-              <View>
-                <Text style={styles.accountName}>Google Player</Text>
-                <Text style={styles.accountEmail}>player1@gmail.com</Text>
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.dividerRowModal}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR ENTER OTHER GOOGLE ACCOUNT</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TextInput
-              style={styles.modalInput}
-              placeholder="yourname@gmail.com"
-              placeholderTextColor="#888"
-              value={googleEmailInput}
-              onChangeText={setGoogleEmailInput}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Your Name (Optional)"
-              placeholderTextColor="#888"
-              value={googleNameInput}
-              onChangeText={setGoogleNameInput}
-            />
-
-            <TouchableOpacity 
-              style={styles.confirmGoogleBtn}
-              onPress={() => handleConfirmGoogleLogin()}
-            >
-              <Text style={styles.confirmGoogleText}>Sign In with Google Account</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.cancelGoogleBtn}
-              onPress={() => setGoogleModalVisible(false)}
-            >
-              <Text style={styles.cancelGoogleText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 
   return (
+
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
