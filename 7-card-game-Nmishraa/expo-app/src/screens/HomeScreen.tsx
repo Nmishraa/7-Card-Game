@@ -22,10 +22,11 @@ interface Props {
   currentFeltColor: string;
   onSelectTheme: (color: string) => void;
   onQuickMatch: (playerName: string, rounds: number) => void;
+  onNavigate?: (route: string) => void;
 }
 
 export const HomeScreen: React.FC<Props> = ({
-  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, onLogout, currentFeltColor, onSelectTheme, onQuickMatch
+  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, onLogout, currentFeltColor, onSelectTheme, onQuickMatch, onNavigate
 }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
@@ -43,24 +44,48 @@ export const HomeScreen: React.FC<Props> = ({
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const isWide = width >= 640;
 
+  const handleNav = (route: string) => {
+    if (onNavigate) onNavigate(route);
+  };
 
   return (
     <View style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
-        {/* ─── TOP HEADER ─── */}
+        {/* ─── TOP HEADER & SITE NAVIGATION BAR ─── */}
         <View style={styles.header}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
-            <TouchableOpacity style={styles.adminBtn} onPress={() => {
-              if (isAdminLoggedIn) setShowAdminDashboard(true);
-              else setShowAdminLogin(true);
-            }}>
-              <Text style={styles.adminBtnText}>🛡️ Game Master</Text>
+            <TouchableOpacity style={styles.siteNavBtnActive} onPress={() => handleNav('/')} accessibilityRole="button">
+              <Text style={styles.siteNavTextActive}>Home</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>How to Play</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>Rules</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>Multiplayer</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/solo')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>Solo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>FAQ</Text>
+            </TouchableOpacity>
+
+            <View style={styles.navDivider} />
+
             <TouchableOpacity style={styles.clubBtn} onPress={() => setShowClub(true)}>
               <Text style={styles.clubBtnText}>✨ Game Club</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.historyBtn} onPress={() => setShowHistory(true)}>
               <Text style={styles.historyBtnText}>📖 History</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.adminBtn} onPress={() => {
+              if (isAdminLoggedIn) setShowAdminDashboard(true);
+              else setShowAdminLogin(true);
+            }}>
+              <Text style={styles.adminBtnText}>🛡️ Master</Text>
             </TouchableOpacity>
           </ScrollView>
           <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
@@ -77,15 +102,21 @@ export const HomeScreen: React.FC<Props> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Brand Logo at the top */}
+          {/* Brand Logo & H1 Title at top */}
           <View style={styles.brandContainer}>
             <Image
               source={require('../../assets/logo.png')}
               style={styles.logoLarge}
               resizeMode="contain"
+              accessibilityLabel="7 Card Game Logo"
             />
-            <Text style={styles.welcomeTagline}>The Ultimate 7-cards Experience</Text>
+            {/* H1 for Search Engine Discoverability */}
+            <Text style={styles.h1Title}>Play 7 Card Game Online</Text>
+            <Text style={styles.introParagraph}>
+              Play 7 Card Game online for free. Enjoy a simple and engaging card game experience directly in your browser. Learn the rules, understand how the game works, and start playing without unnecessary steps.
+            </Text>
           </View>
+
 
           {/* Card */}
           <View style={[styles.card, isWide && styles.cardWide]}>
@@ -200,25 +231,80 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
+          {/* ─── SEO CONTENT SECTIONS AROUND THE GAME ─── */}
+          <View style={[styles.seoContentContainer, isWide && styles.cardWide]}>
+            {/* Section 1 */}
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>How to Play 7 Card Game</Text>
+              <Text style={styles.seoSectionText}>
+                Playing 7 Card Game is fast and simple. Each player is dealt 7 cards from a standard 52-card deck. A special face-up Joker is selected to establish the 0-point rank, and the remaining cards form the draw deck and discard pile. Turns progress in an anticlockwise order where players discard valid card combinations (single cards, sets of matching ranks, or 3+ card runs) and draw a replacement card.
+              </Text>
+              <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/how-to-play')}>
+                <Text style={styles.inlineLinkText}>Read Beginner's Guide →</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Section 2 */}
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>7 Card Game Rules</Text>
+              <Text style={styles.seoSectionText}>
+                The goal in 7 Card Game is to minimize your total hand score. Aces count as 1 point, cards 2 to 10 count as face value, and face cards (J, Q, K) count as 10 points. Cards matching the face-up Joker rank count as 0 points. Matching a top discard rank ends your turn immediately without picking. Calling "Least!" when your hand is lowest wins the round, while an incorrect Least call incurs an 80-point penalty.
+              </Text>
+              <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/rules')}>
+                <Text style={styles.inlineLinkText}>View Complete Rules →</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Section 3 */}
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>7 Card Game Features</Text>
+              <View style={styles.featureGrid}>
+                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Online Multiplayer:</Text> Instant Quick Match or private 4-digit code tables</Text>
+                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Solo vs Computer:</Text> Play single-player matches against smart AI bots</Text>
+                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Interactive Card Controls:</Text> Smooth drag/tap discards, Joker highlights & auto-sort</Text>
+                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Score Tracking & Stats:</Text> Match history, analytics & live round scores</Text>
+                <Text style={styles.featureItem}>• <Text style={styles.boldFeature}>Responsive Design:</Text> Playable on desktop, tablet, and mobile devices</Text>
+              </View>
+            </View>
+
+            {/* Section 4 */}
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>Play 7 Card Game Online</Text>
+              <Text style={styles.seoSectionText}>
+                Ready to test your strategy? Jump straight into a Quick Match, create a private table for your friends, or play solo against AI computer bots right now.
+              </Text>
+              <TouchableOpacity style={styles.primaryPlayCta} onPress={() => {
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}>
+                <Text style={styles.primaryPlayCtaText}>🎮 Start Playing Now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
             <View style={styles.footerNav}>
-              <TouchableOpacity onPress={() => setShowRules(true)} accessibilityRole="button" accessibilityLabel="How to play rules">
-                <Text style={styles.footerLink}>How to Play</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNav('/')} accessibilityRole="button"><Text style={styles.footerLink}>Home</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button" accessibilityLabel="Privacy Policy">
-                <Text style={styles.footerLink}>Privacy Policy</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNav('/how-to-play')} accessibilityRole="button"><Text style={styles.footerLink}>How to Play</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => setShowTerms(true)} accessibilityRole="button" accessibilityLabel="Terms of Service">
-                <Text style={styles.footerLink}>Terms of Service</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNav('/rules')} accessibilityRole="button"><Text style={styles.footerLink}>Rules</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => handleNav('/multiplayer')} accessibilityRole="button"><Text style={styles.footerLink}>Multiplayer</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => handleNav('/solo')} accessibilityRole="button"><Text style={styles.footerLink}>Solo</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => handleNav('/faq')} accessibilityRole="button"><Text style={styles.footerLink}>FAQ</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button"><Text style={styles.footerLink}>Privacy Policy</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => setShowTerms(true)} accessibilityRole="button"><Text style={styles.footerLink}>Terms</Text></TouchableOpacity>
             </View>
             <Text style={styles.footerCredits}>
               7 Card Game • cards.gnanamai.com
             </Text>
           </View>
+
         </ScrollView>
       </SafeAreaView>
 
@@ -349,6 +435,35 @@ const createStyles = (width: number, height: number) => {
       gap: 10,
       alignItems: 'center',
     },
+    /* Site Navbar Links */
+    siteNavBtn: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 6,
+    },
+    siteNavBtnActive: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: '#0275d8',
+    },
+    siteNavText: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      fontWeight: '600',
+    },
+    siteNavTextActive: {
+      color: '#ffffff',
+      fontSize: 13,
+      fontWeight: 'bold',
+    },
+    navDivider: {
+      width: 1,
+      height: 20,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      marginHorizontal: 4,
+    },
+
     logoSmall: { 
       width: isSmall ? 130 : 160, 
       height: isSmall ? 50 : 60 
@@ -356,12 +471,99 @@ const createStyles = (width: number, height: number) => {
     brandContainer: {
       alignItems: 'center',
       marginBottom: 20,
+      maxWidth: 700,
     },
     logoLarge: {
       width: isSmall ? 180 : 220,
       height: isSmall ? 80 : 100,
       marginBottom: 5,
     },
+    h1Title: {
+      color: '#ffffff',
+      fontSize: isSmall ? 22 : 28,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginTop: 4,
+      marginBottom: 8,
+      textShadowColor: 'rgba(0, 0, 0, 0.6)',
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 4,
+    },
+    introParagraph: {
+      color: '#cbd5e1',
+      fontSize: isSmall ? 13 : 15,
+      lineHeight: 22,
+      textAlign: 'center',
+      paddingHorizontal: 12,
+    },
+    welcomeTagline: {
+      color: '#cbd5e1',
+      fontSize: isSmall ? 14 : 16,
+      fontStyle: 'italic',
+      fontWeight: '300',
+      textAlign: 'center',
+    },
+
+    /* SEO Content Sections */
+    seoContentContainer: {
+      width: '100%',
+      marginTop: 24,
+      gap: 16,
+    },
+    seoSectionCard: {
+      backgroundColor: 'rgba(10, 22, 40, 0.85)',
+      borderRadius: 16,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.1)',
+    },
+    h2Title: {
+      color: '#38bdf8',
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 8,
+    },
+    seoSectionText: {
+      color: '#cbd5e1',
+      fontSize: 14,
+      lineHeight: 22,
+    },
+    inlineLinkBtn: {
+      marginTop: 10,
+      alignSelf: 'flex-start',
+    },
+    inlineLinkText: {
+      color: '#fbbf24',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    featureGrid: {
+      marginTop: 6,
+      gap: 8,
+    },
+    featureItem: {
+      color: '#cbd5e1',
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    boldFeature: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+    },
+    primaryPlayCta: {
+      marginTop: 14,
+      backgroundColor: '#0275d8',
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: 'center',
+      width: '100%',
+    },
+    primaryPlayCtaText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: 15,
+    },
+
     welcomeTagline: {
       color: '#cbd5e1',
       fontSize: isSmall ? 14 : 16,

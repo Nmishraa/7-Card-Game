@@ -5,6 +5,12 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LobbyScreen } from './src/screens/LobbyScreen';
 import { GameScreen } from './src/screens/GameScreen';
+import { HowToPlayPage } from './src/screens/HowToPlayPage';
+import { RulesPage } from './src/screens/RulesPage';
+import { MultiplayerPage } from './src/screens/MultiplayerPage';
+import { SoloPage } from './src/screens/SoloPage';
+import { FaqPage } from './src/screens/FaqPage';
+import { NotFoundPage } from './src/screens/NotFoundPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
   startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue
@@ -24,6 +30,13 @@ export interface AppUser {
 }
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== 'undefined' && window.location) {
+      return window.location.pathname || '/';
+    }
+    return '/';
+  });
+
   const [user, setUser] = useState<AppUser | null>(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       const saved = window.localStorage.getItem('7card_game_user');
@@ -40,6 +53,25 @@ export default function App() {
   const [tableTheme, setTableTheme] = useState<string>('#076324');
 
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── SPA History & Route Navigation Listener ───────────────────────────────
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname || '/');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleNavigate = (newPath: string) => {
+    setCurrentPath(newPath);
+    if (typeof window !== 'undefined' && window.history) {
+      window.history.pushState({}, '', newPath);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
 
   // ── Initialize Google Analytics 4 ──────────────────────────────────────────
   useEffect(() => {
@@ -460,7 +492,32 @@ export default function App() {
     await updateDbRoom(updated);
   };
 
-  // ── Render Screens ─────────────────────────────────────────────────────────
+  // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
+
+  if (currentPath === '/how-to-play') {
+    return <HowToPlayPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/rules') {
+    return <RulesPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/multiplayer') {
+    return <MultiplayerPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/solo') {
+    return <SoloPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/faq') {
+    return <FaqPage onNavigate={handleNavigate} />;
+  }
+
+  const validPaths = ['/', '/how-to-play', '/rules', '/multiplayer', '/solo', '/faq'];
+  if (!validPaths.includes(currentPath)) {
+    return <NotFoundPage onNavigate={handleNavigate} />;
+  }
 
   if (screen === 'auth' || !user) {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
@@ -478,9 +535,11 @@ export default function App() {
         currentFeltColor={tableTheme}
         onSelectTheme={setTableTheme}
         onQuickMatch={handleQuickMatch}
+        onNavigate={handleNavigate}
       />
     );
   }
+
 
   if (screen === 'lobby' && currentRoom) {
     return (
