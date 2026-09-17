@@ -64,8 +64,16 @@ if (fs.existsSync(webDistPath)) {
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       } else if (filePath.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.endsWith('robots.txt')) {
+        res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+      } else if (filePath.endsWith('sitemap.xml')) {
+        res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+        res.setHeader('Cache-Control', 'public, max-age=3600');
       }
     }
   }));
@@ -76,9 +84,11 @@ app.use('/api/v1', v1Router);
 if (fs.existsSync(webDistPath)) {
   app.get('*', (req: Request, res: Response, next) => {
     if (req.path.startsWith('/api') || req.path === '/health') return next();
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(webDistPath, 'index.html'));
   });
 }
+
 
 app.use(errorHandler);
 

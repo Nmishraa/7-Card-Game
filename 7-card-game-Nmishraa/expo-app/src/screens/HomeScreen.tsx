@@ -9,6 +9,8 @@ import { AnalyticsModal } from '../history/AnalyticsModal';
 import { ModernFeaturesModal } from './ModernFeaturesModal';
 import { AdminLoginModal } from './AdminLoginModal';
 import { AdminDashboardModal } from './AdminDashboardModal';
+import { PrivacyModal } from './PrivacyModal';
+import { TermsModal } from './TermsModal';
 
 interface Props {
   onJoinRoom: (playerName: string, roomId: string) => void;
@@ -36,8 +38,11 @@ export const HomeScreen: React.FC<Props> = ({
   const [showClub, setShowClub] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const isWide = width >= 640;
+
 
   return (
     <View style={styles.root}>
@@ -194,6 +199,26 @@ export const HomeScreen: React.FC<Props> = ({
               </View>
             )}
           </View>
+
+          {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
+          <View style={styles.footerContainer}>
+            <View style={styles.footerNav}>
+              <TouchableOpacity onPress={() => setShowRules(true)} accessibilityRole="button" accessibilityLabel="How to play rules">
+                <Text style={styles.footerLink}>How to Play</Text>
+              </TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button" accessibilityLabel="Privacy Policy">
+                <Text style={styles.footerLink}>Privacy Policy</Text>
+              </TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => setShowTerms(true)} accessibilityRole="button" accessibilityLabel="Terms of Service">
+                <Text style={styles.footerLink}>Terms of Service</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.footerCredits}>
+              7 Card Game • cards.gnanamai.com
+            </Text>
+          </View>
         </ScrollView>
       </SafeAreaView>
 
@@ -267,7 +292,14 @@ export const HomeScreen: React.FC<Props> = ({
           setShowAdminDashboard(false);
         }}
       />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyModal visible={showPrivacy} onClose={() => setShowPrivacy(false)} />
+
+      {/* Terms of Service Modal */}
+      <TermsModal visible={showTerms} onClose={() => setShowTerms(false)} />
     </View>
+
   );
 };
 
@@ -570,15 +602,35 @@ const createStyles = (width: number, height: number) => {
       textAlign: 'center',
     },
     ruleHead: { color: '#38bdf8', fontWeight: 'bold', fontSize: 15, marginBottom: 4 },
-    ruleBody: { color: '#cbd5e1', fontSize: 14, lineHeight: 22 },
-    closeBtn: {
-      marginTop: 20,
-      backgroundColor: '#0275d8',
-      borderRadius: 10,
-      paddingVertical: 14,
-      alignItems: 'center',
-    },
     closeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
+    /* Footer */
+    footerContainer: {
+      marginTop: 24,
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
+    footerNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 8,
+    },
+    footerLink: {
+      color: '#38bdf8',
+      fontSize: 13,
+      fontWeight: '600',
+    },
+    footerDot: {
+      color: '#64748b',
+      fontSize: 12,
+    },
+    footerCredits: {
+      color: '#64748b',
+      fontSize: 12,
+      fontStyle: 'italic',
+    },
   });
 };
+
 
