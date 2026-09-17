@@ -758,29 +758,39 @@ const createStyles = (width: number, height: number) => {
 
     /* Footer */
     footerContainer: {
-      marginTop: 24,
+      marginTop: 40,
       alignItems: 'center',
-      paddingVertical: 12,
+      paddingVertical: 20,
+      paddingHorizontal: 20,
+      width: '100%',
     },
     footerNav: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
       alignItems: 'center',
-      gap: 10,
-      marginBottom: 8,
+      columnGap: 18,
+      rowGap: 12,
+      marginBottom: 16,
     },
     footerLink: {
       color: '#38bdf8',
-      fontSize: 13,
+      fontSize: 14,
       fontWeight: '600',
+      paddingVertical: 4,
+      paddingHorizontal: 4,
     },
     footerDot: {
       color: '#64748b',
-      fontSize: 12,
+      fontSize: 14,
+      marginHorizontal: 4,
     },
     footerCredits: {
       color: '#64748b',
-      fontSize: 12,
+      fontSize: 13,
       fontStyle: 'italic',
+      letterSpacing: 0.5,
+      marginTop: 6,
     },
   });
 };
