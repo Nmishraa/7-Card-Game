@@ -122,14 +122,14 @@ export const HomeScreen: React.FC<Props> = ({
           <View style={[styles.card, isWide && styles.cardWide]}>
             {/* Header Row */}
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Welcome to 7-cards Least</Text>
-              <TouchableOpacity style={styles.rulesBtn} onPress={() => setShowRules(true)}>
+              <Text style={styles.cardTitle} accessibilityRole="header">7 Card Game Online</Text>
+              <TouchableOpacity style={styles.rulesBtn} onPress={() => setShowRules(true)} accessibilityRole="button" accessibilityLabel="View How to Play Rules">
                 <Text style={styles.rulesBtnText}>How to Play</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.desc}>
-              Enter your name below to start playing. Create a multiplayer table or join one with a 4-digit code.
+              Play 7 Card Game online with friends or AI. Enter your name below to start playing!
             </Text>
 
             {/* Name Input */}
