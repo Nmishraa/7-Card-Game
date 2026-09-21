@@ -55,19 +55,22 @@ export const HomeScreen: React.FC<Props> = ({
         <View style={styles.header}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
             <TouchableOpacity style={styles.siteNavBtnActive} onPress={() => handleNav('/')} accessibilityRole="button">
-              <Text style={styles.siteNavTextActive}>Home</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>How to Play</Text>
+              <Text style={styles.siteNavTextActive}>Play</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
               <Text style={styles.siteNavText}>Rules</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>How to Play</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/strategy')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>Strategy</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
               <Text style={styles.siteNavText}>Multiplayer</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/solo')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>Solo</Text>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/play-against-ai')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>Play Against AI</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
               <Text style={styles.siteNavText}>FAQ</Text>
@@ -113,10 +116,9 @@ export const HomeScreen: React.FC<Props> = ({
             {/* H1 for Search Engine Discoverability */}
             <Text style={styles.h1Title}>Play 7 Card Game Online</Text>
             <Text style={styles.introParagraph}>
-              Play 7 Card Game online for free. Enjoy a simple and engaging card game experience directly in your browser. Learn the rules, understand how the game works, and start playing without unnecessary steps.
+              Play 7 Card Game online for free. Learn the rules, play against AI, and enjoy an interactive card game experience. Explore how to play, scoring, sets, runs, jokers, and strategy.
             </Text>
           </View>
-
 
           {/* Card */}
           <View style={[styles.card, isWide && styles.cardWide]}>
@@ -231,18 +233,73 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
+          {/* ─── HOMEPAGE SEO CONTENT SECTION (Specification Item #18) ─── */}
+          <View style={[styles.seoContentContainer, isWide && styles.cardWide]}>
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>How to Play 7 Card Game</Text>
+              <Text style={styles.seoSectionText}>
+                7 Card Game is a fast-paced card shedding game where each player receives 7 cards from a standard deck. On your turn, discard single cards, matching rank sets, or suited runs, then draw a replacement card.
+              </Text>
+              <TouchableOpacity onPress={() => handleNav('/how-to-play')} style={styles.inlineLinkBtn}>
+                <Text style={styles.inlineLinkText}>Read beginner guide →</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>7 Card Game Rules</Text>
+              <Text style={styles.seoSectionText}>
+                Aces are worth 1 point, Face cards are worth 10 points, and the active face-up Joker makes matching ranks 0 points. Call "Least!" when your hand point score is lower than all opponents. Beware: wrong calls carry an 80-point penalty!
+              </Text>
+              <TouchableOpacity onPress={() => handleNav('/rules')} style={styles.inlineLinkBtn}>
+                <Text style={styles.inlineLinkText}>Learn 7 Card Game rules →</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>Play 7 Card Game Online</Text>
+              <Text style={styles.seoSectionText}>
+                Enjoy real-time multiplayer card tables with 4-digit private room codes, live table chat, and instant guest play. Create rooms for 1 to 20 rounds or join Quick Matches instantly.
+              </Text>
+              <TouchableOpacity onPress={() => handleNav('/multiplayer')} style={styles.inlineLinkBtn}>
+                <Text style={styles.inlineLinkText}>Explore multiplayer features →</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>7 Card Game Strategy</Text>
+              <Text style={styles.seoSectionText}>
+                Learn how to prioritize high-card discards, build suited runs, track discarded ranks, maximize wildcard Jokers, and choose safe score windows for calling Least.
+              </Text>
+              <TouchableOpacity onPress={() => handleNav('/strategy')} style={styles.inlineLinkBtn}>
+                <Text style={styles.inlineLinkText}>View 7 Card Game strategy →</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>Frequently Asked Questions</Text>
+              <Text style={styles.seoSectionText}>
+                Have questions about card scores, player counts, multiplayer setup, or playing vs computer AI? Visit our dedicated help center for full answers.
+              </Text>
+              <TouchableOpacity onPress={() => handleNav('/faq')} style={styles.inlineLinkBtn}>
+                <Text style={styles.inlineLinkText}>Read 7 Card Game FAQ →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
             <View style={styles.footerNav}>
-              <TouchableOpacity onPress={() => handleNav('/')} accessibilityRole="button"><Text style={styles.footerLink}>Home</Text></TouchableOpacity>
-              <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/how-to-play')} accessibilityRole="button"><Text style={styles.footerLink}>How to Play</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNav('/')} accessibilityRole="button"><Text style={styles.footerLink}>Play</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => handleNav('/rules')} accessibilityRole="button"><Text style={styles.footerLink}>Rules</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => handleNav('/how-to-play')} accessibilityRole="button"><Text style={styles.footerLink}>How to Play</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={() => handleNav('/strategy')} accessibilityRole="button"><Text style={styles.footerLink}>Strategy</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => handleNav('/multiplayer')} accessibilityRole="button"><Text style={styles.footerLink}>Multiplayer</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/solo')} accessibilityRole="button"><Text style={styles.footerLink}>Solo</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNav('/play-against-ai')} accessibilityRole="button"><Text style={styles.footerLink}>Play Against AI</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => handleNav('/faq')} accessibilityRole="button"><Text style={styles.footerLink}>FAQ</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
