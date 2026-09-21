@@ -7,6 +7,8 @@ import { LobbyScreen } from './src/screens/LobbyScreen';
 import { GameScreen } from './src/screens/GameScreen';
 import { HowToPlayPage } from './src/screens/HowToPlayPage';
 import { RulesPage } from './src/screens/RulesPage';
+import { StrategyPage } from './src/screens/StrategyPage';
+import { VariationsPage } from './src/screens/VariationsPage';
 import { MultiplayerPage } from './src/screens/MultiplayerPage';
 import { SoloPage } from './src/screens/SoloPage';
 import { FaqPage } from './src/screens/FaqPage';
@@ -30,9 +32,18 @@ export interface AppUser {
 }
 
 export default function App() {
+  const getCleanPath = (pathStr?: string): string => {
+    if (!pathStr) return '/';
+    let p = pathStr.trim().toLowerCase();
+    if (p.length > 1 && p.endsWith('/')) {
+      p = p.slice(0, -1);
+    }
+    return p || '/';
+  };
+
   const [currentPath, setCurrentPath] = useState<string>(() => {
     if (typeof window !== 'undefined' && window.location) {
-      return window.location.pathname || '/';
+      return getCleanPath(window.location.pathname);
     }
     return '/';
   });
@@ -58,16 +69,17 @@ export default function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname || '/');
+      setCurrentPath(getCleanPath(window.location.pathname));
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleNavigate = (newPath: string) => {
-    setCurrentPath(newPath);
+    const clean = getCleanPath(newPath);
+    setCurrentPath(clean);
     if (typeof window !== 'undefined' && window.history) {
-      window.history.pushState({}, '', newPath);
+      window.history.pushState({}, '', clean);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -502,6 +514,14 @@ export default function App() {
     return <RulesPage onNavigate={handleNavigate} />;
   }
 
+  if (currentPath === '/strategy') {
+    return <StrategyPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/variations') {
+    return <VariationsPage onNavigate={handleNavigate} />;
+  }
+
   if (currentPath === '/multiplayer') {
     return <MultiplayerPage onNavigate={handleNavigate} />;
   }
@@ -514,7 +534,7 @@ export default function App() {
     return <FaqPage onNavigate={handleNavigate} />;
   }
 
-  const validPaths = ['/', '/how-to-play', '/rules', '/multiplayer', '/solo', '/faq'];
+  const validPaths = ['/', '/how-to-play', '/rules', '/strategy', '/variations', '/multiplayer', '/solo', '/faq'];
   if (!validPaths.includes(currentPath)) {
     return <NotFoundPage onNavigate={handleNavigate} />;
   }
