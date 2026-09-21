@@ -15,18 +15,18 @@ const routes = [
   {
     path: '/',
     dir: distDir,
-    title: '7 Card Game Online – Play With Friends or AI | Cards',
-    description: 'Play 7 Card Game online with friends or AI. Learn the rules, play multiplayer games, challenge computer opponents, and enjoy a fast browser-based card game.',
+    title: '7 Card Game Online – Play Free Multiplayer Card Game',
+    description: 'Play 7 Card Game online for free. Learn the rules, play against AI, and enjoy an interactive card game experience. Explore how to play, scoring, sets, runs, jokers, and strategy.',
     canonical: 'https://cards.gnanamai.com/',
-    h1: '7 Card Game Online – Play With Friends or AI',
-    h2: 'Play 7 Card Game online with friends or AI. Learn the rules, play multiplayer games, challenge computer opponents, and enjoy a fast browser-based card game.',
+    h1: 'Play 7 Card Game Online',
+    h2: 'Play 7 Card Game online for free with friends or computer AI opponents.',
     content: 'Join real-time multiplayer 7 Card Game rooms, play solo vs computer AI bots, discard sets and runs, and track scores live on cards.gnanamai.com.',
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "7 Card Game - 7-Cards Least Online",
+      "name": "7 Card Game Online",
       "url": "https://cards.gnanamai.com/",
-      "description": "Play 7 Card Game (7-Cards Least) online with friends or AI computer bots in real-time multiplayer.",
+      "description": "Play 7 Card Game (7-Cards Least) online for free with friends or AI computer bots in real-time multiplayer.",
       "applicationCategory": "GameApplication",
       "gamePlatform": "Web Browser",
       "operatingSystem": "All",
@@ -38,13 +38,30 @@ const routes = [
     }
   },
   {
+    path: '/rules',
+    dir: path.join(distDir, 'rules'),
+    title: '7 Card Game Rules – Complete Guide to Playing 7 Cards',
+    description: 'Understand 7 Card Game rules, card point values, valid discard sets and suited runs, Joker wildcard evaluation, match & skip rules, and scoring penalties.',
+    canonical: 'https://cards.gnanamai.com/rules',
+    h1: '7 Card Game Rules',
+    h2: 'Complete documentation of official 7 Card Game rules, discards, jokers, and scoring.',
+    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts. Match & skip turns when discard ranks match. 80-point wrong call penalty applies when calling Least incorrectly.',
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "7 Card Game Official Rules & Scoring Guide",
+      "url": "https://cards.gnanamai.com/rules",
+      "author": { "@type": "Organization", "name": "7 Card Game" }
+    }
+  },
+  {
     path: '/how-to-play',
     dir: path.join(distDir, 'how-to-play'),
-    title: 'How to Play 7 Card Game – Beginner Guide & Rules',
-    description: "Learn how to play 7 Card Game with a simple beginner-friendly guide covering card setup, turn flow, Joker wildcards, scoring, and calling Least.",
+    title: "How to Play 7 Card Game Online – Beginner's Guide",
+    description: "Learn how to play 7 Card Game with a step-by-step guide covering dealing, hand combinations, drawing, discarding, Joker ranks, and calling Least.",
     canonical: 'https://cards.gnanamai.com/how-to-play',
     h1: 'How to Play 7 Card Game',
-    h2: "A beginner's guide to card setup, turn flow, scoring, and strategies for 7 Cards Least.",
+    h2: "A step-by-step beginner's guide to card setup, turn flow, scoring, and strategies.",
     content: 'Understand dealing 7 cards, discarding sets (pairs/triples) and suited runs, drawing from the deck, and calling Least to end rounds.',
     schema: {
       "@context": "https://schema.org",
@@ -71,36 +88,70 @@ const routes = [
     }
   },
   {
-    path: '/rules',
-    dir: path.join(distDir, 'rules'),
-    title: '7 Card Game Rules – Scoring, Discards & Penalties',
-    description: 'Complete official rules for 7 Card Game: card point values, valid discard sets and runs, match & skip rules, and the 80-point penalty.',
-    canonical: 'https://cards.gnanamai.com/rules',
-    h1: '7 Card Game Official Rules & Scoring',
-    h2: 'Understand card point values, valid discard runs, joker rules, and elimination penalties.',
-    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts. Match & skip turns when discard ranks match. 80-point wrong call penalty applies when calling Least incorrectly.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "7 Card Game Official Rules & Scoring Guide",
-      "url": "https://cards.gnanamai.com/rules",
-      "author": { "@type": "Organization", "name": "7 Card Game" }
-    }
-  },
-  {
     path: '/strategy',
     dir: path.join(distDir, 'strategy'),
-    title: '7 Card Game Strategy & Winning Tips – Master 7 Cards Least',
-    description: 'Discover top strategies for 7 Card Game: Joker management, multi-card discards, high-value card dumps, and calculated Least calls to win online.',
+    title: '7 Card Game Strategy – Tips to Improve Your Game',
+    description: 'Master 7 Card Game strategy: organize your hand, discard high-value face cards, utilize wild Jokers, track discards, and calculate safe Least call score windows.',
     canonical: 'https://cards.gnanamai.com/strategy',
-    h1: '7 Card Game Strategy & Winning Tips',
-    h2: 'Master score reduction, Joker management, discard tactics, and risk-calculated Least calls in 7 Cards Least online.',
+    h1: '7 Card Game Strategy',
+    h2: 'Master score reduction, Joker management, discard tactics, and risk-calculated Least calls.',
     content: 'Learn when to dump face cards early, how to build 3+ card suited runs, tracking opponent discard habits, and safe Least calling score windows.',
     schema: {
       "@context": "https://schema.org",
-      "@type": "TechArticle",
-      "headline": "7 Card Game Strategy & Winning Tactics",
+      "@type": "Article",
+      "headline": "7 Card Game Strategy & Tips to Improve Your Game",
       "url": "https://cards.gnanamai.com/strategy"
+    }
+  },
+  {
+    path: '/multiplayer',
+    dir: path.join(distDir, 'multiplayer'),
+    title: '7 Card Game Multiplayer – Play Online With Friends',
+    description: 'Play 7 Card Game online with friends or real-time online players. Create private 4-digit code rooms, customize round counts, and enjoy live table chat.',
+    canonical: 'https://cards.gnanamai.com/multiplayer',
+    h1: 'Play 7 Card Game Multiplayer Online',
+    h2: 'Play real-time multiplayer card games with friends or instant online player matchfilling.',
+    content: 'Create private 4-digit room code lobbies, play 1 to 20 round matches, chat live with players, and enjoy fast online card play on cards.gnanamai.com.',
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "7 Card Game Multiplayer",
+      "url": "https://cards.gnanamai.com/multiplayer",
+      "applicationCategory": "GameApplication"
+    }
+  },
+  {
+    path: '/play-against-ai',
+    dir: path.join(distDir, 'play-against-ai'),
+    title: 'Play 7 Card Game Against AI Online',
+    description: 'Play 7 Card Game against intelligent computer AI bots directly in your web browser for free. Enjoy zero-wait single-player card game practice.',
+    canonical: 'https://cards.gnanamai.com/play-against-ai',
+    h1: 'Play 7 Card Game Against AI',
+    h2: 'Practice your card strategies solo against intelligent computer opponents.',
+    content: 'Zero waiting time single-player card game against computer AI bots. Practice Joker evaluations, set building, and Least calls at your own pace.',
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Play 7 Card Game Against AI",
+      "url": "https://cards.gnanamai.com/play-against-ai",
+      "applicationCategory": "GameApplication"
+    }
+  },
+  {
+    path: '/solo',
+    dir: path.join(distDir, 'solo'),
+    title: 'Play 7 Card Game Against AI Online',
+    description: 'Play 7 Card Game against intelligent computer AI bots directly in your web browser for free. Enjoy zero-wait single-player card game practice.',
+    canonical: 'https://cards.gnanamai.com/play-against-ai',
+    h1: 'Play 7 Card Game Against AI',
+    h2: 'Practice your card strategies solo against intelligent computer opponents.',
+    content: 'Zero waiting time single-player card game against computer AI bots.',
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Play 7 Card Game Against AI",
+      "url": "https://cards.gnanamai.com/play-against-ai",
+      "applicationCategory": "GameApplication"
     }
   },
   {
@@ -111,64 +162,30 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/variations',
     h1: '7 Card Game Regional Names & Rules Variations',
     h2: 'Explore different names and house rule variations of 7 Card Game around the world.',
-    content: '7-Cards Least is widely played in South Asia and globally as Low Hand Rummy. Compare 2v2 partner play, fixed jokers vs dynamic jokers, and penalty thresholds.',
+    content: '7-Cards Least is widely played as Low Hand Rummy. Compare 2v2 partner play, fixed jokers vs dynamic jokers, and penalty thresholds.',
     schema: {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "7 Card Game Regional Names and Rules Variations",
+      "headline": "7 Card Game Regional Variations",
       "url": "https://cards.gnanamai.com/variations"
-    }
-  },
-  {
-    path: '/multiplayer',
-    dir: path.join(distDir, 'multiplayer'),
-    title: '7 Card Game Multiplayer – Play Online with Friends',
-    description: 'Play 7 Card Game online with friends or real-time online players in your web browser. Create private rooms with 4-digit codes or join Quick Match.',
-    canonical: 'https://cards.gnanamai.com/multiplayer',
-    h1: '7 Card Game Online Multiplayer',
-    h2: 'Play real-time multiplayer card games with friends or instant computer AI matchfilling.',
-    content: 'Create private 4-digit room code lobbies, play 1 to 20 round matches, chat live with players, and enjoy fast online card play on cards.gnanamai.com.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "7 Card Game Online Multiplayer",
-      "url": "https://cards.gnanamai.com/multiplayer",
-      "applicationCategory": "GameApplication"
-    }
-  },
-  {
-    path: '/solo',
-    dir: path.join(distDir, 'solo'),
-    title: '7 Card Game Solo – Play vs Computer AI',
-    description: 'Play 7 Card Game solo against computer AI bots directly in your web browser for free with zero waiting time.',
-    canonical: 'https://cards.gnanamai.com/solo',
-    h1: '7 Card Game Solo – Play vs Computer AI',
-    h2: 'Practice your card strategies offline or solo against intelligent computer opponents.',
-    content: 'Zero waiting time solo card game against smart computer bots. Practice Joker evaluations, set building, and Least calls before playing live multiplayer.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "7 Card Game Solo Play",
-      "url": "https://cards.gnanamai.com/solo",
-      "applicationCategory": "GameApplication"
     }
   },
   {
     path: '/faq',
     dir: path.join(distDir, 'faq'),
-    title: '7 Card Game FAQ – Rules, Gameplay & Common Questions',
-    description: 'Find answers to common questions about 7 Card Game rules, gameplay, multiplayer, Joker mechanics, wrong call penalties, and playing online.',
+    title: '7 Card Game FAQ – Rules, Gameplay & Online Play',
+    description: 'Find answers to frequently asked questions about 7 Card Game rules, card values, online multiplayer, playing against AI, sets and runs, and scoring.',
     canonical: 'https://cards.gnanamai.com/faq',
-    h1: '7 Card Game FAQ & Help Center',
-    h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and solo computer play.',
-    content: 'Answers to: What is 7 Card Game? How does the Joker work? What happens on wrong Least calls? Is it free to play?',
+    h1: '7 Card Game Frequently Asked Questions',
+    h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and AI play.',
+    content: 'Answers to: What is 7 Card Game? How do you play? Can I play online? Is it free? How do Jokers work? Can I play against AI?',
     schema: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "What is 7 Card Game (7-Cards Least)?",
+          "name": "What is 7 Card Game?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "7 Card Game is a fast-paced multiplayer card game played with 7 cards per player where players aim for the lowest hand score."
@@ -176,10 +193,18 @@ const routes = [
         },
         {
           "@type": "Question",
-          "name": "How does the Joker card work in 7 Card Game?",
+          "name": "How do you play 7 Card Game?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The face-up card flipped during setup sets the Joker rank. Any card matching that rank counts as 0 points."
+            "text": "Each player receives 7 cards. Discard single cards, matching rank sets, or suited runs, then draw a replacement card."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I play 7 Card Game online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can play 7 Card Game online for free directly in your web browser with friends or against computer AI."
           }
         }
       ]
@@ -228,13 +253,12 @@ routes.forEach(route => {
           ${route.content}
         </p>
         <nav aria-label="Quick Links" style="margin-top: 15px; font-size: 14px;">
-          <a href="https://cards.gnanamai.com/" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Play Game</a> |
-          <a href="https://cards.gnanamai.com/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">How to Play</a> |
+          <a href="https://cards.gnanamai.com/" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Play</a> |
           <a href="https://cards.gnanamai.com/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Rules</a> |
+          <a href="https://cards.gnanamai.com/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">How to Play</a> |
           <a href="https://cards.gnanamai.com/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Strategy</a> |
-          <a href="https://cards.gnanamai.com/variations" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Variations</a> |
           <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Multiplayer</a> |
-          <a href="https://cards.gnanamai.com/solo" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Solo</a> |
+          <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Play Against AI</a> |
           <a href="https://cards.gnanamai.com/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">FAQ</a>
         </nav>
       </main>
@@ -247,4 +271,4 @@ routes.forEach(route => {
   console.log(`[SEO Prerender] Generated: ${path.relative(distDir, targetFile)}`);
 });
 
-console.log('[SEO Prerender] Successfully pre-rendered static HTML for all 8 routes!');
+console.log('[SEO Prerender] Successfully pre-rendered static HTML for all specified routes!');

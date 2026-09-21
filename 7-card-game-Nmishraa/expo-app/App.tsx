@@ -10,6 +10,7 @@ import { RulesPage } from './src/screens/RulesPage';
 import { StrategyPage } from './src/screens/StrategyPage';
 import { VariationsPage } from './src/screens/VariationsPage';
 import { MultiplayerPage } from './src/screens/MultiplayerPage';
+import { PlayAgainstAiPage } from './src/screens/PlayAgainstAiPage';
 import { SoloPage } from './src/screens/SoloPage';
 import { FaqPage } from './src/screens/FaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
@@ -526,15 +527,15 @@ export default function App() {
     return <MultiplayerPage onNavigate={handleNavigate} />;
   }
 
-  if (currentPath === '/solo') {
-    return <SoloPage onNavigate={handleNavigate} />;
+  if (currentPath === '/play-against-ai' || currentPath === '/solo') {
+    return <PlayAgainstAiPage onNavigate={handleNavigate} />;
   }
 
   if (currentPath === '/faq') {
     return <FaqPage onNavigate={handleNavigate} />;
   }
 
-  const validPaths = ['/', '/how-to-play', '/rules', '/strategy', '/variations', '/multiplayer', '/solo', '/faq'];
+  const validPaths = ['/', '/how-to-play', '/rules', '/strategy', '/variations', '/multiplayer', '/play-against-ai', '/solo', '/faq'];
   if (!validPaths.includes(currentPath)) {
     return <NotFoundPage onNavigate={handleNavigate} />;
   }
