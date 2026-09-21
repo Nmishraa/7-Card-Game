@@ -15,18 +15,18 @@ const routes = [
   {
     path: '/',
     dir: distDir,
-    title: '7 Card Game Online – Play Free Multiplayer Card Game',
-    description: 'Play 7 Card Game online for free. Learn the rules, play against AI, and enjoy an interactive card game experience. Explore how to play, scoring, sets, runs, jokers, and strategy.',
+    title: '7 Cards Least Game Online – Play Free 7 Card Game',
+    description: 'Play 7 Cards Least online for free. Learn the rules, play against AI, and enjoy an interactive card game experience. Explore how to play, scoring, sets, runs, jokers, and strategy.',
     canonical: 'https://cards.gnanamai.com/',
-    h1: 'Play 7 Card Game Online',
-    h2: 'Play 7 Card Game online for free with friends or computer AI opponents.',
-    content: 'Join real-time multiplayer 7 Card Game rooms, play solo vs computer AI bots, discard sets and runs, and track scores live on cards.gnanamai.com.',
+    h1: 'Play 7 Cards Least Online',
+    h2: 'Play 7 Cards Least online for free with friends or computer AI opponents.',
+    content: 'Join real-time multiplayer 7 Cards Least rooms, play solo vs computer AI bots, discard sets and runs, and track scores live on cards.gnanamai.com.',
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "7 Card Game Online",
+      "name": "7 Cards Least Game Online",
       "url": "https://cards.gnanamai.com/",
-      "description": "Play 7 Card Game (7-Cards Least) online for free with friends or AI computer bots in real-time multiplayer.",
+      "description": "Play 7 Cards Least online for free with friends or AI computer bots in real-time multiplayer.",
       "applicationCategory": "GameApplication",
       "gamePlatform": "Web Browser",
       "operatingSystem": "All",
@@ -38,70 +38,184 @@ const routes = [
     }
   },
   {
-    path: '/rules',
-    dir: path.join(distDir, 'rules'),
-    title: '7 Card Game Rules – Complete Guide to Playing 7 Cards',
-    description: 'Understand 7 Card Game rules, card point values, valid discard sets and suited runs, Joker wildcard evaluation, match & skip rules, and scoring penalties.',
-    canonical: 'https://cards.gnanamai.com/rules',
-    h1: '7 Card Game Rules',
-    h2: 'Complete documentation of official 7 Card Game rules, discards, jokers, and scoring.',
-    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts. Match & skip turns when discard ranks match. 80-point wrong call penalty applies when calling Least incorrectly.',
+    path: '/7-cards-least',
+    dir: path.join(distDir, '7-cards-least'),
+    title: '7 Cards Least Game Online – Play Free 7 Cards Least',
+    description: 'Play 7 Cards Least online for free. Learn the rules, how to play, strategy, scoring, and start an online game.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least',
+    h1: '7 Cards Least Game Online',
+    h2: 'The ultimate online portal for 7 Cards Least rules, strategy, and multiplayer gameplay.',
+    content: 'Play 7 Cards Least online, learn how the game works, explore card point scoring, joker wildcards, and compete in free browser matches.',
     schema: {
       "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "7 Card Game Official Rules & Scoring Guide",
-      "url": "https://cards.gnanamai.com/rules",
-      "author": { "@type": "Organization", "name": "7 Card Game" }
+      "@type": "WebApplication",
+      "name": "7 Cards Least Game Online",
+      "url": "https://cards.gnanamai.com/7-cards-least",
+      "applicationCategory": "GameApplication"
     }
+  },
+  {
+    path: '/7-cards-least/rules',
+    dir: path.join(distDir, '7-cards-least', 'rules'),
+    title: '7 Cards Least Rules – Complete Guide to the Game',
+    description: 'Understand 7 Cards Least rules, card point values, valid discard sets and suited runs, Joker wildcard evaluation, match & skip rules, and scoring penalties.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
+    h1: '7 Cards Least Rules',
+    h2: 'Complete guide to card point values, discards, wildcards, turn rules, and penalties.',
+    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts. Match & skip turns when discard ranks match. 80-point wrong call penalty applies when calling Least incorrectly.',
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+          { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+          { "@type": "ListItem", "position": 3, "name": "Rules", "item": "https://cards.gnanamai.com/7-cards-least/rules" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "7 Cards Least Official Rules Guide",
+        "url": "https://cards.gnanamai.com/7-cards-least/rules"
+      }
+    ]
+  },
+  {
+    path: '/7-cards-least/how-to-play',
+    dir: path.join(distDir, '7-cards-least', 'how-to-play'),
+    title: 'How to Play 7 Cards Least Online',
+    description: 'Learn how to play 7 Cards Least online with a step-by-step guide covering dealing, hand combinations, drawing, discarding, Joker ranks, and calling Least.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
+    h1: 'How to Play 7 Cards Least',
+    h2: "A beginner-friendly step-by-step guide to dealing, drawing, discarding, and winning.",
+    content: 'Understand dealing 7 cards, discarding sets and suited runs, drawing replacement cards, and calling Least to end rounds.',
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+          { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+          { "@type": "ListItem", "position": 3, "name": "How to Play", "item": "https://cards.gnanamai.com/7-cards-least/how-to-play" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to Play 7 Cards Least",
+        "description": "Beginner guide to dealing, discarding, drawing, and calling Least in 7 Cards Least.",
+        "step": [
+          { "@type": "HowToStep", "name": "Start Game", "text": "Enter player name and select round count." },
+          { "@type": "HowToStep", "name": "Discard & Draw", "text": "Discard single cards, sets, or runs, then draw a replacement card." },
+          { "@type": "HowToStep", "name": "Call Least", "text": "Call Least when your hand total is lower than all opponents." }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/7-cards-least/strategy',
+    dir: path.join(distDir, '7-cards-least', 'strategy'),
+    title: '7 Cards Least Strategy – Tips for Playing Better',
+    description: 'Master 7 Cards Least strategy: organize your hand, discard high-value face cards, utilize wild Jokers, track discards, and calculate safe Least call score windows.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
+    h1: '7 Cards Least Strategy',
+    h2: 'Educational tactical guide to organizing hands, prioritizing discards, and managing risks.',
+    content: 'Learn when to dump face cards early, how to build 3+ card suited runs, tracking opponent discard habits, and safe Least calling score windows.',
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+          { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+          { "@type": "ListItem", "position": 3, "name": "Strategy", "item": "https://cards.gnanamai.com/7-cards-least/strategy" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "7 Cards Least Strategy & Tips for Playing Better",
+        "url": "https://cards.gnanamai.com/7-cards-least/strategy"
+      }
+    ]
+  },
+  {
+    path: '/7-cards-least/faq',
+    dir: path.join(distDir, '7-cards-least', 'faq'),
+    title: '7 Cards Least FAQ – Rules, Gameplay & Online Play',
+    description: 'Find answers to frequently asked questions about 7 Cards Least rules, card values, online multiplayer, playing against AI, sets and runs, and scoring.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
+    h1: '7 Cards Least Frequently Asked Questions',
+    h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and AI play.',
+    content: 'Answers to: What is 7 Cards Least? How do you play? Can I play online? Is it free? How do Jokers work? Can I play against AI?',
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+          { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+          { "@type": "ListItem", "position": 3, "name": "FAQ", "item": "https://cards.gnanamai.com/7-cards-least/faq" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is 7 Cards Least?",
+            "acceptedAnswer": { "@type": "Answer", "text": "7 Cards Least is a fast-paced multiplayer card game played with 7 cards per player where players aim for the lowest hand score." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do you play 7 Cards Least?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Each player receives 7 cards. Discard single cards, matching rank sets, or suited runs, then draw a replacement card." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/rules',
+    dir: path.join(distDir, 'rules'),
+    title: '7 Cards Least Rules – Complete Guide to the Game',
+    description: 'Understand 7 Cards Least rules, card point values, valid discard sets and suited runs, Joker wildcard evaluation, match & skip rules, and scoring penalties.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
+    h1: '7 Cards Least Rules',
+    h2: 'Complete guide to card point values, discards, wildcards, turn rules, and penalties.',
+    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts.'
   },
   {
     path: '/how-to-play',
     dir: path.join(distDir, 'how-to-play'),
-    title: "How to Play 7 Card Game Online – Beginner's Guide",
-    description: "Learn how to play 7 Card Game with a step-by-step guide covering dealing, hand combinations, drawing, discarding, Joker ranks, and calling Least.",
-    canonical: 'https://cards.gnanamai.com/how-to-play',
-    h1: 'How to Play 7 Card Game',
-    h2: "A step-by-step beginner's guide to card setup, turn flow, scoring, and strategies.",
-    content: 'Understand dealing 7 cards, discarding sets (pairs/triples) and suited runs, drawing from the deck, and calling Least to end rounds.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "HowTo",
-      "name": "How to Play 7 Card Game",
-      "description": "Step-by-step beginner guide to dealing, discarding, drawing, and calling Least in 7 Card Game.",
-      "step": [
-        {
-          "@type": "HowToStep",
-          "name": "Deal 7 Cards",
-          "text": "Each player is dealt 7 cards from a standard 52-card deck. One remaining card is flipped face-up as the Joker rank."
-        },
-        {
-          "@type": "HowToStep",
-          "name": "Discard & Draw",
-          "text": "On your turn, discard a single card, matching rank sets, or suited runs, then draw one card from the deck or discard pile."
-        },
-        {
-          "@type": "HowToStep",
-          "name": "Call Least",
-          "text": "When your total hand score is lower than opponents, call Least to end the round and score 0 points."
-        }
-      ]
-    }
+    title: 'How to Play 7 Cards Least Online',
+    description: 'Learn how to play 7 Cards Least online with a step-by-step guide covering dealing, hand combinations, drawing, discarding, Joker ranks, and calling Least.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
+    h1: 'How to Play 7 Cards Least',
+    h2: "A beginner-friendly step-by-step guide to dealing, drawing, discarding, and winning.",
+    content: 'Understand dealing 7 cards, discarding sets and suited runs, drawing replacement cards.'
   },
   {
     path: '/strategy',
     dir: path.join(distDir, 'strategy'),
-    title: '7 Card Game Strategy – Tips to Improve Your Game',
-    description: 'Master 7 Card Game strategy: organize your hand, discard high-value face cards, utilize wild Jokers, track discards, and calculate safe Least call score windows.',
-    canonical: 'https://cards.gnanamai.com/strategy',
-    h1: '7 Card Game Strategy',
-    h2: 'Master score reduction, Joker management, discard tactics, and risk-calculated Least calls.',
-    content: 'Learn when to dump face cards early, how to build 3+ card suited runs, tracking opponent discard habits, and safe Least calling score windows.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "7 Card Game Strategy & Tips to Improve Your Game",
-      "url": "https://cards.gnanamai.com/strategy"
-    }
+    title: '7 Cards Least Strategy – Tips for Playing Better',
+    description: 'Master 7 Cards Least strategy: organize your hand, discard high-value face cards, utilize wild Jokers, track discards, and calculate safe Least call score windows.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
+    h1: '7 Cards Least Strategy',
+    h2: 'Educational tactical guide to organizing hands, prioritizing discards, and managing risks.',
+    content: 'Learn when to dump face cards early, how to build 3+ card suited runs.'
+  },
+  {
+    path: '/faq',
+    dir: path.join(distDir, 'faq'),
+    title: '7 Cards Least FAQ – Rules, Gameplay & Online Play',
+    description: 'Find answers to frequently asked questions about 7 Cards Least rules, card values, online multiplayer, playing against AI, sets and runs, and scoring.',
+    canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
+    h1: '7 Cards Least Frequently Asked Questions',
+    h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and AI play.',
+    content: 'Answers to: What is 7 Cards Least? How do you play? Can I play online?'
   },
   {
     path: '/multiplayer',
@@ -111,14 +225,7 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/multiplayer',
     h1: 'Play 7 Card Game Multiplayer Online',
     h2: 'Play real-time multiplayer card games with friends or instant online player matchfilling.',
-    content: 'Create private 4-digit room code lobbies, play 1 to 20 round matches, chat live with players, and enjoy fast online card play on cards.gnanamai.com.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "7 Card Game Multiplayer",
-      "url": "https://cards.gnanamai.com/multiplayer",
-      "applicationCategory": "GameApplication"
-    }
+    content: 'Create private 4-digit room code lobbies, play 1 to 20 round matches.'
   },
   {
     path: '/play-against-ai',
@@ -128,91 +235,11 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/play-against-ai',
     h1: 'Play 7 Card Game Against AI',
     h2: 'Practice your card strategies solo against intelligent computer opponents.',
-    content: 'Zero waiting time single-player card game against computer AI bots. Practice Joker evaluations, set building, and Least calls at your own pace.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Play 7 Card Game Against AI",
-      "url": "https://cards.gnanamai.com/play-against-ai",
-      "applicationCategory": "GameApplication"
-    }
-  },
-  {
-    path: '/solo',
-    dir: path.join(distDir, 'solo'),
-    title: 'Play 7 Card Game Against AI Online',
-    description: 'Play 7 Card Game against intelligent computer AI bots directly in your web browser for free. Enjoy zero-wait single-player card game practice.',
-    canonical: 'https://cards.gnanamai.com/play-against-ai',
-    h1: 'Play 7 Card Game Against AI',
-    h2: 'Practice your card strategies solo against intelligent computer opponents.',
-    content: 'Zero waiting time single-player card game against computer AI bots.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Play 7 Card Game Against AI",
-      "url": "https://cards.gnanamai.com/play-against-ai",
-      "applicationCategory": "GameApplication"
-    }
-  },
-  {
-    path: '/variations',
-    dir: path.join(distDir, 'variations'),
-    title: '7 Card Game Regional Variations & 7-Cards Least Rules',
-    description: 'Explore regional names and variations of 7 Card Game including 7-Cards Least, Seven Card Knock Rummy, and custom house rules.',
-    canonical: 'https://cards.gnanamai.com/variations',
-    h1: '7 Card Game Regional Names & Rules Variations',
-    h2: 'Explore different names and house rule variations of 7 Card Game around the world.',
-    content: '7-Cards Least is widely played as Low Hand Rummy. Compare 2v2 partner play, fixed jokers vs dynamic jokers, and penalty thresholds.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "7 Card Game Regional Variations",
-      "url": "https://cards.gnanamai.com/variations"
-    }
-  },
-  {
-    path: '/faq',
-    dir: path.join(distDir, 'faq'),
-    title: '7 Card Game FAQ – Rules, Gameplay & Online Play',
-    description: 'Find answers to frequently asked questions about 7 Card Game rules, card values, online multiplayer, playing against AI, sets and runs, and scoring.',
-    canonical: 'https://cards.gnanamai.com/faq',
-    h1: '7 Card Game Frequently Asked Questions',
-    h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and AI play.',
-    content: 'Answers to: What is 7 Card Game? How do you play? Can I play online? Is it free? How do Jokers work? Can I play against AI?',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is 7 Card Game?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "7 Card Game is a fast-paced multiplayer card game played with 7 cards per player where players aim for the lowest hand score."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How do you play 7 Card Game?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Each player receives 7 cards. Discard single cards, matching rank sets, or suited runs, then draw a replacement card."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I play 7 Card Game online?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, you can play 7 Card Game online for free directly in your web browser with friends or against computer AI."
-          }
-        }
-      ]
-    }
+    content: 'Zero waiting time single-player card game against computer AI bots.'
   }
 ];
 
-console.log('[SEO Prerender] Starting static HTML generation for routes...');
+console.log('[SEO Prerender] Starting static HTML generation for 7 Cards Least cluster routes...');
 
 routes.forEach(route => {
   if (!fs.existsSync(route.dir)) {
@@ -254,12 +281,13 @@ routes.forEach(route => {
         </p>
         <nav aria-label="Quick Links" style="margin-top: 15px; font-size: 14px;">
           <a href="https://cards.gnanamai.com/" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Play</a> |
-          <a href="https://cards.gnanamai.com/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Rules</a> |
-          <a href="https://cards.gnanamai.com/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">How to Play</a> |
-          <a href="https://cards.gnanamai.com/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Strategy</a> |
+          <a href="https://cards.gnanamai.com/7-cards-least" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">7 Cards Least</a> |
+          <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Rules</a> |
+          <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">How to Play</a> |
+          <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Strategy</a> |
           <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Multiplayer</a> |
           <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Play Against AI</a> |
-          <a href="https://cards.gnanamai.com/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">FAQ</a>
+          <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">FAQ</a>
         </nav>
       </main>
     </div>`;
@@ -271,4 +299,4 @@ routes.forEach(route => {
   console.log(`[SEO Prerender] Generated: ${path.relative(distDir, targetFile)}`);
 });
 
-console.log('[SEO Prerender] Successfully pre-rendered static HTML for all specified routes!');
+console.log('[SEO Prerender] Successfully pre-rendered static HTML for all 7 Cards Least cluster routes!');

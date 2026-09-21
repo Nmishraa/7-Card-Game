@@ -13,6 +13,11 @@ import { MultiplayerPage } from './src/screens/MultiplayerPage';
 import { PlayAgainstAiPage } from './src/screens/PlayAgainstAiPage';
 import { SoloPage } from './src/screens/SoloPage';
 import { FaqPage } from './src/screens/FaqPage';
+import { SevenCardsLeastMainPage } from './src/screens/SevenCardsLeastMainPage';
+import { SevenCardsLeastRulesPage } from './src/screens/SevenCardsLeastRulesPage';
+import { SevenCardsLeastHowToPlayPage } from './src/screens/SevenCardsLeastHowToPlayPage';
+import { SevenCardsLeastStrategyPage } from './src/screens/SevenCardsLeastStrategyPage';
+import { SevenCardsLeastFaqPage } from './src/screens/SevenCardsLeastFaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
@@ -507,16 +512,24 @@ export default function App() {
 
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
-  if (currentPath === '/how-to-play') {
-    return <HowToPlayPage onNavigate={handleNavigate} />;
+  if (currentPath === '/7-cards-least') {
+    return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
   }
 
-  if (currentPath === '/rules') {
-    return <RulesPage onNavigate={handleNavigate} />;
+  if (currentPath === '/7-cards-least/rules' || currentPath === '/rules') {
+    return <SevenCardsLeastRulesPage onNavigate={handleNavigate} />;
   }
 
-  if (currentPath === '/strategy') {
-    return <StrategyPage onNavigate={handleNavigate} />;
+  if (currentPath === '/7-cards-least/how-to-play' || currentPath === '/how-to-play') {
+    return <SevenCardsLeastHowToPlayPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/7-cards-least/strategy' || currentPath === '/strategy') {
+    return <SevenCardsLeastStrategyPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPath === '/7-cards-least/faq' || currentPath === '/faq') {
+    return <SevenCardsLeastFaqPage onNavigate={handleNavigate} />;
   }
 
   if (currentPath === '/variations') {
@@ -531,11 +544,22 @@ export default function App() {
     return <PlayAgainstAiPage onNavigate={handleNavigate} />;
   }
 
-  if (currentPath === '/faq') {
-    return <FaqPage onNavigate={handleNavigate} />;
-  }
-
-  const validPaths = ['/', '/how-to-play', '/rules', '/strategy', '/variations', '/multiplayer', '/play-against-ai', '/solo', '/faq'];
+  const validPaths = [
+    '/',
+    '/7-cards-least',
+    '/7-cards-least/rules',
+    '/7-cards-least/how-to-play',
+    '/7-cards-least/strategy',
+    '/7-cards-least/faq',
+    '/rules',
+    '/how-to-play',
+    '/strategy',
+    '/variations',
+    '/multiplayer',
+    '/play-against-ai',
+    '/solo',
+    '/faq'
+  ];
   if (!validPaths.includes(currentPath)) {
     return <NotFoundPage onNavigate={handleNavigate} />;
   }
