@@ -6,40 +6,13 @@ interface Props {
   onNavigate: (route: string) => void;
 }
 
-export const FaqPage: React.FC<Props> = ({ onNavigate }) => {
+export const VariationsPage: React.FC<Props> = ({ onNavigate }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
 
   useEffect(() => {
-    updatePageSeo('faq');
+    updatePageSeo('variations');
   }, []);
-
-  const faqs = [
-    {
-      q: 'What is 7 Card Game (7-Cards Least)?',
-      a: '7 Card Game is a fast-paced multiplayer card game played with 7 cards per player. Players discard sets or runs and aim to achieve the lowest hand point score before calling Least.'
-    },
-    {
-      q: 'How does the Joker card work?',
-      a: 'At the start of each round, a card is flipped face-up as the Joker. Any card in your hand with the same rank as the Joker card counts as 0 points.'
-    },
-    {
-      q: 'What happens if I call "Least" incorrectly?',
-      a: 'If you tap "Least!" thinking you have the lowest score, but an opponent has an equal or lower score than yours, you receive a penalty of 80 points!'
-    },
-    {
-      q: 'Can I play 7 Card Game with friends?',
-      a: 'Yes! Click "Create Private Table", select your number of rounds, and share the 4-digit room code with your friends to play online together.'
-    },
-    {
-      q: 'Can I play solo against computer AI bots?',
-      a: 'Yes, tap "Play vs Computer" on the homepage to start a solo match immediately against AI computer bots with zero wait time.'
-    },
-    {
-      q: 'Is 7 Card Game free to play?',
-      a: 'Yes, 7 Card Game is 100% free to play directly in your web browser with no forced account registration or download required.'
-    }
-  ];
 
   return (
     <SafeAreaView style={styles.root}>
@@ -53,33 +26,52 @@ export const FaqPage: React.FC<Props> = ({ onNavigate }) => {
           <TouchableOpacity onPress={() => onNavigate('/how-to-play')} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/variations')} style={styles.navBtn}><Text style={styles.navText}>Variations</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/variations')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Variations</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/solo')} style={styles.navBtn}><Text style={styles.navText}>Solo</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/faq')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>FAQ</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
         </ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.container, isWide && styles.containerWide]}>
-          <Text style={styles.h1}>7 Card Game FAQ</Text>
-          <Text style={styles.subtitle}>Frequently asked questions about rules, turns, scoring, multiplayer, and solo computer play.</Text>
-
-          {faqs.map((faq, index) => (
-            <View key={index} style={styles.cardSection}>
-              <Text style={styles.h2}>❓ {faq.q}</Text>
-              <Text style={styles.bodyText}>{faq.a}</Text>
-            </View>
-          ))}
+          <Text style={styles.h1}>7 Card Game Regional Names &amp; Rules Variations</Text>
+          <Text style={styles.subtitle}>Explore different names and house rule variations of 7 Card Game around the world.</Text>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>Have More Questions?</Text>
+            <Text style={styles.h2}>1. 7-Cards Least (Indian Card Game Classic)</Text>
+            <Text style={styles.bodyText}>
+              In South Asia and worldwide, 7 Card Game is widely known as <Text style={styles.boldText}>7-Cards Least</Text> or <Text style={styles.boldText}>Lowest Hand Rummy</Text>. The core objective remains shedding heavy point cards and calling "Least!" when your total score drops below opponents.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>2. Seven Card Knock / Low Hand Rummy</Text>
+            <Text style={styles.bodyText}>
+              In Western card parlance, the game shares structural mechanics with <Text style={styles.boldText}>Knock Rummy</Text> and <Text style={styles.boldText}>Lowball Card Games</Text>. Players "knock" or call "Least" instead of declaring a full melding hand.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>3. Cutthroat vs Team Match Variations</Text>
+            <Text style={styles.bodyText}>
+              While standard online matches at <Text style={styles.boldText}>cards.gnanamai.com</Text> feature 2 to 4 player individual cutthroat competition, traditional offline variants include:
+              {'\n'}• <Text style={styles.boldText}>2v2 Partner Play:</Text> Teammates sit opposite each other and combine scores.
+              {'\n'}• <Text style={styles.boldText}>Custom Penalty Thresholds:</Text> Some house rules set wrong call penalties to 50 or 100 points, whereas our standard competitive online format uses the balanced <Text style={styles.boldText}>80-point penalty</Text>.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>4. Dynamic Joker Rules vs Fixed Jokers</Text>
+            <Text style={styles.bodyText}>
+              Unlike standard Rummy games that rely solely on printed physical Joker cards, our digital version uses the face-up flipped card at round start to dynamically assign zero-point value to matching suitless ranks, making every round unique and strategic.
+            </Text>
             <View style={styles.ctaRow}>
               <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
-                <Text style={styles.ctaText}>⚡ Play 7 Card Game Now</Text>
+                <Text style={styles.ctaText}>⚡ Play Official 7 Card Game</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/rules')}>
-                <Text style={styles.secondaryCtaText}>📖 Read Full Rules</Text>
+              <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/how-to-play')}>
+                <Text style={styles.secondaryCtaText}>📖 Read How to Play</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -127,8 +119,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  h2: { color: '#38bdf8', fontSize: 17, fontWeight: 'bold', marginBottom: 8 },
+  h2: { color: '#38bdf8', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   bodyText: { color: '#cbd5e1', fontSize: 15, lineHeight: 24 },
+  boldText: { color: '#fbbf24', fontWeight: 'bold' },
 
   ctaRow: { flexDirection: 'row', gap: 12, marginTop: 16, flexWrap: 'wrap' },
   primaryCta: { backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, minHeight: 44, justifyContent: 'center' },

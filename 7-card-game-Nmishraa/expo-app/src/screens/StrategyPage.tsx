@@ -6,40 +6,13 @@ interface Props {
   onNavigate: (route: string) => void;
 }
 
-export const FaqPage: React.FC<Props> = ({ onNavigate }) => {
+export const StrategyPage: React.FC<Props> = ({ onNavigate }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
 
   useEffect(() => {
-    updatePageSeo('faq');
+    updatePageSeo('strategy');
   }, []);
-
-  const faqs = [
-    {
-      q: 'What is 7 Card Game (7-Cards Least)?',
-      a: '7 Card Game is a fast-paced multiplayer card game played with 7 cards per player. Players discard sets or runs and aim to achieve the lowest hand point score before calling Least.'
-    },
-    {
-      q: 'How does the Joker card work?',
-      a: 'At the start of each round, a card is flipped face-up as the Joker. Any card in your hand with the same rank as the Joker card counts as 0 points.'
-    },
-    {
-      q: 'What happens if I call "Least" incorrectly?',
-      a: 'If you tap "Least!" thinking you have the lowest score, but an opponent has an equal or lower score than yours, you receive a penalty of 80 points!'
-    },
-    {
-      q: 'Can I play 7 Card Game with friends?',
-      a: 'Yes! Click "Create Private Table", select your number of rounds, and share the 4-digit room code with your friends to play online together.'
-    },
-    {
-      q: 'Can I play solo against computer AI bots?',
-      a: 'Yes, tap "Play vs Computer" on the homepage to start a solo match immediately against AI computer bots with zero wait time.'
-    },
-    {
-      q: 'Is 7 Card Game free to play?',
-      a: 'Yes, 7 Card Game is 100% free to play directly in your web browser with no forced account registration or download required.'
-    }
-  ];
 
   return (
     <SafeAreaView style={styles.root}>
@@ -52,34 +25,65 @@ export const FaqPage: React.FC<Props> = ({ onNavigate }) => {
           <TouchableOpacity onPress={() => onNavigate('/')} style={styles.navBtn}><Text style={styles.navText}>Home</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/how-to-play')} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/strategy')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Strategy</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/variations')} style={styles.navBtn}><Text style={styles.navText}>Variations</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/solo')} style={styles.navBtn}><Text style={styles.navText}>Solo</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/faq')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>FAQ</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
         </ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.container, isWide && styles.containerWide]}>
-          <Text style={styles.h1}>7 Card Game FAQ</Text>
-          <Text style={styles.subtitle}>Frequently asked questions about rules, turns, scoring, multiplayer, and solo computer play.</Text>
-
-          {faqs.map((faq, index) => (
-            <View key={index} style={styles.cardSection}>
-              <Text style={styles.h2}>❓ {faq.q}</Text>
-              <Text style={styles.bodyText}>{faq.a}</Text>
-            </View>
-          ))}
+          <Text style={styles.h1}>7 Card Game Strategy &amp; Winning Tips</Text>
+          <Text style={styles.subtitle}>Master score reduction, Joker management, discard tactics, and risk-calculated Least calls in 7 Cards Least online.</Text>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>Have More Questions?</Text>
+            <Text style={styles.h2}>1. High-Value Card Prioritization</Text>
+            <Text style={styles.bodyText}>
+              In 7 Card Game, Face cards (Jacks, Queens, Kings = 10 pts) and Aces (1 pt or 11 pts) add heavy point weight to your hand. Always discard high-rank singles early in the round unless they match the active Joker rank. Holding high-rank cards late in a round exposes you to heavy score penalties if an opponent calls "Least!".
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>2. Harnessing the Wild Joker Card</Text>
+            <Text style={styles.bodyText}>
+              The face-up card flipped during round initialization sets the <Text style={styles.boldText}>Joker Rank (0 points)</Text>.
+              {'\n'}• <Text style={styles.boldText}>Hold Jokers:</Text> Never discard a Joker card early unless you are clearing a multi-card set or run.
+              {'\n'}• <Text style={styles.boldText}>Wildcards in Sets:</Text> Use Jokers strategically to complete 3+ card suited runs or equal rank sets to discard multiple cards in a single turn.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>3. Multi-Card Discard Combinations (Runs &amp; Sets)</Text>
+            <Text style={styles.bodyText}>
+              Dumping single cards slowly gives opponents time to lower their hands. Maximizing multi-card discards is essential:
+              {'\n'}• <Text style={styles.boldText}>Equal Rank Sets:</Text> Pair 2, 3, or 4 of a kind (e.g., 8♠, 8♥, 8♦) to shed cards fast.
+              {'\n'}• <Text style={styles.boldText}>Suited Sequences (Runs):</Text> Build 3+ consecutive cards in the same suit (e.g., 4♣, 5♣, 6♣) to drop up to 30+ points in one turn.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>4. Calculating the "Least!" Threshold</Text>
+            <Text style={styles.bodyText}>
+              Calling "Least!" stops the round immediately. To decide when to call:
+              {'\n'}• <Text style={styles.boldText}>Safe Calling Window:</Text> A total hand score of <Text style={styles.boldText}>0 to 7 points</Text> has over 90% win probability in 4-player tables.
+              {'\n'}• <Text style={styles.boldText}>Calculated Risk (8 to 12 pts):</Text> Only call if opponents have taken multiple face cards from the draw pile or haven't discarded runs.
+              {'\n'}• <Text style={styles.boldText}>Avoid the 80-Point Penalty:</Text> If an opponent ties or beats your score when you call Least, you suffer an 80-point penalty!
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2}>5. Tracking Opponent Discard Habits</Text>
+            <Text style={styles.bodyText}>
+              Observe the face-up Discard Pile closely. If an opponent draws a card you discarded, take note of its suit and rank. Avoid discarding cards that allow opponents to complete high-value runs or equal rank sets.
+            </Text>
             <View style={styles.ctaRow}>
               <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
-                <Text style={styles.ctaText}>⚡ Play 7 Card Game Now</Text>
+                <Text style={styles.ctaText}>⚡ Test Your Strategy Live</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/rules')}>
-                <Text style={styles.secondaryCtaText}>📖 Read Full Rules</Text>
+                <Text style={styles.secondaryCtaText}>📖 Review Scoring Rules</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -127,8 +131,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  h2: { color: '#38bdf8', fontSize: 17, fontWeight: 'bold', marginBottom: 8 },
+  h2: { color: '#38bdf8', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   bodyText: { color: '#cbd5e1', fontSize: 15, lineHeight: 24 },
+  boldText: { color: '#fbbf24', fontWeight: 'bold' },
 
   ctaRow: { flexDirection: 'row', gap: 12, marginTop: 16, flexWrap: 'wrap' },
   primaryCta: { backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, minHeight: 44, justifyContent: 'center' },
