@@ -233,59 +233,6 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
-          {/* ─── HOMEPAGE SEO CONTENT SECTION (Specification Item #18) ─── */}
-          <View style={[styles.seoContentContainer, isWide && styles.cardWide]}>
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>How to Play 7 Card Game</Text>
-              <Text style={styles.seoSectionText}>
-                7 Card Game is a fast-paced card shedding game where each player receives 7 cards from a standard deck. On your turn, discard single cards, matching rank sets, or suited runs, then draw a replacement card.
-              </Text>
-              <TouchableOpacity onPress={() => handleNav('/how-to-play')} style={styles.inlineLinkBtn}>
-                <Text style={styles.inlineLinkText}>Read beginner guide →</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>7 Card Game Rules</Text>
-              <Text style={styles.seoSectionText}>
-                Aces are worth 1 point, Face cards are worth 10 points, and the active face-up Joker makes matching ranks 0 points. Call "Least!" when your hand point score is lower than all opponents. Beware: wrong calls carry an 80-point penalty!
-              </Text>
-              <TouchableOpacity onPress={() => handleNav('/rules')} style={styles.inlineLinkBtn}>
-                <Text style={styles.inlineLinkText}>Learn 7 Card Game rules →</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>Play 7 Card Game Online</Text>
-              <Text style={styles.seoSectionText}>
-                Enjoy real-time multiplayer card tables with 4-digit private room codes, live table chat, and instant guest play. Create rooms for 1 to 20 rounds or join Quick Matches instantly.
-              </Text>
-              <TouchableOpacity onPress={() => handleNav('/multiplayer')} style={styles.inlineLinkBtn}>
-                <Text style={styles.inlineLinkText}>Explore multiplayer features →</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>7 Card Game Strategy</Text>
-              <Text style={styles.seoSectionText}>
-                Learn how to prioritize high-card discards, build suited runs, track discarded ranks, maximize wildcard Jokers, and choose safe score windows for calling Least.
-              </Text>
-              <TouchableOpacity onPress={() => handleNav('/strategy')} style={styles.inlineLinkBtn}>
-                <Text style={styles.inlineLinkText}>View 7 Card Game strategy →</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.seoSectionCard}>
-              <Text style={styles.h2Title}>Frequently Asked Questions</Text>
-              <Text style={styles.seoSectionText}>
-                Have questions about card scores, player counts, multiplayer setup, or playing vs computer AI? Visit our dedicated help center for full answers.
-              </Text>
-              <TouchableOpacity onPress={() => handleNav('/faq')} style={styles.inlineLinkBtn}>
-                <Text style={styles.inlineLinkText}>Read 7 Card Game FAQ →</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
             <View style={styles.footerNav}>
