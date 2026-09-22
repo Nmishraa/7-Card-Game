@@ -42,9 +42,9 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
             <Text style={styles.breadcrumbCurrent}>7 Cards Least</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Game Online</Text>
+          <Text style={styles.h1}>7 Cards Least Card Game</Text>
           <Text style={styles.subtitle}>
-            Play 7 Cards Least online for free. Learn the rules, gameplay, scoring, strategy, and start an online game against AI or with friends.
+            Discover 7 Cards Least, the popular low-hand shedding card game. Learn how 7 cards are dealt, how discard sets &amp; suited runs work, card values, zero-point Jokers, and play online against friends or computer AI.
           </Text>
 
           <View style={styles.cardSection}>

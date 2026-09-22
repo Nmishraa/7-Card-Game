@@ -35,8 +35,15 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.container, isWide && styles.containerWide]}>
-          <Text style={styles.h1}>7 Card Game Multiplayer</Text>
-          <Text style={styles.subtitle}>Play 7 Card Game online with friends or real-time online player matching.</Text>
+          {/* Breadcrumbs */}
+          <View style={styles.breadcrumbRow}>
+            <TouchableOpacity onPress={() => onNavigate('/')}><Text style={styles.breadcrumbLink}>Home</Text></TouchableOpacity>
+            <Text style={styles.breadcrumbSep}>→</Text>
+            <Text style={styles.breadcrumbCurrent}>Multiplayer</Text>
+          </View>
+
+          <Text style={styles.h1}>7 Cards Least Multiplayer Online</Text>
+          <Text style={styles.subtitle}>Play 7 Cards Least multiplayer online with friends or instant online player matchfilling.</Text>
 
           <View style={styles.cardSection}>
             <Text style={styles.h2}>⚡ Quick Match (Online)</Text>
@@ -103,7 +110,11 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, padding: 16, alignItems: 'center' },
   container: { width: '100%' },
   containerWide: { maxWidth: 800 },
-  h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginTop: 12, marginBottom: 8 },
+  breadcrumbRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, marginBottom: 12 },
+  breadcrumbLink: { color: '#38bdf8', fontSize: 14, fontWeight: '600' },
+  breadcrumbSep: { color: '#64748b', fontSize: 14 },
+  breadcrumbCurrent: { color: '#94a3b8', fontSize: 14 },
+  h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 20 },
 
   cardSection: {

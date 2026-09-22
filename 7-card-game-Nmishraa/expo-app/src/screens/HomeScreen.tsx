@@ -114,9 +114,9 @@ export const HomeScreen: React.FC<Props> = ({
               accessibilityLabel="7 Card Game Logo"
             />
             {/* H1 for Search Engine Discoverability */}
-            <Text style={styles.h1Title}>Play 7 Card Game Online</Text>
+            <Text style={styles.h1Title}>7 Cards Least Game Online</Text>
             <Text style={styles.introParagraph}>
-              Play 7 Card Game online for free. Learn the rules, play against AI, and enjoy an interactive card game experience. Explore how to play, scoring, sets, runs, jokers, and strategy.
+              Play 7 Cards Least online for free. Enjoy real-time multiplayer card games with friends or practice solo against computer AI. No download required.
             </Text>
           </View>
 
