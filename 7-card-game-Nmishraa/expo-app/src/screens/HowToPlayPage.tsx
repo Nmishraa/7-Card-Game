@@ -35,8 +35,17 @@ export const HowToPlayPage: React.FC<Props> = ({ onNavigate }) => {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.container, isWide && styles.containerWide]}>
-          <Text style={styles.h1}>How to Play 7 Card Game</Text>
-          <Text style={styles.subtitle}>A beginner's guide to card setup, turn flow, scoring, and strategies for 7 Cards Least.</Text>
+          {/* Breadcrumbs */}
+          <View style={styles.breadcrumbRow}>
+            <TouchableOpacity onPress={() => onNavigate('/')}><Text style={styles.breadcrumbLink}>Home</Text></TouchableOpacity>
+            <Text style={styles.breadcrumbSep}>→</Text>
+            <TouchableOpacity onPress={() => onNavigate('/7-cards-least')}><Text style={styles.breadcrumbLink}>7 Cards Least</Text></TouchableOpacity>
+            <Text style={styles.breadcrumbSep}>→</Text>
+            <Text style={styles.breadcrumbCurrent}>How to Play</Text>
+          </View>
+
+          <Text style={styles.h1}>How to Play 7 Cards Least</Text>
+          <Text style={styles.subtitle}>A beginner-friendly step-by-step guide to card setup, turn flow, scoring, and strategies for 7 Cards Least.</Text>
 
           <View style={styles.cardSection}>
             <Text style={styles.h2}>1. Game Setup &amp; Dealing</Text>
@@ -115,7 +124,11 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, padding: 16, alignItems: 'center' },
   container: { width: '100%' },
   containerWide: { maxWidth: 800 },
-  h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginTop: 12, marginBottom: 8 },
+  breadcrumbRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, marginBottom: 12 },
+  breadcrumbLink: { color: '#38bdf8', fontSize: 14, fontWeight: '600' },
+  breadcrumbSep: { color: '#64748b', fontSize: 14 },
+  breadcrumbCurrent: { color: '#94a3b8', fontSize: 14 },
+  h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 20 },
 
   cardSection: {
