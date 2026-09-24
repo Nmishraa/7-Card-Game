@@ -53,6 +53,33 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
             <Text style={styles.roomCodeText}>Room Code: {room.id}</Text>
             <Text style={styles.playerCountText}>Players: {players.length} / 8</Text>
 
+            {/* Invite Friends Action Row */}
+            <View style={styles.shareRow}>
+              <TouchableOpacity style={styles.whatsappBtn} onPress={() => {
+                const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                if (typeof window !== 'undefined') {
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                }
+              }}>
+                <Text style={styles.whatsappBtnText}>💬 Invite via WhatsApp</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.copyLinkBtn} onPress={async () => {
+                const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard) {
+                  try {
+                    await window.navigator.clipboard.writeText(inviteUrl);
+                    alert(`Copied invite link!\n${inviteUrl}`);
+                  } catch (e) {
+                    alert(`Room Link: ${inviteUrl}`);
+                  }
+                }
+              }}>
+                <Text style={styles.copyLinkBtnText}>📋 Copy Invite Link</Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.playerListContainer}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {players.map((p, index) => (
@@ -328,5 +355,10 @@ const createStyles = (width: number, height: number) => {
     lobbyRoundBtnText: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
     lobbyHostTag: { color: '#cbd5e1', fontSize: 14, fontWeight: '600', fontStyle: 'italic' },
     soloNoticeText: { color: '#38bdf8', fontSize: 13, textAlign: 'center', marginBottom: 6, fontStyle: 'italic', fontWeight: '500' },
+    shareRow: { flexDirection: 'row', gap: 10, width: '100%', marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' },
+    whatsappBtn: { backgroundColor: '#25D366', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, flex: 1, minWidth: 150, alignItems: 'center' },
+    whatsappBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14 },
+    copyLinkBtn: { backgroundColor: '#0ea5e9', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, flex: 1, minWidth: 150, alignItems: 'center' },
+    copyLinkBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14 },
   });
 };

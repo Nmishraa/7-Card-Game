@@ -112,6 +112,29 @@ export default function App() {
     }
   }, [user]);
 
+  // ── Auto-join room from URL query param (e.g. ?room=ABCD) ───────────────────
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.location) return;
+    const params = new URLSearchParams(window.location.search);
+    const targetRoom = params.get('room') || params.get('join');
+    if (targetRoom && targetRoom.length === 4) {
+      const cleanCode = targetRoom.toUpperCase();
+      const pName = user ? user.displayName : 'Guest ' + Math.floor(Math.random() * 900 + 100);
+      
+      // If user is guest/null, auto login guest
+      if (!user) {
+        const guestUser = {
+          uid: 'guest_' + Math.random().toString(36).substring(2, 9),
+          displayName: pName,
+          isAnonymous: true,
+        };
+        setUser(guestUser);
+      }
+      
+      handleJoinRoom(pName, cleanCode);
+    }
+  }, []);
+
   // ── PostgreSQL (Neha_data) Room State Polling Sync ────────────────────────
   useEffect(() => {
     if (!roomId) return;

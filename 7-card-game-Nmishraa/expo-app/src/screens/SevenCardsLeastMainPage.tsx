@@ -47,6 +47,20 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
             Discover 7 Cards Least, the popular low-hand shedding card game. Learn how 7 cards are dealt, how discard sets &amp; suited runs work, card values, zero-point Jokers, and play online against friends or computer AI.
           </Text>
 
+          {/* ⚡ TOP HERO PLAY CTA CARD ⚡ */}
+          <View style={styles.topHeroCard}>
+            <Text style={styles.topHeroTitle}>🎴 Ready to Play 7 Cards Least?</Text>
+            <Text style={styles.topHeroSubtitle}>Play online instantly in your browser. No download required!</Text>
+            <View style={styles.ctaRow}>
+              <TouchableOpacity style={styles.heroPlayCta} onPress={() => onNavigate('/')}>
+                <Text style={styles.heroPlayCtaText}>⚡ Play Free Now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.heroAiCta} onPress={() => onNavigate('/play-against-ai')}>
+                <Text style={styles.heroAiCtaText}>🤖 Practice vs Computer AI</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.cardSection}>
             <Text style={styles.h2}>What Is 7 Cards Least?</Text>
             <Text style={styles.bodyText}>
@@ -187,6 +201,26 @@ const styles = StyleSheet.create({
   ctaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
   secondaryCta: { backgroundColor: '#7c3aed', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, minHeight: 44, justifyContent: 'center' },
   secondaryCtaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
+
+  topHeroCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#38bdf8',
+    alignItems: 'center',
+    shadowColor: '#38bdf8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+  topHeroTitle: { color: '#ffffff', fontSize: 20, fontWeight: 'bold', marginBottom: 6, textAlign: 'center' },
+  topHeroSubtitle: { color: '#cbd5e1', fontSize: 14, marginBottom: 16, textAlign: 'center' },
+  heroPlayCta: { backgroundColor: '#22c55e', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 10, minHeight: 48, justifyContent: 'center', shadowColor: '#22c55e', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.4, shadowRadius: 6 },
+  heroPlayCtaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
+  heroAiCta: { backgroundColor: '#7c3aed', paddingHorizontal: 20, paddingVertical: 14, borderRadius: 10, minHeight: 48, justifyContent: 'center' },
+  heroAiCtaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
 
   footer: { marginTop: 30, paddingVertical: 16, alignItems: 'center' },
   footerText: { color: '#64748b', fontSize: 13 },

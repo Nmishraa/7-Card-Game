@@ -517,17 +517,6 @@ const createStyles = (width: number, height: number) => {
       fontWeight: 'bold',
       fontSize: 15,
     },
-
-    welcomeTagline: {
-      color: '#cbd5e1',
-      fontSize: isSmall ? 14 : 16,
-      fontStyle: 'italic',
-      fontWeight: '300',
-      textAlign: 'center',
-      textShadowColor: 'rgba(0, 0, 0, 0.5)',
-      textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 3,
-    },
     logoutBtn: {
       backgroundColor: '#ef4444',
       paddingHorizontal: 16,
@@ -758,6 +747,8 @@ const createStyles = (width: number, height: number) => {
       textAlign: 'center',
     },
     ruleHead: { color: '#38bdf8', fontWeight: 'bold', fontSize: 15, marginBottom: 4 },
+    ruleBody: { color: '#cbd5e1', fontSize: 14, lineHeight: 20 },
+    closeBtn: { marginTop: 16, backgroundColor: '#0275d8', paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
     closeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
     /* Footer */
