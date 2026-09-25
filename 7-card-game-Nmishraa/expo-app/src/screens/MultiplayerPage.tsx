@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView, TextInput, Linking } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
 
 interface Props {
@@ -10,9 +10,33 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
 
+  const [customRoomCode, setCustomRoomCode] = useState<string>('PLAY7');
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
+
   useEffect(() => {
     updatePageSeo('multiplayer');
   }, []);
+
+  const getShareUrl = () => `https://cards.gnanamai.com/?room=${customRoomCode.toUpperCase()}`;
+
+  const handleShareWhatsApp = () => {
+    const text = `Hey! Join my 7 Cards Least game table online right now: ${getShareUrl()}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    } else {
+      Linking.openURL(url);
+    }
+  };
+
+  const handleCopyLink = () => {
+    const url = getShareUrl();
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedToast('📋 Link copied to clipboard!');
+      setTimeout(() => setCopiedToast(null), 3000);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -44,6 +68,34 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
 
           <Text style={styles.h1}>7 Cards Least Multiplayer Online</Text>
           <Text style={styles.subtitle}>Play 7 Cards Least multiplayer online with friends or instant online player matchfilling.</Text>
+
+          {/* ⚡ VIRAL ROOM SHARE WIDGET ⚡ */}
+          <View style={styles.shareWidgetBox}>
+            <Text style={styles.shareWidgetTitle}>📲 Invite Friends to Play via WhatsApp</Text>
+            <Text style={styles.shareWidgetSub}>Generate an instant room link and share it on WhatsApp or social media:</Text>
+            
+            <View style={styles.shareInputRow}>
+              <Text style={styles.shareCodePrefix}>Room Code:</Text>
+              <TextInput
+                style={styles.shareCodeInput}
+                value={customRoomCode}
+                onChangeText={setCustomRoomCode}
+                maxLength={6}
+                autoCapitalize="characters"
+              />
+            </View>
+
+            <View style={styles.shareBtnGroup}>
+              <TouchableOpacity style={styles.whatsappBtn} onPress={handleShareWhatsApp}>
+                <Text style={styles.whatsappBtnText}>💬 Share on WhatsApp</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.copyLinkBtn} onPress={handleCopyLink}>
+                <Text style={styles.copyLinkBtnText}>📋 Copy Room Link</Text>
+              </TouchableOpacity>
+            </View>
+
+            {copiedToast && <Text style={styles.toastText}>{copiedToast}</Text>}
+          </View>
 
           <View style={styles.cardSection}>
             <Text style={styles.h2}>⚡ Quick Match (Online)</Text>
@@ -117,6 +169,26 @@ const styles = StyleSheet.create({
   h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 20 },
 
+  shareWidgetBox: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#25d366',
+  },
+  shareWidgetTitle: { color: '#25d366', fontSize: 18, fontWeight: 'bold', marginBottom: 6 },
+  shareWidgetSub: { color: '#cbd5e1', fontSize: 14, marginBottom: 14 },
+  shareInputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+  shareCodePrefix: { color: '#94a3b8', fontSize: 14, fontWeight: 'bold' },
+  shareCodeInput: { backgroundColor: '#1e293b', color: '#fbbf24', fontSize: 18, fontWeight: 'bold', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, minWidth: 100, textAlign: 'center', borderWidth: 1, borderColor: '#334155' },
+  shareBtnGroup: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
+  whatsappBtn: { backgroundColor: '#25d366', paddingHorizontal: 18, paddingVertical: 12, borderRadius: 10, flex: 1, minWidth: 160, alignItems: 'center' },
+  whatsappBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
+  copyLinkBtn: { backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 12, borderRadius: 10, flex: 1, minWidth: 160, alignItems: 'center' },
+  copyLinkBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
+  toastText: { color: '#a7f3d0', fontSize: 14, fontWeight: 'bold', marginTop: 10, textAlign: 'center' },
+
   cardSection: {
     backgroundColor: 'rgba(10, 22, 40, 0.85)',
     borderRadius: 16,
@@ -137,3 +209,4 @@ const styles = StyleSheet.create({
   footer: { marginTop: 30, paddingVertical: 16, alignItems: 'center' },
   footerText: { color: '#64748b', fontSize: 13 },
 });
+

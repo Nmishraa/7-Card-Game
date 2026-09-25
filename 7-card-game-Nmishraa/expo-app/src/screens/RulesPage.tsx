@@ -47,6 +47,20 @@ export const RulesPage: React.FC<Props> = ({ onNavigate }) => {
           <Text style={styles.h1}>7 Cards Least Rules</Text>
           <Text style={styles.subtitle}>Complete documentation of official game rules, card point values, discards, jokers, and penalties.</Text>
 
+          {/* ⚡ TOP HERO PLAY CTA CARD ⚡ */}
+          <View style={styles.topHeroCard}>
+            <Text style={styles.topHeroTitle}>🎴 Ready to Test Your Skill?</Text>
+            <Text style={styles.topHeroSubtitle}>Jump straight into a 7 Cards Least table online!</Text>
+            <View style={styles.ctaRow}>
+              <TouchableOpacity style={styles.heroPlayCta} onPress={() => onNavigate('/')}>
+                <Text style={styles.heroPlayCtaText}>⚡ Play Free Now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.heroAiCta} onPress={() => onNavigate('/solo')}>
+                <Text style={styles.heroAiCtaText}>🤖 Play vs Computer AI</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.cardSection}>
             <Text style={styles.h2}>1. Card Point Values</Text>
             <Text style={styles.bodyText}>
@@ -147,6 +161,26 @@ const styles = StyleSheet.create({
   h2: { color: '#38bdf8', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   bodyText: { color: '#cbd5e1', fontSize: 15, lineHeight: 24 },
   boldText: { color: '#fbbf24', fontWeight: 'bold' },
+
+  topHeroCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#38bdf8',
+    alignItems: 'center',
+    shadowColor: '#38bdf8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+  topHeroTitle: { color: '#ffffff', fontSize: 20, fontWeight: 'bold', marginBottom: 6, textAlign: 'center' },
+  topHeroSubtitle: { color: '#cbd5e1', fontSize: 14, marginBottom: 16, textAlign: 'center' },
+  heroPlayCta: { backgroundColor: '#22c55e', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 10, minHeight: 48, justifyContent: 'center' },
+  heroPlayCtaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
+  heroAiCta: { backgroundColor: '#7c3aed', paddingHorizontal: 20, paddingVertical: 14, borderRadius: 10, minHeight: 48, justifyContent: 'center' },
+  heroAiCtaText: { color: '#ffffff', fontWeight: 'bold', fontSize: 15 },
 
   ctaRow: { flexDirection: 'row', gap: 12, marginTop: 16, flexWrap: 'wrap' },
   primaryCta: { backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, minHeight: 44, justifyContent: 'center' },
