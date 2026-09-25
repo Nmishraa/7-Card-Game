@@ -153,7 +153,7 @@ const getPerimeterCoords = (index: number, n: number) => {
 };
 
 export const GameScreen: React.FC<Props> = ({ 
-  room, currentPlayerId, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, currentFeltColor 
+  room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, currentFeltColor 
 }) => {
   const { width, height } = useWindowDimensions();
   const allPlayersEarly = room?.turnOrder || [];
@@ -360,10 +360,15 @@ export const GameScreen: React.FC<Props> = ({
 
             {isGameOver ? (
               <View style={styles.winnerSection}>
-                <Text style={styles.winnerTitle}>Winner: {playersList[0]?.name}!</Text>
-                <TouchableOpacity style={styles.summaryBtn} onPress={onLeaveRoom}>
-                  <Text style={styles.summaryBtnText}>Back to Home</Text>
-                </TouchableOpacity>
+                <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
+                <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, justifyContent: 'center' }}>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} onPress={onStartGame}>
+                    <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#475569' }]} onPress={onLeaveRoom}>
+                    <Text style={styles.summaryBtnText}>Back to Home</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : (
               <TouchableOpacity style={styles.summaryBtn} onPress={onNextRound}>
