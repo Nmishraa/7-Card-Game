@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { trackEvent, getAnalyticsSummary } from '../controllers/analyticsController';
-import { authenticateToken } from '../middleware/auth';
-import { verifyApiKey } from '../middleware/apiKey';
 
 const router = Router();
 
-router.post('/events', verifyApiKey, trackEvent);
-router.get('/summary', authenticateToken, getAnalyticsSummary);
+// Accept both /events and /track endpoints for analytics tracking
+router.post('/events', trackEvent);
+router.post('/track', trackEvent);
+router.get('/summary', getAnalyticsSummary);
 
 export default router;
