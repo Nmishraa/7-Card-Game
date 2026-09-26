@@ -21,7 +21,7 @@ import { SevenCardsLeastFaqPage } from './src/screens/SevenCardsLeastFaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
-  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue
+  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand
 } from './src/engine/gameLogic';
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
@@ -514,15 +514,7 @@ export default function App() {
     const me = currentRoom.players[user.uid];
     if (!me || !me.hand) return;
 
-    const jokerRank = currentRoom.jokerCard?.rank;
-    const sortedHand = [...me.hand].sort((a, b) => {
-      const isAJoker = jokerRank && a.rank === jokerRank;
-      const isBJoker = jokerRank && b.rank === jokerRank;
-      if (isAJoker && !isBJoker) return -1;
-      if (!isAJoker && isBJoker) return 1;
-      if (a.suit !== b.suit) return a.suit.localeCompare(b.suit);
-      return getSequenceValue(a.rank) - getSequenceValue(b.rank);
-    });
+    const sortedHand = sortHand(me.hand);
 
     const updatedPlayers = {
       ...currentRoom.players,

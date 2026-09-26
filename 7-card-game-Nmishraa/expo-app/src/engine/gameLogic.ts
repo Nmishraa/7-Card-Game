@@ -17,6 +17,28 @@ export const getSequenceValue = (rank: Rank): number => {
   return rankMap[rank];
 };
 
+export const SUIT_ORDER: Record<Suit, number> = {
+  'Clubs': 1,
+  'Diamonds': 2,
+  'Hearts': 3,
+  'Spades': 4,
+};
+
+export const sortHand = (hand: Card[]): Card[] => {
+  if (!hand || hand.length === 0) return [];
+  return [...hand].sort((a, b) => {
+    const valA = getSequenceValue(a.rank);
+    const valB = getSequenceValue(b.rank);
+    if (valA !== valB) {
+      return valA - valB;
+    }
+    const suitA = SUIT_ORDER[a.suit] || 0;
+    const suitB = SUIT_ORDER[b.suit] || 0;
+    return suitA - suitB;
+  });
+};
+
+
 export const getNextTurnIndex = (room: GameRoom, currentIndex: number): number => {
   // Clockwise: move to the next index in the turnOrder array
   let nextIndex = (currentIndex + 1) % room.turnOrder.length;
@@ -107,7 +129,7 @@ export const startRound = (room: GameRoom): GameRoom => {
       };
       return;
     }
-    const hand = deck.splice(0, 7);
+    const hand = sortHand(deck.splice(0, 7));
     newPlayers[playerId] = {
       ...p,
       hand,
@@ -172,7 +194,7 @@ export const playTurn = (
   if (!isValidSetOrRun(discardedCards)) return room;
 
   // Remove from hand
-  const newHand = player.hand.filter(c => !discardedCardIds.includes(c.id));
+  const newHand = sortHand(player.hand.filter(c => !discardedCardIds.includes(c.id)));
   const newDeck = [...room.deck];
   const pendingDiscard = [...discardedCards];
   const newDiscardPile = [...room.discardPile];
@@ -285,7 +307,8 @@ export const drawCard = (
     return result;
   }
 
-  const newHand = [...player.hand, pickedCard];
+  const newHand = sortHand([...player.hand, pickedCard]);
+
   const newPlayers = { ...room.players };
   newPlayers[playerId] = {
     ...player,

@@ -17,8 +17,19 @@ import {
   Image,
   SafeAreaView
 } from 'react-native';
-import { GameRoom, Card as CardType } from '../engine/types';
+import { GameRoom, Card as CardType, ChatMessage } from '../engine/types';
 import { isValidSetOrRun, getSequenceValue } from '../engine/gameLogic';
+import { 
+  playTurnEnd, 
+  isMuted, 
+  setMuted, 
+  playCardSelect, 
+  playCardDeselect, 
+  playDiscard, 
+  playDraw, 
+  playCallLeast,
+  playChatMessage
+} from '../engine/soundService';
 
 interface Props {
   room: GameRoom;
@@ -166,6 +177,8 @@ export const GameScreen: React.FC<Props> = ({
   const [selected, setSelected] = useState<string[]>([]);
   console.log('[GameScreen Render] selected state is:', selected);
   const [showChat, setShowChat] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [chatToast, setChatToast] = useState<{ senderName: string; text: string } | null>(null);
   const [showScoresModal, setShowScoresModal] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [newName, setNewName] = useState(room?.players?.[currentPlayerId]?.name || '');
@@ -173,22 +186,114 @@ export const GameScreen: React.FC<Props> = ({
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
-  const prevMessagesCount = useRef((room?.messages ? Object.values(room.messages) : []).length);
+  
+  const seenMsgIdsRef = useRef<Set<string>>(new Set());
+  const isInitialMsgLoadRef = useRef<boolean>(true);
+
+  const [soundMuted, setSoundMuted] = useState<boolean>(isMuted());
+  const prevTurnKeyRef = useRef<string | null>(null);
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    setMuted(next);
+  };
+
+  const handleOpenChat = () => {
+    setShowChat(true);
+    setUnreadCount(0);
+    setChatToast(null);
+  };
+
+  useEffect(() => {
+    if (!room || room.status !== 'playing') {
+      prevTurnKeyRef.current = null;
+      return;
+    }
+
+    const turnId = room.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
+    const currentKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${turnId}`;
+
+    if (prevTurnKeyRef.current && prevTurnKeyRef.current !== currentKey) {
+      // Real turn transition occurred! Play turn-end chime once
+      playTurnEnd();
+    }
+
+    prevTurnKeyRef.current = currentKey;
+  }, [room?.id, room?.currentRound, room?.turnIndex, room?.status]);
+
+  useEffect(() => {
+    const rawMsgs: ChatMessage[] = room?.messages 
+      ? (Array.isArray(room.messages) ? (room.messages as ChatMessage[]) : (Object.values(room.messages) as ChatMessage[]))
+      : [];
+
+    if (rawMsgs.length === 0) return;
+
+    // Seed existing message IDs on initial mount without triggering audio/toast/badge
+    if (isInitialMsgLoadRef.current) {
+      rawMsgs.forEach(m => {
+        if (m) {
+          const key = m.id || `${m.senderId}_${m.timestamp}_${m.text}`;
+          seenMsgIdsRef.current.add(key);
+        }
+      });
+      isInitialMsgLoadRef.current = false;
+      return;
+    }
+
+    let hasNewOtherMsg = false;
+    let latestNewOtherMsg: { senderName: string; text: string } | null = null;
+    let newUnreadAdd = 0;
+
+    rawMsgs.forEach(m => {
+      if (!m) return;
+      const key = m.id || `${m.senderId}_${m.timestamp}_${m.text}`;
+      if (seenMsgIdsRef.current.has(key)) return;
+
+      seenMsgIdsRef.current.add(key);
+
+      if (m.senderId === 'system') {
+        setSystemToast(m.text);
+        return;
+      }
+
+      // Notify only if sent by another player
+      if (m.senderId !== currentPlayerId) {
+        hasNewOtherMsg = true;
+        latestNewOtherMsg = { senderName: m.senderName, text: m.text };
+        newUnreadAdd += 1;
+      }
+    });
+
+    if (hasNewOtherMsg) {
+      // Play pleasant notification sound (respects soundMuted)
+      playChatMessage();
+
+      if (showChat) {
+        setUnreadCount(0);
+      } else {
+        setUnreadCount(prev => prev + newUnreadAdd);
+        if (latestNewOtherMsg) {
+          setChatToast(latestNewOtherMsg);
+        }
+      }
+    }
+  }, [room?.messages, currentPlayerId, showChat]);
+
+  useEffect(() => {
+    if (chatToast) {
+      const timer = setTimeout(() => setChatToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [chatToast]);
   
   useEffect(() => {
-    const msgs = room?.messages ? Object.values(room.messages) : [];
-    if (msgs.length > prevMessagesCount.current) {
-      const latest = msgs[msgs.length - 1];
-      if (latest && latest.senderId === 'system') {
-        setSystemToast(latest.text);
-        const timer = setTimeout(() => setSystemToast(null), 4000);
-        prevMessagesCount.current = msgs.length;
-        return () => clearTimeout(timer);
-      }
-      prevMessagesCount.current = msgs.length;
+    if (systemToast) {
+      const timer = setTimeout(() => setSystemToast(null), 4000);
+      return () => clearTimeout(timer);
     }
-  }, [room?.messages]);
-  
+  }, [systemToast]);
+
   useEffect(() => {
     if (errorMsg) {
       const timer = setTimeout(() => setErrorMsg(null), 3000);
@@ -483,6 +588,19 @@ export const GameScreen: React.FC<Props> = ({
         {renderEditModal()}
         {systemToast && <View style={styles.systemToast}><Text style={styles.systemToastText}>{systemToast}</Text></View>}
         {errorMsg && <View style={styles.errorToast}><Text style={styles.errorToastText}>{errorMsg}</Text></View>}
+        {chatToast && !showChat && (
+          <TouchableOpacity 
+            style={styles.chatToast} 
+            onPress={handleOpenChat}
+            activeOpacity={0.85}
+          >
+            <View style={styles.chatToastContent}>
+              <Text style={styles.chatToastHeader}>💬 New message from {chatToast.senderName}</Text>
+              <Text style={styles.chatToastText} numberOfLines={1}>{chatToast.text}</Text>
+            </View>
+            <Text style={styles.chatToastOpenHint}>View ➔</Text>
+          </TouchableOpacity>
+        )}
 
         {/* ── TOP HEADER ── */}
         <View style={styles.header}>
@@ -502,6 +620,9 @@ export const GameScreen: React.FC<Props> = ({
           )}
 
           <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.headerIconBtn} onPress={toggleSound} activeOpacity={0.8}>
+              <Text style={styles.headerIconBtnText}>{soundMuted ? '🔇 Off' : '🔊 On'}</Text>
+            </TouchableOpacity>
             {width < 768 && (
               <TouchableOpacity style={styles.headerIconBtn} onPress={() => setShowScoresModal(true)}>
                 <Text style={styles.headerIconBtnText}>Scores</Text>
@@ -510,8 +631,19 @@ export const GameScreen: React.FC<Props> = ({
             <TouchableOpacity style={styles.headerIconBtn} onPress={() => { setNewName(room?.players?.[currentPlayerId]?.name || ''); setShowEdit(true); }}>
               <Text style={styles.headerIconBtnText}>Name</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerIconBtn} onPress={() => setShowChat(true)}>
-              <Text style={styles.headerIconBtnText}>Chat</Text>
+            <TouchableOpacity 
+              style={[styles.headerIconBtn, unreadCount > 0 && styles.headerIconBtnUnread]} 
+              onPress={handleOpenChat}
+              activeOpacity={0.8}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text style={styles.headerIconBtnText}>Chat</Text>
+                {unreadCount > 0 && (
+                  <View style={styles.unreadBadge}>
+                    <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -693,9 +825,18 @@ export const GameScreen: React.FC<Props> = ({
                       )}
                     </View>
 
-                    <Text style={styles.onTableTurnText}>
-                      {(me && me.isOut) ? 'YOU ARE OUT' : (isMyTurn ? (room.turnPhase === 'discarding' ? 'Your turn: Discard!' : 'Your turn: Pick!') : `${players[currentTurnId] ? players[currentTurnId].name : ''}'s turn...`)}
-                    </Text>
+                    <View style={styles.centerBoardInfoBox}>
+                      <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
+                      <Text style={styles.onTableTurnText}>
+                        {(me && me.isOut) 
+                          ? 'YOU ARE OUT' 
+                          : (isMyTurn 
+                              ? (room.turnPhase === 'discarding' ? '⚡ YOUR TURN: DISCARD!' : '🎴 YOUR TURN: PICK!') 
+                              : `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'}'s Turn`
+                            )
+                        }
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -983,7 +1124,24 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     opponentHand: { flexDirection: 'row', marginTop: 4 },
     cardBackSmall: { width: csmW, height: csmH, backgroundColor: '#1e3a8a', borderRadius: 4, borderWidth: 1, borderColor: '#93c5fd' },
     
-    onTableTurnText: { color: '#facc15', fontSize: isSmall ? 16 : 24, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.5, textShadowColor: 'rgba(0,0,0,0.8)', textShadowRadius: 8, marginTop: 8, textAlign: 'center', paddingHorizontal: 10 },
+    centerBoardInfoBox: {
+      alignItems: 'center',
+      marginTop: 4,
+      backgroundColor: 'rgba(10, 22, 40, 0.85)',
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: 'rgba(250, 204, 21, 0.4)',
+    },
+    centerRoundBadge: {
+      color: '#38bdf8',
+      fontSize: isSmall ? 10 : 12,
+      fontWeight: '800',
+      letterSpacing: 1,
+      marginBottom: 2,
+    },
+    onTableTurnText: { color: '#facc15', fontSize: isSmall ? 14 : 20, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, textShadowColor: 'rgba(0,0,0,0.8)', textShadowRadius: 8, textAlign: 'center' },
     
     /* Dedicated Bottom Player Dock */
     playerDockContainer: {
@@ -1215,5 +1373,66 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       borderColor: '#38bdf8',
     },
     modalStepRoundPillText: { color: '#38bdf8', fontSize: 12, fontWeight: 'bold' },
+
+    chatToast: {
+      position: 'absolute',
+      top: 65,
+      alignSelf: 'center',
+      backgroundColor: '#1e293b',
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 16,
+      zIndex: 1100,
+      borderWidth: 1.5,
+      borderColor: '#3b82f6',
+      flexDirection: 'row',
+      alignItems: 'center',
+      maxWidth: '90%',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 10,
+      elevation: 12,
+    },
+    chatToastContent: {
+      flex: 1,
+      marginRight: 10,
+    },
+    chatToastHeader: {
+      color: '#60a5fa',
+      fontWeight: '900',
+      fontSize: 13,
+      marginBottom: 2,
+    },
+    chatToastText: {
+      color: '#ffffff',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    chatToastOpenHint: {
+      color: '#93c5fd',
+      fontSize: 12,
+      fontWeight: '800',
+    },
+    unreadBadge: {
+      backgroundColor: '#ef4444',
+      borderRadius: 10,
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      minWidth: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: '#ffffff',
+    },
+    unreadBadgeText: {
+      color: '#ffffff',
+      fontSize: 11,
+      fontWeight: '900',
+    },
+    headerIconBtnUnread: {
+      borderColor: '#ef4444',
+      backgroundColor: 'rgba(239, 68, 68, 0.25)',
+    },
   });
 };
