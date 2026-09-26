@@ -222,6 +222,14 @@ export const GameScreen: React.FC<Props> = ({
     prevTurnKeyRef.current = currentKey;
   }, [room?.id, room?.currentRound, room?.turnIndex, room?.status]);
 
+  const prevStatusRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (room?.status === 'round-end' && prevStatusRef.current && prevStatusRef.current !== 'round-end') {
+      playCallLeast();
+    }
+    prevStatusRef.current = room?.status || null;
+  }, [room?.status]);
+
   useEffect(() => {
     const rawMsgs: ChatMessage[] = room?.messages 
       ? (Array.isArray(room.messages) ? (room.messages as ChatMessage[]) : (Object.values(room.messages) as ChatMessage[]))
@@ -867,7 +875,10 @@ export const GameScreen: React.FC<Props> = ({
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.leastBtn]}
-                  onPress={onCallLeast}
+                  onPress={() => {
+                    playCallLeast();
+                    onCallLeast();
+                  }}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.actionBtnText}>Least!</Text>

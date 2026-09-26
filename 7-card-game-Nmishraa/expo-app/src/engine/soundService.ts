@@ -157,22 +157,41 @@ export const playYourTurn = () => {
 
 // ── Call Least ───────────────────────────────────────────────────────────────
 export const playCallLeast = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const notes = [440, 554.37, 659.25, 880]; // A4-C#5-E5-A5 rising arpeggio
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(freq, t + i * 0.08);
-    gain.gain.setValueAtTime(0, t + i * 0.08);
-    gain.gain.linearRampToValueAtTime(0.07, t + i * 0.08 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.2);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t + i * 0.08);
-    osc.stop(t + i * 0.08 + 0.2);
-  });
+  try {
+    const ctx = getCtx();
+    if (!ctx || _muted) return;
+    const t = ctx.currentTime;
+
+    // 6-note rising triumphant fanfare: C5 -> E5 -> G5 -> B5 -> C6 -> E6
+    const notes = [
+      { freq: 523.25, time: 0 },      // C5
+      { freq: 659.25, time: 0.08 },   // E5
+      { freq: 783.99, time: 0.16 },   // G5
+      { freq: 987.77, time: 0.24 },   // B5
+      { freq: 1046.50, time: 0.32 },  // C6
+      { freq: 1318.51, time: 0.38 },  // E6 (sparkling climax)
+    ];
+
+    notes.forEach(({ freq, time }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + time);
+
+      gain.gain.setValueAtTime(0, t + time);
+      gain.gain.linearRampToValueAtTime(0.1, t + time + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + time + 0.38);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t + time);
+      osc.stop(t + time + 0.38);
+    });
+  } catch (e) {
+    // Audio safe fallback
+  }
 };
 
 // ── Round End ────────────────────────────────────────────────────────────────
