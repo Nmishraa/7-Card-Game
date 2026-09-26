@@ -14,16 +14,18 @@ export const PwaInstallBanner: React.FC = () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                          (window.navigator as any).standalone === true;
 
-    if (isStandalone) return; // Don't show if already installed
+    if (isStandalone) {
+      setShowBanner(false);
+      return;
+    }
+
+    // Default to showing banner on web browsers
+    setShowBanner(true);
 
     // Detect iOS
     const ua = window.navigator.userAgent;
     const isIosDevice = /iphone|ipad|ipod/i.test(ua);
     setIsIos(isIosDevice);
-
-    if (isIosDevice) {
-      setShowBanner(true);
-    }
 
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
@@ -51,6 +53,8 @@ export const PwaInstallBanner: React.FC = () => {
         setShowBanner(false);
       }
       setDeferredPrompt(null);
+    } else {
+      setShowIosInstructions(true);
     }
   };
 
@@ -74,9 +78,18 @@ export const PwaInstallBanner: React.FC = () => {
 
       {showIosInstructions && (
         <View style={styles.iosInstructionBox}>
-          <Text style={styles.iosTitle}>How to install on iPhone/iPad 🍏:</Text>
-          <Text style={styles.iosStep}>1. Tap the <Text style={styles.boldText}>Share</Text> icon ⎋ at the bottom of Safari.</Text>
-          <Text style={styles.iosStep}>2. Scroll down and tap <Text style={styles.boldText}>"Add to Home Screen"</Text> ➕.</Text>
+          <Text style={styles.iosTitle}>{isIos ? 'How to install on iPhone/iPad 🍏:' : 'How to install on Mobile & Desktop 📲:'}</Text>
+          {isIos ? (
+            <>
+              <Text style={styles.iosStep}>1. Tap the <Text style={styles.boldText}>Share</Text> icon ⎋ at the bottom of Safari.</Text>
+              <Text style={styles.iosStep}>2. Scroll down and tap <Text style={styles.boldText}>"Add to Home Screen"</Text> ➕.</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.iosStep}>1. Open your browser menu (3 dots ⋮ at the top right).</Text>
+              <Text style={styles.iosStep}>2. Tap <Text style={styles.boldText}>"Add to Home screen"</Text> or <Text style={styles.boldText}>"Install App"</Text> 📲.</Text>
+            </>
+          )}
           <TouchableOpacity style={styles.dismissIosBtn} onPress={() => setShowIosInstructions(false)}>
             <Text style={styles.dismissIosText}>Got it!</Text>
           </TouchableOpacity>
