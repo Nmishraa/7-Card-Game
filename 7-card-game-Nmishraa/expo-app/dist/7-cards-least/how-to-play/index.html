@@ -264,7 +264,19 @@
         </nav>
       </main>
     </div>
-  <script src="/_expo/static/js/web/index-8db8fa04b771d5d9acdb3f5d41b9d919.js" defer></script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(reg) {
+            console.log('[PWA] Service Worker registered:', reg.scope);
+          }).catch(function(err) {
+            console.log('[PWA] Service Worker registration failed:', err);
+          });
+        });
+      }
+    </script>
+  <script src="/_expo/static/js/web/index-62f79a0af7936aed37f2955a914ff1a4.js" defer></script>
 </body>
 </html>
 
