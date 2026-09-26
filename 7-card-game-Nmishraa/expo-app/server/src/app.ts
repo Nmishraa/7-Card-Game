@@ -59,7 +59,23 @@ import fs from 'fs';
 
 const webDistPath = path.join(__dirname, '../../dist');
 if (fs.existsSync(webDistPath)) {
+  // Direct pre-rendered HTML route handler (serves 200 OK directly without 301 redirects for SEO crawlers)
+  app.use((req: Request, res: Response, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api') || req.path === '/health') return next();
+    
+    const cleanPath = (req.path.endsWith('/') && req.path !== '/') ? req.path.slice(0, -1) : req.path;
+    const prerenderedPath = path.join(webDistPath, cleanPath, 'index.html');
+
+    if (cleanPath !== '' && cleanPath !== '/' && fs.existsSync(prerenderedPath)) {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      res.setHeader('Cache-Control', 'public, max-age=0');
+      return res.sendFile(prerenderedPath);
+    }
+    next();
+  });
+
   app.use(express.static(webDistPath, {
+    redirect: false,
     dotfiles: 'allow',
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.js')) {
