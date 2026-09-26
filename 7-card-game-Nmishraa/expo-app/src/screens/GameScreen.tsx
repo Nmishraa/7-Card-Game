@@ -28,7 +28,8 @@ import {
   playDiscard, 
   playDraw, 
   playCallLeast,
-  playChatMessage
+  playChatMessage,
+  playTimerWarning
 } from '../engine/soundService';
 
 interface Props {
@@ -44,6 +45,7 @@ interface Props {
   onLeaveRoom: () => void;
   onEditName?: (newName: string) => void;
   onSortHand?: () => void;
+  onTimeoutTurn?: (playerId: string) => void;
   currentFeltColor?: string;
 }
 
@@ -164,7 +166,7 @@ const getPerimeterCoords = (index: number, n: number) => {
 };
 
 export const GameScreen: React.FC<Props> = ({ 
-  room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, currentFeltColor 
+  room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, onTimeoutTurn, currentFeltColor 
 }) => {
   const { width, height } = useWindowDimensions();
   const allPlayersEarly = room?.turnOrder || [];
@@ -192,6 +194,51 @@ export const GameScreen: React.FC<Props> = ({
 
   const [soundMuted, setSoundMuted] = useState<boolean>(isMuted());
   const prevTurnKeyRef = useRef<string | null>(null);
+
+  const [now, setNow] = useState<number>(Date.now());
+  const warningSoundPlayedRef = useRef<string | null>(null);
+  const timeoutTriggeredRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!room || room.status !== 'playing') return;
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 500);
+    return () => clearInterval(interval);
+  }, [room?.status]);
+
+  const turnStartTime = room?.turnStartTime || Date.now();
+  const elapsedMs = Math.max(0, now - turnStartTime);
+  const remainingSec = room?.status === 'playing' 
+    ? Math.max(0, Math.ceil((30000 - elapsedMs) / 1000))
+    : 30;
+
+  const currentTurnIdEarly = room?.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
+
+  // 5s Warning Sound (played once per turn)
+  useEffect(() => {
+    if (!room || room.status !== 'playing' || !currentTurnIdEarly) return;
+    const warningKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_5s`;
+    if (remainingSec <= 5 && remainingSec > 0 && warningSoundPlayedRef.current !== warningKey) {
+      warningSoundPlayedRef.current = warningKey;
+      playTimerWarning();
+    }
+  }, [remainingSec, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status]);
+
+  // 30s Timeout Auto Action (triggered once per turn by active player or host)
+  useEffect(() => {
+    if (!room || room.status !== 'playing' || !currentTurnIdEarly || !onTimeoutTurn) return;
+    const timeoutKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_timeout`;
+    
+    if (elapsedMs >= 30000 && timeoutTriggeredRef.current !== timeoutKey) {
+      const isTurnPlayer = currentTurnIdEarly === currentPlayerId;
+      const isHost = room.hostId === currentPlayerId;
+      if (isTurnPlayer || isHost) {
+        timeoutTriggeredRef.current = timeoutKey;
+        onTimeoutTurn(currentTurnIdEarly);
+      }
+    }
+  }, [elapsedMs, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, currentPlayerId, room?.hostId, onTimeoutTurn]);
 
   const toggleSound = () => {
     const next = !soundMuted;
@@ -834,7 +881,16 @@ export const GameScreen: React.FC<Props> = ({
                     </View>
 
                     <View style={styles.centerBoardInfoBox}>
-                      <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
+                      <View style={styles.centerMetaRow}>
+                        <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
+                        {room.status === 'playing' && (
+                          <View style={[styles.timerBadge, remainingSec <= 10 && styles.timerBadgeWarning]}>
+                            <Text style={[styles.timerText, remainingSec <= 10 && styles.timerTextWarning]}>
+                              ⏱️ {remainingSec}s
+                            </Text>
+                          </View>
+                        )}
+                      </View>
                       <Text style={styles.onTableTurnText}>
                         {(me && me.isOut) 
                           ? 'YOU ARE OUT' 
@@ -1145,12 +1201,39 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       borderWidth: 1,
       borderColor: 'rgba(250, 204, 21, 0.4)',
     },
+    centerMetaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 2,
+    },
     centerRoundBadge: {
       color: '#38bdf8',
       fontSize: isSmall ? 10 : 12,
       fontWeight: '800',
       letterSpacing: 1,
-      marginBottom: 2,
+    },
+    timerBadge: {
+      backgroundColor: 'rgba(56, 189, 248, 0.15)',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#38bdf8',
+    },
+    timerBadgeWarning: {
+      backgroundColor: 'rgba(239, 68, 68, 0.25)',
+      borderColor: '#ef4444',
+    },
+    timerText: {
+      color: '#38bdf8',
+      fontSize: isSmall ? 10 : 12,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+    },
+    timerTextWarning: {
+      color: '#ef4444',
+      fontWeight: '900',
     },
     onTableTurnText: { color: '#facc15', fontSize: isSmall ? 14 : 20, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, textShadowColor: 'rgba(0,0,0,0.8)', textShadowRadius: 8, textAlign: 'center' },
     

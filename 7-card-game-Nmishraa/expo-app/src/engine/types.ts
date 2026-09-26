@@ -51,4 +51,5 @@ export interface GameRoom {
   pendingDiscard?: Card[];
   messages?: ChatMessage[];
   historySaved?: boolean;
+  turnStartTime?: number;
 }

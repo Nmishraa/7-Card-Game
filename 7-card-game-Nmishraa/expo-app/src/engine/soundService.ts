@@ -194,6 +194,33 @@ export const playCallLeast = () => {
   }
 };
 
+// ── Timer 5s Warning Sound ────────────────────────────────────────────────
+export const playTimerWarning = () => {
+  try {
+    const ctx = getCtx();
+    if (!ctx || _muted) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(440, t + 0.08);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.08, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.08);
+  } catch (e) {
+    // Audio safe fallback
+  }
+};
+
 // ── Round End ────────────────────────────────────────────────────────────────
 export const playRoundEnd = () => {
   const ctx = getCtx();
