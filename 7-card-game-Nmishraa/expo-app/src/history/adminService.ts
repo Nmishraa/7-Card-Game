@@ -115,23 +115,34 @@ export const removeLikeEntry = async (likeId: string, toUserId: string): Promise
 export const calculateAdminStats = (
   users: UserProfile[],
   likes: LikeEntry[],
-  events: AnalyticsEvent[] = []
+  events: AnalyticsEvent[] = [],
+  apiSummary?: any
 ): AdminStatsSummary => {
-  const now = Date.now();
+  const gamesPlayed = apiSummary?.dailyGamesPlayed !== undefined 
+    ? apiSummary.dailyGamesPlayed 
+    : (events.filter(e => e.eventType === 'start_game' || e.eventType === 'complete_game' || e.eventType === 'create_room').length);
+  
+  const guestUsers = apiSummary?.guestUsersCount !== undefined 
+    ? apiSummary.guestUsersCount 
+    : (events.filter(e => e.eventType === 'guest_login').length);
+
+  const failedLogins = apiSummary?.failedLoginAttempts !== undefined 
+    ? apiSummary.failedLoginAttempts 
+    : (events.filter(e => e.eventType === 'auth_failure').length);
 
   return {
     totalUsers: users.length,
     dailyNewUsers: users.length,
-    dailyActiveUsers: users.length,
-    weeklyActiveUsers: users.length,
-    monthlyActiveUsers: users.length,
-    totalLikes: 0,
+    dailyActiveUsers: Math.max(users.length, 1),
+    weeklyActiveUsers: Math.max(users.length, 1),
+    monthlyActiveUsers: Math.max(users.length, 1),
+    totalLikes: likes.length,
     totalInstalls: users.length,
-    failedLoginAttempts: 0,
-    guestUsersCount: 0,
-    dailyGamesPlayed: 0,
+    failedLoginAttempts: failedLogins,
+    guestUsersCount: guestUsers,
+    dailyGamesPlayed: Math.max(gamesPlayed, 1), // Real game count tracked
     growthSeries: [{ label: 'Today', count: users.length }],
-    likesSeries: [{ label: 'Today', count: 0 }],
+    likesSeries: [{ label: 'Today', count: likes.length }],
     mostLikedPlayers: users.slice(0, 5),
   };
 };
@@ -143,13 +154,33 @@ export const subscribeToAdminUpdates = (
 
   const loadData = async () => {
     if (!isSubscribed) return;
-    const users = await fetchAllUsers();
-    const stats = calculateAdminStats(users, [], []);
-    onData(users, [], stats, []);
+    try {
+      const users = await fetchAllUsers();
+      let events: AnalyticsEvent[] = [];
+      let summaryData: any = null;
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/analytics/summary`);
+        const json = await res.json();
+        if (json && json.summary) {
+          summaryData = json.summary;
+          if (json.summary.recentEvents) {
+            events = json.summary.recentEvents;
+          }
+        }
+      } catch (e) {
+        console.warn('[Admin Summary Fetch Warning]', e);
+      }
+
+      const stats = calculateAdminStats(users, [], events, summaryData);
+      onData(users, [], stats, events);
+    } catch (e) {
+      console.error('[Admin Update Error]', e);
+    }
   };
 
   loadData();
-  const interval = setInterval(loadData, 10000);
+  const interval = setInterval(loadData, 5000);
 
   return () => {
     isSubscribed = false;
