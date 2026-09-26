@@ -27,6 +27,7 @@ import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
 import { syncUserProfile } from './src/history/adminService';
 import { initGA, trackGAPageView } from './src/services/googleAnalytics';
+import { PwaInstallBanner } from './src/components/PwaInstallBanner';
 
 type AppScreen = 'auth' | 'home' | 'lobby' | 'game';
 
@@ -535,117 +536,125 @@ export default function App() {
 
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
-  if (currentPath === '/7-cards-least') {
-    return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
-  }
+  const renderContent = () => {
+    if (currentPath === '/7-cards-least') {
+      return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/7-cards-least/rules' || currentPath === '/rules') {
-    return <SevenCardsLeastRulesPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/7-cards-least/rules' || currentPath === '/rules') {
+      return <SevenCardsLeastRulesPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/7-cards-least/how-to-play' || currentPath === '/how-to-play') {
-    return <SevenCardsLeastHowToPlayPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/7-cards-least/how-to-play' || currentPath === '/how-to-play') {
+      return <SevenCardsLeastHowToPlayPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/7-cards-least/strategy' || currentPath === '/strategy') {
-    return <SevenCardsLeastStrategyPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/7-cards-least/strategy' || currentPath === '/strategy') {
+      return <SevenCardsLeastStrategyPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/7-cards-least/faq' || currentPath === '/faq') {
-    return <SevenCardsLeastFaqPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/7-cards-least/faq' || currentPath === '/faq') {
+      return <SevenCardsLeastFaqPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/variations') {
-    return <VariationsPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/variations') {
+      return <VariationsPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/multiplayer') {
-    return <MultiplayerPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/multiplayer') {
+      return <MultiplayerPage onNavigate={handleNavigate} />;
+    }
 
-  if (currentPath === '/play-against-ai' || currentPath === '/solo') {
-    return <PlayAgainstAiPage onNavigate={handleNavigate} />;
-  }
+    if (currentPath === '/play-against-ai' || currentPath === '/solo') {
+      return <PlayAgainstAiPage onNavigate={handleNavigate} />;
+    }
 
-  const validPaths = [
-    '/',
-    '/7-cards-least',
-    '/7-cards-least/rules',
-    '/7-cards-least/how-to-play',
-    '/7-cards-least/strategy',
-    '/7-cards-least/faq',
-    '/rules',
-    '/how-to-play',
-    '/strategy',
-    '/variations',
-    '/multiplayer',
-    '/play-against-ai',
-    '/solo',
-    '/faq'
-  ];
-  if (!validPaths.includes(currentPath)) {
-    return <NotFoundPage onNavigate={handleNavigate} />;
-  }
+    const validPaths = [
+      '/',
+      '/7-cards-least',
+      '/7-cards-least/rules',
+      '/7-cards-least/how-to-play',
+      '/7-cards-least/strategy',
+      '/7-cards-least/faq',
+      '/rules',
+      '/how-to-play',
+      '/strategy',
+      '/variations',
+      '/multiplayer',
+      '/play-against-ai',
+      '/solo',
+      '/faq'
+    ];
+    if (!validPaths.includes(currentPath)) {
+      return <NotFoundPage onNavigate={handleNavigate} />;
+    }
 
-  if (screen === 'auth' || !user) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
-  }
+    if (screen === 'auth' || !user) {
+      return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+    }
 
-  if (screen === 'home') {
+    if (screen === 'home') {
+      return (
+        <HomeScreen
+          userName={user.displayName}
+          userId={user.uid}
+          onLogout={handleLogout}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+          onPlayWithComputer={handlePlayWithComputer}
+          currentFeltColor={tableTheme}
+          onSelectTheme={setTableTheme}
+          onQuickMatch={handleQuickMatch}
+          onNavigate={handleNavigate}
+        />
+      );
+    }
+
+    if (screen === 'lobby' && currentRoom) {
+      return (
+        <LobbyScreen
+          room={currentRoom}
+          userId={user.uid}
+          onLeaveRoom={handleLeaveRoom}
+          onStartGame={handleStartGame}
+          onAddBot={handleAddBot}
+          onEditName={handleEditName}
+          onChangeRounds={handleChangeRounds}
+        />
+      );
+    }
+
+    if (screen === 'game' && currentRoom) {
+      return (
+        <GameScreen
+          room={currentRoom}
+          currentPlayerId={user.uid}
+          onStartGame={handleStartGame}
+          onDiscardAndDraw={handleDiscardAndDraw}
+          onDrawCard={handleDrawCard}
+          onCallLeast={handleCallLeast}
+          onNextRound={handleNextRound}
+          onAddBot={handleAddBot}
+          onSendMessage={handleSendMessage}
+          onLeaveRoom={handleLeaveRoom}
+          onEditName={handleEditName}
+          onSortHand={handleSortHand}
+          currentFeltColor={tableTheme}
+        />
+      );
+    }
+
     return (
-      <HomeScreen
-        userName={user.displayName}
-        userId={user.uid}
-        onLogout={handleLogout}
-        onCreateRoom={handleCreateRoom}
-        onJoinRoom={handleJoinRoom}
-        onPlayWithComputer={handlePlayWithComputer}
-        currentFeltColor={tableTheme}
-        onSelectTheme={setTableTheme}
-        onQuickMatch={handleQuickMatch}
-        onNavigate={handleNavigate}
-      />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#0275d8" />
+      </View>
     );
-  }
-
-
-  if (screen === 'lobby' && currentRoom) {
-    return (
-      <LobbyScreen
-        room={currentRoom}
-        userId={user.uid}
-        onLeaveRoom={handleLeaveRoom}
-        onStartGame={handleStartGame}
-        onAddBot={handleAddBot}
-        onEditName={handleEditName}
-        onChangeRounds={handleChangeRounds}
-      />
-    );
-  }
-
-  if (screen === 'game' && currentRoom) {
-    return (
-      <GameScreen
-        room={currentRoom}
-        currentPlayerId={user.uid}
-        onStartGame={handleStartGame}
-        onDiscardAndDraw={handleDiscardAndDraw}
-        onDrawCard={handleDrawCard}
-        onCallLeast={handleCallLeast}
-        onNextRound={handleNextRound}
-        onAddBot={handleAddBot}
-        onSendMessage={handleSendMessage}
-        onLeaveRoom={handleLeaveRoom}
-        onEditName={handleEditName}
-        onSortHand={handleSortHand}
-        currentFeltColor={tableTheme}
-      />
-    );
-  }
+  };
 
   return (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" color="#0275d8" />
+    <View style={{ flex: 1 }}>
+      {renderContent()}
+      <PwaInstallBanner />
     </View>
   );
 }
