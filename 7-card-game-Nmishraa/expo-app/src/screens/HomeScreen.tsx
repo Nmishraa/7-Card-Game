@@ -81,9 +81,6 @@ export const HomeScreen: React.FC<Props> = ({
             <TouchableOpacity style={styles.clubBtn} onPress={() => setShowClub(true)}>
               <Text style={styles.clubBtnText}>✨ Game Club</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.historyBtn} onPress={() => setShowHistory(true)}>
-              <Text style={styles.historyBtnText}>📖 History</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.adminBtn} onPress={() => {
               if (isAdminLoggedIn) setShowAdminDashboard(true);
               else setShowAdminLogin(true);
