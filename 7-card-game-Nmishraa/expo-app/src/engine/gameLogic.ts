@@ -152,6 +152,7 @@ export const startRound = (room: GameRoom): GameRoom => {
     turnPhase: 'discarding',
     lastDiscardedCount: 1,
     roundWinnerId: null,
+    turnStartTime: Date.now(),
   };
 };
 
@@ -221,6 +222,7 @@ export const playTurn = (
       turnPhase: 'discarding',
       turnIndex: getNextTurnIndex(room, room.turnIndex),
       lastDiscardedCount: discardedCardIds.length,
+      turnStartTime: Date.now(),
     };
   }
 
@@ -300,6 +302,7 @@ export const drawCard = (
       pendingDiscard: [],
       turnIndex: getNextTurnIndex(room, room.turnIndex),
       turnPhase: 'discarding',
+      turnStartTime: Date.now(),
     };
     if (newMessages !== undefined) {
       result.messages = newMessages;
@@ -327,11 +330,37 @@ export const drawCard = (
     pendingDiscard: [],
     turnIndex: getNextTurnIndex(room, room.turnIndex),
     turnPhase: 'discarding',
+    turnStartTime: Date.now(),
   };
   if (newMessages !== undefined) {
     result.messages = newMessages;
   }
   return result;
+};
+
+export const handleTurnTimeout = (room: GameRoom, playerId: string): GameRoom => {
+  if (!room || room.status !== 'playing') return room;
+  const currentTurnId = room.turnOrder[room.turnIndex];
+  if (currentTurnId !== playerId) return room;
+
+  const player = room.players[playerId];
+  if (!player || player.isOut || !player.hand || player.hand.length === 0) return room;
+
+  let state = { ...room };
+
+  if (state.turnPhase === 'discarding') {
+    const cardToDiscard = player.hand[0];
+    state = playTurn(state, playerId, [cardToDiscard.id]);
+  }
+
+  if (state.turnPhase === 'picking') {
+    state = drawCard(state, playerId, 'deck');
+  }
+
+  return {
+    ...state,
+    turnStartTime: Date.now(),
+  };
 };
 
 export const callLeast = (room: GameRoom, callerId: string): GameRoom => {

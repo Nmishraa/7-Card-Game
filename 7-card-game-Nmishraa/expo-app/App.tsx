@@ -21,7 +21,7 @@ import { SevenCardsLeastFaqPage } from './src/screens/SevenCardsLeastFaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
-  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand
+  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout
 } from './src/engine/gameLogic';
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
@@ -526,6 +526,16 @@ export default function App() {
     await updateDbRoom(updated);
   };
 
+  const handleTimeoutTurn = async (playerId: string) => {
+    if (!currentRoom) return;
+    const currentTurnId = currentRoom.turnOrder[currentRoom.turnIndex];
+    if (currentTurnId !== playerId) return;
+
+    const updated = handleTurnTimeout(currentRoom, playerId);
+    setCurrentRoom(updated);
+    await updateDbRoom(updated);
+  };
+
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
   const renderContent = () => {
@@ -631,6 +641,7 @@ export default function App() {
           onLeaveRoom={handleLeaveRoom}
           onEditName={handleEditName}
           onSortHand={handleSortHand}
+          onTimeoutTurn={handleTimeoutTurn}
           currentFeltColor={tableTheme}
         />
       );
