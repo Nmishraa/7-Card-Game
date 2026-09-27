@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
+import { GamePreviewSection } from '../components/GamePreviewSection';
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -60,6 +61,9 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Game Preview Screenshot Section */}
+          <GamePreviewSection />
 
           <View style={styles.cardSection}>
             <Text style={styles.h2}>What Is 7 Cards Least?</Text>
