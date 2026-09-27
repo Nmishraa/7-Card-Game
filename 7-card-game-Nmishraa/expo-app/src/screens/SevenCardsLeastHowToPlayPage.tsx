@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
+import { HowToPlayVideoDemo } from '../components/HowToPlayVideoDemo';
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -107,21 +108,10 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
           </View>
 
           <Text style={styles.h1}>Interactive How to Play 7 Cards Least</Text>
-          <Text style={styles.subtitle}>Try out cards, test discards, and learn how to win 7 Cards Least step-by-step!</Text>
+          {/* ⚡ ANIMATED VIDEO TUTORIAL ⚡ */}
+          <HowToPlayVideoDemo />
 
-          {/* ⚡ TOP HERO PLAY CTA CARD ⚡ */}
-          <View style={styles.topHeroCard}>
-            <Text style={styles.topHeroTitle}>🎴 Ready to Play?</Text>
-            <Text style={styles.topHeroSubtitle}>Jump straight into a 7 Cards Least table online!</Text>
-            <View style={styles.ctaRow}>
-              <TouchableOpacity style={styles.heroPlayCta} onPress={() => onNavigate('/')}>
-                <Text style={styles.heroPlayCtaText}>⚡ Play Free Now</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.heroAiCta} onPress={() => onNavigate('/play-against-ai')}>
-                <Text style={styles.heroAiCtaText}>🤖 Play vs Computer AI</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+
 
           {/* ─── INTERACTIVE TUTORIAL STEP SWITCHER ─── */}
           <View style={styles.tutorialContainer}>
