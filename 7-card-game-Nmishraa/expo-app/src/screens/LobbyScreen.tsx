@@ -10,9 +10,10 @@ interface Props {
   onAddBot: () => void;
   onEditName?: (newName: string) => void;
   onChangeRounds?: (newRounds: number) => void;
+  onChangeTurnTimeLimit?: (newTimeLimit: number) => void;
 }
 
-export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStartGame, onAddBot, onEditName, onChangeRounds }) => {
+export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStartGame, onAddBot, onEditName, onChangeRounds, onChangeTurnTimeLimit }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
   const isHost = room.hostId === userId;
@@ -109,6 +110,36 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
                     onPress={() => onChangeRounds && onChangeRounds(Math.min(20, (room.maxRounds || 5) + 1))}
                   >
                     <Text style={styles.lobbyRoundBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            {/* Turn Time Selector in Lobby */}
+            <View style={styles.lobbyRoundsBox}>
+              <Text style={styles.lobbyRoundsTitle}>
+                ⏱️ Turn Time: {room.turnTimeLimit === 0 ? 'No Timer' : '1 Minute'}
+              </Text>
+              {isHost && (
+                <View style={styles.lobbyRoundsControls}>
+                  <TouchableOpacity
+                    style={[
+                      styles.lobbyTimeToggleBtn,
+                      (room.turnTimeLimit === undefined || room.turnTimeLimit === 60) && styles.lobbyTimeToggleActive
+                    ]}
+                    onPress={() => onChangeTurnTimeLimit && onChangeTurnTimeLimit(60)}
+                  >
+                    <Text style={styles.lobbyTimeToggleText}>⏱️ 1 Min</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.lobbyTimeToggleBtn,
+                      room.turnTimeLimit === 0 && styles.lobbyTimeToggleActive
+                    ]}
+                    onPress={() => onChangeTurnTimeLimit && onChangeTurnTimeLimit(0)}
+                  >
+                    <Text style={styles.lobbyTimeToggleText}>∞ No Timer</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -353,6 +384,9 @@ const createStyles = (width: number, height: number) => {
     lobbyRoundsControls: { flexDirection: 'row', alignItems: 'center', gap: 16 },
     lobbyRoundBtn: { backgroundColor: '#1e293b', width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#64748b' },
     lobbyRoundBtnText: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+    lobbyTimeToggleBtn: { backgroundColor: '#1e293b', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#64748b' },
+    lobbyTimeToggleActive: { backgroundColor: '#0284c7', borderColor: '#38bdf8' },
+    lobbyTimeToggleText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
     lobbyHostTag: { color: '#cbd5e1', fontSize: 14, fontWeight: '600', fontStyle: 'italic' },
     soloNoticeText: { color: '#38bdf8', fontSize: 13, textAlign: 'center', marginBottom: 6, fontStyle: 'italic', fontWeight: '500' },
     shareRow: { flexDirection: 'row', gap: 10, width: '100%', marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' },

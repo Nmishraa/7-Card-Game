@@ -241,7 +241,8 @@ export default function App() {
   };
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  const handleCreateRoom = async (playerName: string, rounds: number = 5) => {
+  // ── Handlers ───────────────────────────────────────────────────────────────
+  const handleCreateRoom = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
@@ -260,6 +261,7 @@ export default function App() {
       lastDiscardedCount: 1,
       currentRound: 1,
       maxRounds: rounds,
+      turnTimeLimit: turnTimeLimit,
       jokerCard: null,
       pendingDiscard: [],
       messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 📢', text: `Room ${newRoomId} created! Share the code to invite friends.`, timestamp: Date.now() }],
@@ -272,7 +274,7 @@ export default function App() {
     trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId });
   };
 
-  const handleQuickMatch = async (playerName: string, rounds: number = 5) => {
+  const handleQuickMatch = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
@@ -294,6 +296,7 @@ export default function App() {
       lastDiscardedCount: 1,
       currentRound: 1,
       maxRounds: rounds,
+      turnTimeLimit: turnTimeLimit,
       jokerCard: null,
       pendingDiscard: [],
       messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System ⚡', text: 'Quick Match started! Computer bots joined.', timestamp: Date.now() }],
@@ -307,7 +310,7 @@ export default function App() {
     trackUserEvent(user.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
   };
 
-  const handlePlayWithComputer = async (playerName: string, rounds: number = 5) => {
+  const handlePlayWithComputer = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
@@ -328,6 +331,7 @@ export default function App() {
       lastDiscardedCount: 1,
       currentRound: 1,
       maxRounds: rounds,
+      turnTimeLimit: turnTimeLimit,
       jokerCard: null,
       pendingDiscard: [],
       messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 🤖', text: 'Solo Game against Computer started!', timestamp: Date.now() }],
@@ -389,6 +393,13 @@ export default function App() {
   const handleChangeRounds = async (newRounds: number) => {
     if (!currentRoom) return;
     const updatedRoom = { ...currentRoom, maxRounds: newRounds };
+    setCurrentRoom(updatedRoom);
+    await updateDbRoom(updatedRoom);
+  };
+
+  const handleChangeTurnTimeLimit = async (newTimeLimit: number) => {
+    if (!currentRoom) return;
+    const updatedRoom = { ...currentRoom, turnTimeLimit: newTimeLimit };
     setCurrentRoom(updatedRoom);
     await updateDbRoom(updatedRoom);
   };
@@ -622,6 +633,7 @@ export default function App() {
           onAddBot={handleAddBot}
           onEditName={handleEditName}
           onChangeRounds={handleChangeRounds}
+          onChangeTurnTimeLimit={handleChangeTurnTimeLimit}
         />
       );
     }
