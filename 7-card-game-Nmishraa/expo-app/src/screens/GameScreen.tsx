@@ -690,25 +690,26 @@ export const GameScreen: React.FC<Props> = ({
             {isGameOver ? (
               <View style={styles.winnerSection}>
                 <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, justifyContent: 'center' }}>
-                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} onPress={onStartGame}>
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} onPress={onStartGame} activeOpacity={0.8}>
                     <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444' }]} onPress={onLeaveRoom}>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444' }]} onPress={onLeaveRoom} activeOpacity={0.8}>
                     <Text style={styles.summaryBtnText}>Back to Home</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%', justifyContent: 'center' }}>
-                <TouchableOpacity style={[styles.summaryBtn, { flex: 1.2 }]} onPress={onNextRound}>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1.2 }]} onPress={onNextRound} activeOpacity={0.8}>
                   <Text style={styles.summaryBtnText}>Start Round {(room.currentRound || 1) + 1}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom}>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
                   <Text style={styles.summaryBtnText}>Exit Game</Text>
                 </TouchableOpacity>
               </View>
             )}
+
           </View>
         </View>
       </Modal>
@@ -1579,18 +1580,32 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     modalCloseActionBtn: { backgroundColor: '#2563eb', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
     modalCloseActionBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
-    summaryContainer: { backgroundColor: '#0f172a', width: '94%', maxWidth: 450, maxHeight: '90%', borderRadius: 24, padding: isSmall ? 16 : 24, alignItems: 'center', borderWidth: 1, borderColor: '#334155' },
-    summaryTitle: { color: '#fff', fontSize: isSmall ? 20 : 28, fontWeight: '900', marginBottom: 12 },
-    callerText: { color: '#facc15', fontSize: isSmall ? 15 : 18, fontWeight: 'bold', marginBottom: 16 },
+    summaryContainer: { 
+      backgroundColor: '#0f172a', 
+      width: '94%', 
+      maxWidth: 440, 
+      maxHeight: '86%', 
+      borderRadius: 24, 
+      padding: isSmall ? 14 : 20, 
+      alignItems: 'center', 
+      borderWidth: 1.5, 
+      borderColor: '#334155',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+    },
+    summaryTitle: { color: '#fff', fontSize: isSmall ? 20 : 26, fontWeight: '900', marginBottom: 6 },
+    callerText: { color: '#facc15', fontSize: isSmall ? 14 : 16, fontWeight: 'bold', marginBottom: 10 },
+    summaryCardsScroll: { width: '100%', flexGrow: 1, flexShrink: 1, marginVertical: 6 },
     scoreTable: { width: '100%', marginBottom: 25 },
     scoreRowHeader: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#334155', paddingBottom: 10, marginBottom: 10 },
     scoreHeaderCell: { color: '#94a3b8', flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
     scoreRow: { flexDirection: 'row', paddingVertical: 8 },
     scoreCell: { color: '#fff', flex: 1, textAlign: 'center', fontSize: 16 },
-    winnerSection: { alignItems: 'center', width: '100%' },
-    winnerTitle: { fontSize: isSmall ? 18 : 24, color: '#22c55e', fontWeight: '900', marginBottom: 16 },
-    summaryBtn: { backgroundColor: '#2563eb', paddingVertical: 14, borderRadius: 30, width: '100%', alignItems: 'center' },
-    summaryBtnText: { color: '#fff', fontWeight: '900', fontSize: isSmall ? 15 : 18 },
+    winnerSection: { alignItems: 'center', width: '100%', marginTop: 4 },
+    winnerTitle: { fontSize: isSmall ? 16 : 20, color: '#22c55e', fontWeight: '900', marginBottom: 8, textAlign: 'center' },
+    summaryBtn: { backgroundColor: '#2563eb', paddingVertical: isSmall ? 10 : 12, paddingHorizontal: isSmall ? 10 : 16, borderRadius: 14, flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 44 },
+    summaryBtnText: { color: '#fff', fontWeight: '900', fontSize: isSmall ? 13 : 15, textAlign: 'center' },
+
     
     chatContainer: { width: '94%', maxWidth: 450, height: '80%', backgroundColor: '#0f172a', borderRadius: 24, borderWidth: 1, borderColor: '#334155', padding: isSmall ? 14 : 20 },
     chatHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, borderBottomWidth: 1, borderBottomColor: '#334155', paddingBottom: 10 },
@@ -1662,14 +1677,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       backgroundColor: '#1e293b',
       paddingHorizontal: 4,
       borderRadius: 4,
-      overflow: 'hidden',
-    },
-    summaryCardsScroll: {
-      maxHeight: 450,
-      width: '100%',
-      marginBottom: 20,
-    },
     summaryPlayerCard: {
+
       backgroundColor: '#1e293b',
       borderRadius: 16,
       padding: 16,

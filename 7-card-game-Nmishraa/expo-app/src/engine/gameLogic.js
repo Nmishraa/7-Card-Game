@@ -92,6 +92,7 @@ const calculateHandScore = (hand, jokerCard) => {
 };
 exports.calculateHandScore = calculateHandScore;
 const startRound = (room) => {
+    const isRematch = room.status === 'game-over';
     const numDecks = room.turnOrder.length > 5 ? 2 : 1;
     let deck = (0, exports.shuffleDeck)((0, exports.createDeck)(numDecks));
     const newPlayers = { ...room.players };
@@ -99,6 +100,19 @@ const startRound = (room) => {
     // Deal 7 cards to each player
     room.turnOrder.forEach(playerId => {
         const p = newPlayers[playerId];
+        if (isRematch) {
+            const hand = (0, exports.shuffleDeck)(deck.splice(0, 7));
+            newPlayers[playerId] = {
+                ...p,
+                hand,
+                roundScore: (0, exports.calculateHandScore)(hand, jokerCard),
+                totalScore: 0,
+                roundScores: [],
+                hasCalledLeast: false,
+                isOut: false,
+            };
+            return;
+        }
         if (p.isOut || p.totalScore >= 200) {
             newPlayers[playerId] = {
                 ...p,
@@ -125,13 +139,16 @@ const startRound = (room) => {
         discardPile,
         jokerCard,
         players: newPlayers,
+        currentRound: isRematch ? 1 : (room.currentRound || 1),
         status: 'playing',
         turnIndex: (0, exports.findFirstPlayerIndex)(room),
         turnPhase: 'discarding',
         lastDiscardedCount: 1,
         roundWinnerId: null,
+        winnerId: null,
     };
 };
+
 exports.startRound = startRound;
 const findFirstPlayerIndex = (room) => {
     const hostIdx = room.turnOrder.indexOf(room.hostId);
