@@ -820,8 +820,11 @@ export const GameScreen: React.FC<Props> = ({
     </Modal>
   );
 
-  const renderLiveScoreboard = () => (
-    <View style={styles.liveScoreboardCard} pointerEvents="box-none">
+  const renderLiveScoreboard = () => {
+    if (width < 768) return null;
+
+    return (
+      <View style={styles.liveScoreboardCard} pointerEvents="box-none">
       <View style={styles.liveScoreboardHeader}>
         <Text style={styles.liveScoreboardColPlayer}>PLAYER</Text>
         <Text style={styles.liveScoreboardColScore}>SCORE</Text>
