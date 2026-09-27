@@ -5,6 +5,39 @@
 
 let audioCtx: AudioContext | null = null;
 let _muted = false;
+let audioUnlocked = false;
+
+export const unlockMobileAudio = () => {
+  if (typeof window === 'undefined') return;
+  const ctx = getCtx();
+  if (!ctx) return;
+
+  const unlock = () => {
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        try {
+          const buffer = ctx.createBuffer(1, 1, 22050);
+          const source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(ctx.destination);
+          source.start(0);
+        } catch {
+          // Fallback
+        }
+      }).catch(() => {});
+    }
+    audioUnlocked = true;
+    window.removeEventListener('touchstart', unlock);
+    window.removeEventListener('touchend', unlock);
+    window.removeEventListener('click', unlock);
+  };
+
+  if (!audioUnlocked) {
+    window.addEventListener('touchstart', unlock, { passive: true, once: true });
+    window.addEventListener('touchend', unlock, { passive: true, once: true });
+    window.addEventListener('click', unlock, { passive: true, once: true });
+  }
+};
 
 const getCtx = (): AudioContext | null => {
   if (typeof window === 'undefined') return null;
@@ -15,7 +48,12 @@ const getCtx = (): AudioContext | null => {
       return null;
     }
   }
-  if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  if (!audioUnlocked) {
+    unlockMobileAudio();
+  }
   return audioCtx;
 };
 
