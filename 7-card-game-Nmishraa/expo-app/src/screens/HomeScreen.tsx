@@ -13,6 +13,8 @@ import { PrivacyModal } from './PrivacyModal';
 import { TermsModal } from './TermsModal';
 import { GamePreviewSection } from '../components/GamePreviewSection';
 
+
+
 interface Props {
   onJoinRoom: (playerName: string, roomId: string) => void;
   onCreateRoom: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
@@ -275,6 +277,9 @@ export const HomeScreen: React.FC<Props> = ({
 
           {/* ─── LANDING PAGE GAME PREVIEW SCREENSHOT ─── */}
           <GamePreviewSection />
+
+
+
 
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
@@ -824,7 +829,52 @@ const createStyles = (width: number, height: number) => {
     closeBtn: { marginTop: 16, backgroundColor: '#0275d8', paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
     closeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
+    /* Hero Visual Showcase (Screenshot 60% + Video 40%) */
+    heroSideBySideContainer: {
+      width: '100%',
+      maxWidth: 1240,
+      alignSelf: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: 16,
+      marginVertical: 24,
+      paddingHorizontal: 12,
+    },
+    heroScreenshotCol: {
+      flex: 0.58,
+      width: '58%',
+    },
+    heroVideoCol: {
+      flex: 0.42,
+      width: '40%',
+    },
+    heroStackedContainer: {
+      width: '100%',
+      flexDirection: 'column',
+      gap: 20,
+      marginVertical: 18,
+      paddingHorizontal: 8,
+    },
+    mobileVideoWrapper: {
+      width: '100%',
+      alignSelf: 'center',
+    },
+    mobileScreenshotWrapper: {
+      width: '100%',
+      alignSelf: 'center',
+    },
+    previewCompactMargin: {
+      marginVertical: 0,
+      maxWidth: '100%',
+    },
+    videoCompactMargin: {
+      marginVertical: 0,
+      maxWidth: '100%',
+    },
+
     /* Footer */
+
     footerContainer: {
       marginTop: 40,
       alignItems: 'center',

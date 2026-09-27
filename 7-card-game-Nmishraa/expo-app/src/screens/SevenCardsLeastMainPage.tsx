@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensio
 import { updatePageSeo } from '../services/seoService';
 import { GamePreviewSection } from '../components/GamePreviewSection';
 
+
+
 interface Props {
   onNavigate: (route: string) => void;
 }
@@ -64,6 +66,8 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
 
           {/* Game Preview Screenshot Section */}
           <GamePreviewSection />
+
+
 
           <View style={styles.cardSection}>
             <Text style={styles.h2}>What Is 7 Cards Least?</Text>
