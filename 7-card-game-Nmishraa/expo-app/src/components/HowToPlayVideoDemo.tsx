@@ -95,7 +95,7 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
 
   const [currentStepIdx, setCurrentStepIdx] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
 
   const currentStep = STEPS[currentStepIdx];
