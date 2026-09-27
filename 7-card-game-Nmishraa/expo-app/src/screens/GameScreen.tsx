@@ -21,6 +21,7 @@ import { GameRoom, Card as CardType, ChatMessage } from '../engine/types';
 import { isValidSetOrRun, getSequenceValue } from '../engine/gameLogic';
 import { 
   playTurnEnd, 
+  playYourTurn,
   isMuted, 
   setMuted, 
   playCardSelect, 
@@ -53,7 +54,7 @@ const ActivePlayerGlow: React.FC<{ size: number }> = ({ size }) => {
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const loopAnim = Animated.loop(
       Animated.sequence([
         Animated.timing(animValue, {
           toValue: 1,
@@ -68,7 +69,13 @@ const ActivePlayerGlow: React.FC<{ size: number }> = ({ size }) => {
           easing: Easing.inOut(Easing.ease),
         }),
       ])
-    ).start();
+    );
+    loopAnim.start();
+
+    return () => {
+      loopAnim.stop();
+      animValue.stopAnimation();
+    };
   }, [animValue]);
 
   const scale = animValue.interpolate({
@@ -417,12 +424,16 @@ export const GameScreen: React.FC<Props> = ({
     }
 
     if (prevTurnKeyRef.current && prevTurnKeyRef.current !== currentKey) {
-      // Real turn transition occurred during active gameplay! Play turn-end chime once
-      playTurnEnd();
+      // Real turn transition occurred during active gameplay!
+      if (turnId === currentPlayerId) {
+        playYourTurn();
+      } else {
+        playTurnEnd();
+      }
     }
 
     prevTurnKeyRef.current = currentKey;
-  }, [room?.id, room?.currentRound, room?.turnIndex, room?.status]);
+  }, [room?.id, room?.currentRound, room?.turnIndex, room?.status, currentPlayerId]);
 
   const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
