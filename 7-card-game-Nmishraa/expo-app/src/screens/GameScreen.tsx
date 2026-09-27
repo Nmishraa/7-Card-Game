@@ -1677,6 +1677,7 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       backgroundColor: '#1e293b',
       paddingHorizontal: 4,
       borderRadius: 4,
+    },
     summaryPlayerCard: {
 
       backgroundColor: '#1e293b',
