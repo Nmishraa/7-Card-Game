@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
-import { HowToPlayVideoDemo } from '../components/HowToPlayVideoDemo';
+
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -108,8 +108,8 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
           </View>
 
           <Text style={styles.h1}>Interactive How to Play 7 Cards Least</Text>
-          {/* ⚡ ANIMATED VIDEO TUTORIAL ⚡ */}
-          <HowToPlayVideoDemo />
+          <Text style={styles.subtitle}>Try out cards, test discards, and learn how to win 7 Cards Least step-by-step!</Text>
+
 
 
 

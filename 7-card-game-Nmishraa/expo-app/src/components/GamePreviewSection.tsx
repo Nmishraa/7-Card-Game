@@ -1,13 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 
-export const GamePreviewSection: React.FC = () => {
+interface Props {
+  style?: any;
+}
+
+export const GamePreviewSection: React.FC<Props> = ({ style }) => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const isSmall = width < 480;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
+
       {/* Header Badge & Title */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
