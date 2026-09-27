@@ -1135,6 +1135,36 @@ export const GameScreen: React.FC<Props> = ({
                           </View>
                         )}
                       </View>
+
+                      {/* Mobile Non-Blocking Live Scoreboard Bar */}
+                      {width < 768 && (
+                        <TouchableOpacity 
+                          style={styles.mobileLiveScoreBar} 
+                          onPress={() => setShowScoresModal(true)}
+                          activeOpacity={0.85}
+                        >
+                          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mobileLiveScoreScroll}>
+                            {turnOrder.map(id => {
+                              const p = players[id];
+                              if (!p) return null;
+                              const isTurn = currentTurnId === id;
+                              const isMe = id === currentPlayerId;
+
+                              return (
+                                <View key={id} style={[styles.mobileScorePill, isTurn && styles.mobileScorePillActive]}>
+                                  <Text style={[styles.mobileScoreName, isTurn && styles.mobileScoreNameActive]} numberOfLines={1}>
+                                    {isTurn ? '▶ ' : ''}{p.name}{isMe ? ' (You)' : ''}:
+                                  </Text>
+                                  <Text style={[styles.mobileScoreVal, isTurn && styles.mobileScoreValActive]}>
+                                    {p.totalScore}
+                                  </Text>
+                                </View>
+                              );
+                            })}
+                          </ScrollView>
+                        </TouchableOpacity>
+                      )}
+
                       <Text style={styles.onTableTurnText}>
                         {(me && me.isOut) 
                           ? 'YOU ARE OUT' 
@@ -1551,6 +1581,54 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       alignItems: 'center',
       gap: isSmall ? 6 : 8,
       marginBottom: 2,
+    },
+    mobileLiveScoreBar: {
+      backgroundColor: 'rgba(15, 23, 42, 0.85)',
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
+      marginVertical: 3,
+      maxWidth: 320,
+    },
+    mobileLiveScoreScroll: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+    },
+    mobileScorePill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 6,
+      gap: 4,
+    },
+    mobileScorePillActive: {
+      backgroundColor: 'rgba(250, 204, 21, 0.25)',
+      borderWidth: 1,
+      borderColor: '#facc15',
+    },
+    mobileScoreName: {
+      color: '#cbd5e1',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    mobileScoreNameActive: {
+      color: '#facc15',
+      fontWeight: '900',
+    },
+    mobileScoreVal: {
+      color: '#ffffff',
+      fontSize: 11,
+      fontWeight: '900',
+    },
+    mobileScoreValActive: {
+      color: '#facc15',
+      fontWeight: '900',
     },
     centerRoundBadge: {
       color: '#38bdf8',
