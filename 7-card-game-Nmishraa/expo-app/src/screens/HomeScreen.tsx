@@ -14,14 +14,14 @@ import { TermsModal } from './TermsModal';
 
 interface Props {
   onJoinRoom: (playerName: string, roomId: string) => void;
-  onCreateRoom: (playerName: string, rounds: number) => void;
-  onPlayWithComputer?: (playerName: string, rounds: number) => void;
+  onCreateRoom: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
+  onPlayWithComputer?: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
   userName: string;
   userId: string;
   onLogout: () => void;
   currentFeltColor: string;
   onSelectTheme: (color: string) => void;
-  onQuickMatch: (playerName: string, rounds: number) => void;
+  onQuickMatch: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
   onNavigate?: (route: string) => void;
 }
 
@@ -32,6 +32,24 @@ export const HomeScreen: React.FC<Props> = ({
   const styles = createStyles(width, height);
   const [name, setName] = useState(userName);
   const [selectedRounds, setSelectedRounds] = useState(5);
+  const [selectedTurnTime, setSelectedTurnTime] = useState<number>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('7card_game_turntime');
+      if (saved !== null) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed)) return parsed;
+      }
+    }
+    return 60; // Default: 1 Minute (60 seconds)
+  });
+
+  const handleSelectTurnTime = (time: number) => {
+    setSelectedTurnTime(time);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('7card_game_turntime', time.toString());
+    }
+  };
+
   const [roomId, setRoomId] = useState('');
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -161,6 +179,30 @@ export const HomeScreen: React.FC<Props> = ({
               </TouchableOpacity>
             </View>
 
+            {/* Turn Time Selector */}
+            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Turn Time</Text>
+            <View style={styles.timeSelectRow}>
+              <TouchableOpacity
+                style={[styles.timeSelectBtn, selectedTurnTime === 60 && styles.timeSelectActive]}
+                onPress={() => handleSelectTurnTime(60)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.timeSelectText, selectedTurnTime === 60 && styles.timeSelectActiveText]}>
+                  ⏱️ 1 Minute
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.timeSelectBtn, selectedTurnTime === 0 && styles.timeSelectActive]}
+                onPress={() => handleSelectTurnTime(0)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.timeSelectText, selectedTurnTime === 0 && styles.timeSelectActiveText]}>
+                  ∞ No Timer
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.divider} />
 
             {/* Actions */}
@@ -169,10 +211,10 @@ export const HomeScreen: React.FC<Props> = ({
               <View style={styles.actionRow}>
                 <View style={styles.actionCol}>
                   <Text style={styles.colLabel}>Multiplayer</Text>
-                  <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
-                  <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds)} disabled={!name} styles={styles} />
+                  <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
+                  <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
                   <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                  <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                  <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
                 </View>
 
                 <View style={styles.colDivider} />
@@ -201,11 +243,11 @@ export const HomeScreen: React.FC<Props> = ({
               /* Mobile: stacked buttons */
               <View style={styles.mobileActions}>
                 <Text style={styles.colLabel}>Multiplayer</Text>
-                <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
-                <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds)} disabled={!name} styles={styles} />
+                <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
+                <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
 
                 <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
 
                 <View style={styles.divider} />
 
@@ -671,6 +713,36 @@ const createStyles = (width: number, height: number) => {
       color: '#fbbf24',
       fontSize: 18,
       fontWeight: 'bold',
+    },
+
+    timeSelectRow: {
+      flexDirection: 'row',
+      gap: 12,
+      width: '100%',
+    },
+    timeSelectBtn: {
+      flex: 1,
+      backgroundColor: '#1e293b',
+      borderWidth: 1,
+      borderColor: '#475569',
+      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    timeSelectActive: {
+      backgroundColor: '#0284c7',
+      borderColor: '#38bdf8',
+    },
+    timeSelectText: {
+      color: '#cbd5e1',
+      fontSize: 15,
+      fontWeight: 'bold',
+    },
+    timeSelectActiveText: {
+      color: '#ffffff',
+      fontWeight: '900',
     },
 
     divider: { height: 1, backgroundColor: '#334155', marginVertical: 20 },

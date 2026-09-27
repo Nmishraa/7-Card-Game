@@ -207,30 +207,38 @@ export const GameScreen: React.FC<Props> = ({
     return () => clearInterval(interval);
   }, [room?.status]);
 
+  const turnTimeLimit = room?.turnTimeLimit !== undefined ? room.turnTimeLimit : 60;
+  const isTimedMode = turnTimeLimit > 0;
   const turnStartTime = room?.turnStartTime || Date.now();
   const elapsedMs = Math.max(0, now - turnStartTime);
-  const remainingSec = room?.status === 'playing' 
-    ? Math.max(0, Math.ceil((30000 - elapsedMs) / 1000))
-    : 30;
+  const remainingSec = (room?.status === 'playing' && isTimedMode)
+    ? Math.max(0, Math.ceil((turnTimeLimit * 1000 - elapsedMs) / 1000))
+    : turnTimeLimit;
+
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
 
   const currentTurnIdEarly = room?.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
 
-  // 5s Warning Sound (played once per turn)
+  // 5s Warning Sound (played once per turn in timed mode)
   useEffect(() => {
-    if (!room || room.status !== 'playing' || !currentTurnIdEarly) return;
+    if (!room || room.status !== 'playing' || !currentTurnIdEarly || !isTimedMode) return;
     const warningKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_5s`;
     if (remainingSec <= 5 && remainingSec > 0 && warningSoundPlayedRef.current !== warningKey) {
       warningSoundPlayedRef.current = warningKey;
       playTimerWarning();
     }
-  }, [remainingSec, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status]);
+  }, [remainingSec, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, isTimedMode]);
 
-  // 30s Timeout Auto Action (triggered once per turn by active player or host)
+  // Timeout Auto Action (triggered once per turn in timed mode by active player or host)
   useEffect(() => {
-    if (!room || room.status !== 'playing' || !currentTurnIdEarly || !onTimeoutTurn) return;
+    if (!room || room.status !== 'playing' || !currentTurnIdEarly || !onTimeoutTurn || !isTimedMode) return;
     const timeoutKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_timeout`;
     
-    if (elapsedMs >= 30000 && timeoutTriggeredRef.current !== timeoutKey) {
+    if (elapsedMs >= turnTimeLimit * 1000 && timeoutTriggeredRef.current !== timeoutKey) {
       const isTurnPlayer = currentTurnIdEarly === currentPlayerId;
       const isHost = room.hostId === currentPlayerId;
       if (isTurnPlayer || isHost) {
@@ -238,7 +246,7 @@ export const GameScreen: React.FC<Props> = ({
         onTimeoutTurn(currentTurnIdEarly);
       }
     }
-  }, [elapsedMs, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, currentPlayerId, room?.hostId, onTimeoutTurn]);
+  }, [elapsedMs, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, currentPlayerId, room?.hostId, onTimeoutTurn, isTimedMode, turnTimeLimit]);
 
   const toggleSound = () => {
     const next = !soundMuted;
@@ -884,9 +892,9 @@ export const GameScreen: React.FC<Props> = ({
                       <View style={styles.centerMetaRow}>
                         <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
                         {room.status === 'playing' && (
-                          <View style={[styles.timerBadge, remainingSec <= 10 && styles.timerBadgeWarning]}>
-                            <Text style={[styles.timerText, remainingSec <= 10 && styles.timerTextWarning]}>
-                              ⏱️ {remainingSec}s
+                          <View style={[styles.timerBadge, isTimedMode && remainingSec <= 10 && styles.timerBadgeWarning]}>
+                            <Text style={[styles.timerText, isTimedMode && remainingSec <= 10 && styles.timerTextWarning]}>
+                              {isTimedMode ? `⏱️ ${formatTime(remainingSec)}` : '∞ No Timer'}
                             </Text>
                           </View>
                         )}
