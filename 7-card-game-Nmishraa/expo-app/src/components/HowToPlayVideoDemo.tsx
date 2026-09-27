@@ -102,6 +102,28 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
   const audioEnabledRef = useRef<boolean>(audioEnabled);
   audioEnabledRef.current = audioEnabled;
 
+  const pendingAudioTimersRef = useRef<NodeJS.Timeout[]>([]);
+  const lastPlayedStepKeyRef = useRef<string | null>(null);
+
+  const stopStepAudio = () => {
+    pendingAudioTimersRef.current.forEach(timer => clearTimeout(timer));
+    pendingAudioTimersRef.current = [];
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // Safe fallback
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopStepAudio();
+    };
+  }, []);
+
   // Step Phase Breakdown (8.5s total per step):
   // progress < 50%: Action & Narration Phase (0 - 4.25s)
   // 50% <= progress < 75%: Action Result Phase (4.25s - 6.37s)
@@ -111,6 +133,7 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
 
   // Trigger Audio/Speech SFX when step starts
   const triggerStepAudio = (stepIndex: number) => {
+    stopStepAudio();
     if (!audioEnabledRef.current) return;
 
     try {
@@ -118,15 +141,18 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
         playYourTurn();
       } else if (stepIndex === 1) {
         playCardSelect();
-        setTimeout(() => playDiscard(), 300);
+        const t = setTimeout(() => playDiscard(), 300);
+        pendingAudioTimersRef.current.push(t);
       } else if (stepIndex === 2) {
         playDraw();
       } else if (stepIndex === 3) {
         playCardSelect();
-        setTimeout(() => playDiscard(), 300);
+        const t = setTimeout(() => playDiscard(), 300);
+        pendingAudioTimersRef.current.push(t);
       } else if (stepIndex === 4) {
         playCallLeast();
-        setTimeout(() => playRoundEnd(), 600);
+        const t = setTimeout(() => playRoundEnd(), 600);
+        pendingAudioTimersRef.current.push(t);
       }
     } catch {
       // Audio safe fallback
@@ -134,7 +160,6 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
 
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
-        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(STEPS[stepIndex].voiceText);
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
@@ -147,10 +172,17 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
   };
 
   useEffect(() => {
+    const playKey = `${currentStepIdx}_${isPlaying}_${audioEnabled}`;
     if (isPlaying && audioEnabled) {
-      triggerStepAudio(currentStepIdx);
+      if (lastPlayedStepKeyRef.current !== playKey) {
+        lastPlayedStepKeyRef.current = playKey;
+        triggerStepAudio(currentStepIdx);
+      }
+    } else {
+      stopStepAudio();
+      lastPlayedStepKeyRef.current = null;
     }
-  }, [currentStepIdx]);
+  }, [currentStepIdx, isPlaying, audioEnabled]);
 
   // Step Progress Timer: 8.5 seconds per step (1.0% per 85ms interval)
   useEffect(() => {
@@ -160,26 +192,31 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
       timer = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
-            // Step end pause complete: transition to next step cleanly
+            // Step end pause complete: stop audio & transition to next step cleanly
+            stopStepAudio();
             setCurrentStepIdx((sIdx) => (sIdx + 1) % STEPS.length);
             return 0;
           }
           return prev + 1.0; // 100 ticks = 8.5 seconds total step duration
         });
       }, interval);
+    } else {
+      stopStepAudio();
     }
     return () => clearInterval(timer);
   }, [isPlaying]);
 
   const handleSelectStep = (idx: number) => {
+    stopStepAudio();
+    lastPlayedStepKeyRef.current = null;
     setCurrentStepIdx(idx);
     setProgress(0);
-    if (audioEnabled) {
-      triggerStepAudio(idx);
-    }
   };
 
   const togglePlayPause = () => {
+    if (isPlaying) {
+      stopStepAudio();
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -187,10 +224,11 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
     const next = !audioEnabled;
     setAudioEnabled(next);
     audioEnabledRef.current = next;
-    if (next) {
-      triggerStepAudio(currentStepIdx);
-    } else if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (!next) {
+      stopStepAudio();
+      lastPlayedStepKeyRef.current = null;
+    } else {
+      lastPlayedStepKeyRef.current = null;
     }
   };
 
