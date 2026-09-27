@@ -867,6 +867,7 @@ export const GameScreen: React.FC<Props> = ({
       </ScrollView>
     </View>
   );
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
