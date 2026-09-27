@@ -199,6 +199,144 @@ export const GameScreen: React.FC<Props> = ({
   const warningSoundPlayedRef = useRef<string | null>(null);
   const timeoutTriggeredRef = useRef<string | null>(null);
 
+  // Card movement animation refs & state
+  const deckRef = useRef<any>(null);
+  const discardRef = useRef<any>(null);
+  const handRef = useRef<any>(null);
+
+  const [isAnimatingCard, setIsAnimatingCard] = useState(false);
+  const [flyingCard, setFlyingCard] = useState<{
+    card?: CardType;
+    isBack?: boolean;
+  } | null>(null);
+
+  const flyAnim = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const flyRotate = useRef(new Animated.Value(0)).current;
+  const flyScale = useRef(new Animated.Value(1)).current;
+
+  const getRefCoords = (ref: React.RefObject<any>, fallbackX: number, fallbackY: number) => {
+    if (Platform.OS === 'web' && ref.current) {
+      const el = ref.current;
+      if (el && typeof el.getBoundingClientRect === 'function') {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        }
+      }
+    }
+    return { x: fallbackX, y: fallbackY };
+  };
+
+  const animateDrawCard = (source: 'deck' | 'discard') => {
+    if (isAnimatingCard) return;
+
+    const deckCoords = getRefCoords(deckRef, width * 0.42, height * 0.45);
+    const discardCoords = getRefCoords(discardRef, width * 0.58, height * 0.45);
+    const handCoords = getRefCoords(handRef, width * 0.50, height * 0.88);
+
+    const startX = source === 'deck' ? deckCoords.x : discardCoords.x;
+    const startY = source === 'deck' ? deckCoords.y : discardCoords.y;
+    const endX = handCoords.x;
+    const endY = handCoords.y;
+
+    const topDiscard = room.discardPile && room.discardPile.length > 0 ? room.discardPile[room.discardPile.length - 1] : undefined;
+
+    setIsAnimatingCard(true);
+    setFlyingCard({
+      card: source === 'discard' ? topDiscard : undefined,
+      isBack: source === 'deck',
+    });
+
+    flyAnim.setValue({ x: startX, y: startY });
+    flyRotate.setValue(-8);
+    flyScale.setValue(1.1);
+
+    playDraw();
+
+    Animated.parallel([
+      Animated.timing(flyAnim, {
+        toValue: { x: endX, y: endY },
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(flyRotate, {
+        toValue: 0,
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(flyScale, {
+        toValue: 1,
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      onDrawCard(source);
+      setFlyingCard(null);
+      setIsAnimatingCard(false);
+    });
+  };
+
+  const animateDiscardCard = () => {
+    if (isAnimatingCard || selected.length === 0) return;
+
+    const cardsToDiscard = (me && me.hand ? me.hand : []).filter(c => selected.includes(c.id));
+    if (!isValidSetOrRun(cardsToDiscard)) {
+      Alert.alert("Invalid Discard", "2 different values cannot be discarded at a time.");
+      return;
+    }
+
+    const discardCoords = getRefCoords(discardRef, width * 0.58, height * 0.45);
+    const handCoords = getRefCoords(handRef, width * 0.50, height * 0.88);
+
+    const startX = handCoords.x;
+    const startY = handCoords.y;
+    const endX = discardCoords.x;
+    const endY = discardCoords.y;
+
+    const cardToAnimate = cardsToDiscard[0];
+
+    setIsAnimatingCard(true);
+    setFlyingCard({
+      card: cardToAnimate,
+      isBack: false,
+    });
+
+    flyAnim.setValue({ x: startX, y: startY });
+    flyRotate.setValue(0);
+    flyScale.setValue(1.05);
+
+    playDiscard();
+
+    Animated.parallel([
+      Animated.timing(flyAnim, {
+        toValue: { x: endX, y: endY },
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(flyRotate, {
+        toValue: 12,
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(flyScale, {
+        toValue: 0.9,
+        duration: 380,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      onDiscardAndDraw(selected);
+      setSelected([]);
+      setFlyingCard(null);
+      setIsAnimatingCard(false);
+    });
+  };
+
   useEffect(() => {
     if (!room || room.status !== 'playing') return;
     const interval = setInterval(() => {
@@ -387,8 +525,8 @@ export const GameScreen: React.FC<Props> = ({
       (window as any).myLogs.push(logMsg1);
     }
 
-    if (!isMyTurn || room.turnPhase !== 'discarding') {
-      const logMsg2 = `[handleToggle] Early return because isMyTurn is ${isMyTurn} or turnPhase is ${room.turnPhase}`;
+    if (!isMyTurn || room.turnPhase !== 'discarding' || isAnimatingCard) {
+      const logMsg2 = `[handleToggle] Early return because isMyTurn is ${isMyTurn}, turnPhase is ${room.turnPhase}, isAnimating: ${isAnimatingCard}`;
       console.log(logMsg2);
       if (typeof window !== 'undefined') {
         (window as any).myLogs.push(logMsg2);
@@ -846,9 +984,10 @@ export const GameScreen: React.FC<Props> = ({
                       <View style={styles.pileContainer} pointerEvents="box-none">
                         <Text style={styles.pileLabel}>DECK</Text>
                         <TouchableOpacity 
-                          style={[styles.cardBack, (!isMyTurn || room.turnPhase !== 'picking') && styles.disabled]} 
-                          onPress={() => onDrawCard('deck')} 
-                          disabled={!isMyTurn || room.turnPhase !== 'picking'}
+                          ref={deckRef}
+                          style={[styles.cardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
+                          onPress={() => animateDrawCard('deck')} 
+                          disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
                           activeOpacity={0.7}
                         >
                           <View style={styles.cardPattern} />
@@ -858,9 +997,10 @@ export const GameScreen: React.FC<Props> = ({
                         <Text style={styles.pileLabel}>{room.pendingDiscard && room.pendingDiscard.length > 0 ? "PREV DISCARD" : "DISCARD"}</Text>
                         {room.discardPile.length > 0 ? (
                           <TouchableOpacity 
+                            ref={discardRef}
                             style={styles.cardCluster}
-                            onPress={(isMyTurn && room.turnPhase === 'picking') ? () => onDrawCard('discard') : undefined}
-                            disabled={!isMyTurn || room.turnPhase !== 'picking'}
+                            onPress={(isMyTurn && room.turnPhase === 'picking' && !isAnimatingCard) ? () => animateDrawCard('discard') : undefined}
+                            disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
                             activeOpacity={0.7}
                           >
                             {room.discardPile.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
@@ -870,7 +1010,7 @@ export const GameScreen: React.FC<Props> = ({
                             ))}
                           </TouchableOpacity>
                         ) : (
-                          <View style={[styles.card, styles.emptyPile]} />
+                          <View ref={discardRef} style={[styles.card, styles.emptyPile]} />
                         )}
                       </View>
 
@@ -930,9 +1070,9 @@ export const GameScreen: React.FC<Props> = ({
             {isMyTurn && room.turnPhase === 'discarding' && (
               <View style={styles.dockActionRow}>
                 <TouchableOpacity
-                  style={[styles.actionBtn, styles.discardBtn, selected.length === 0 && styles.disabled]}
-                  onPress={handleDiscard}
-                  disabled={selected.length === 0}
+                  style={[styles.actionBtn, styles.discardBtn, (selected.length === 0 || isAnimatingCard) && styles.disabled]}
+                  onPress={animateDiscardCard}
+                  disabled={selected.length === 0 || isAnimatingCard}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.actionBtnText}>Discard {selected.length > 0 ? `(${selected.length})` : ''}</Text>
@@ -950,7 +1090,7 @@ export const GameScreen: React.FC<Props> = ({
               </View>
             )}
 
-            <View style={styles.myHandDockWrapper}>
+            <View style={styles.myHandDockWrapper} ref={handRef}>
               <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
@@ -964,6 +1104,40 @@ export const GameScreen: React.FC<Props> = ({
               </ScrollView>
             </View>
           </View>
+        )}
+
+        {/* Flying Card Overlay for smooth drawing/discarding flight animation */}
+        {flyingCard && (
+          <Animated.View
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              zIndex: 9999,
+              transform: [
+                { translateX: flyAnim.x },
+                { translateY: flyAnim.y },
+                {
+                  rotate: flyRotate.interpolate({
+                    inputRange: [-360, 360],
+                    outputRange: ['-360deg', '360deg'],
+                  }),
+                },
+                { scale: flyScale },
+              ],
+              marginLeft: -(isSmallScreen ? 22 : 30),
+              marginTop: -(isSmallScreen ? 32 : 43),
+            }}
+            pointerEvents="none"
+          >
+            {flyingCard.isBack ? (
+              <View style={styles.cardBack}>
+                <View style={styles.cardPattern} />
+              </View>
+            ) : (
+              flyingCard.card && renderCard(flyingCard.card, false)
+            )}
+          </Animated.View>
         )}
       </View>
     </SafeAreaView>
