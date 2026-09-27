@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { 
   playCardSelect, 
   playDiscard, 
@@ -16,8 +16,8 @@ interface Step {
   badge: string;
   description: string;
   voiceText: string;
-  highlightCard: string;
   actionText: string;
+  resultText: string;
   botScore: number;
   yourScore: number;
 }
@@ -29,9 +29,9 @@ const STEPS: Step[] = [
     subtitle: '7 Cards per Player • Lowest Score Wins',
     badge: 'DEAL',
     description: 'Each player receives 7 cards. Number cards equal face value. J, Q, K are worth 10 points. 7 of Hearts and Spades are Wild JOKERS (0 pts)!',
-    voiceText: 'Step 1: The Deal. Each player receives 7 cards. The goal is to get your score to 7 points or less to call LEAST!',
-    highlightCard: 'ALL',
-    actionText: 'Goal: Get your total score to 7 points or less to call LEAST!',
+    voiceText: 'Step 1: The Deal. Each player receives 7 cards. The goal is to get your hand score to 7 points or less to call LEAST!',
+    actionText: '🎯 Goal: Reduce hand score to 7 points or less',
+    resultText: '✅ Deal Completed: 7 Cards in hand (Total: 28 pts)',
     botScore: 42,
     yourScore: 28,
   },
@@ -42,8 +42,8 @@ const STEPS: Step[] = [
     badge: 'DISCARD',
     description: 'On your turn, discard heavy high-point cards (like King of Diamonds for 10 pts) into the face-up Discard Pile to cut your hand total fast.',
     voiceText: 'Step 2: Discarding High Cards. Drop heavy cards like Kings and 10s to lower your hand score quickly.',
-    highlightCard: 'K♦',
-    actionText: 'Action: Discard K♦ (10 pts) -> Hand drops from 28 to 18 pts!',
+    actionText: '⚡ Action: Discarding King of Diamonds (10 pts)...',
+    resultText: '✅ Action Complete: Hand score dropped from 28 to 18 pts!',
     botScore: 35,
     yourScore: 18,
   },
@@ -53,9 +53,9 @@ const STEPS: Step[] = [
     subtitle: 'Pick from Secret Deck OR Face-up Discard Pile',
     badge: 'DRAW',
     description: 'After discarding, draw 1 card. You can draw blindly from the face-down Deck, or grab the top face-up Discard card if it improves your hand!',
-    voiceText: 'Step 3: Drawing. After discarding, draw 1 card from the secret Deck or face-up Discard Pile.',
-    highlightCard: '2♣',
-    actionText: 'Action: Draw Ace of Spades (1 pt) from Deck -> Total drops to 12 pts!',
+    voiceText: 'Step 3: Drawing a Card. Draw 1 replacement card from the secret Deck or face-up Discard Pile.',
+    actionText: '🎴 Action: Drawing 1 card from Deck...',
+    resultText: '✅ Action Complete: Drew Ace of Spades (1 pt) -> Hand score now 12 pts!',
     botScore: 29,
     yourScore: 12,
   },
@@ -66,8 +66,8 @@ const STEPS: Step[] = [
     badge: 'SET DISCARD',
     description: 'If you have matching rank cards (e.g. two 4s or three 3s), discard them together! Use Wild 7 Jokers (0 pts) to complete any matching set.',
     voiceText: 'Step 4: Discarding Sets. Drop matching rank cards like three 3s at once. Use Wild 7 Jokers worth 0 points!',
-    highlightCard: '3♥ 3♦ 3♣',
-    actionText: 'Action: Discard set of three 3s (9 pts) -> Total drops down to 3 pts!',
+    actionText: '⚡ Action: Discarding set of three 3s (9 pts at once)...',
+    resultText: '✅ Action Complete: 9 pts dropped in 1 turn! Score now 3 pts!',
     botScore: 22,
     yourScore: 3,
   },
@@ -77,9 +77,9 @@ const STEPS: Step[] = [
     subtitle: 'Call LEAST when hand is 7 pts or less',
     badge: 'VICTORY',
     description: 'When your hand total is 7 points or lower at the start of your turn, click LEAST! All hands are revealed, and the lowest score wins the round!',
-    voiceText: 'Step 5: Declaring LEAST. When your score is 7 or less, call LEAST! The lowest hand score wins!',
-    highlightCard: 'LEAST!',
-    actionText: '🏆 You call LEAST with 3 pts vs AlphaBot 22 pts! YOU WIN!',
+    voiceText: 'Step 5: Declaring LEAST. When your score is 7 or less, call LEAST! The lowest score wins!',
+    actionText: '✨ Action: Clicking LEAST! button with 3 pts in hand...',
+    resultText: '🏆 MATCH WINNER! You called LEAST with 3 pts vs AlphaBot 22 pts! YOU WIN!',
     botScore: 22,
     yourScore: 3,
   },
@@ -102,38 +102,42 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
   const audioEnabledRef = useRef<boolean>(audioEnabled);
   audioEnabledRef.current = audioEnabled;
 
+  // Step Phase Breakdown (8.5s total per step):
+  // progress < 50%: Action & Narration Phase (0 - 4.25s)
+  // 50% <= progress < 75%: Action Result Phase (4.25s - 6.37s)
+  // progress >= 75%: Step Finished Pause Phase (6.37s - 8.5s) (2.1s clear pause)
+  const isResultPhase = progress >= 50 && progress < 75;
+  const isStepCompletePhase = progress >= 75;
 
-  // Speak step voiceover & trigger audio SFX
+  // Trigger Audio/Speech SFX when step starts
   const triggerStepAudio = (stepIndex: number) => {
     if (!audioEnabledRef.current) return;
 
-    // 1. Play synthesized Web Audio SFX
     try {
       if (stepIndex === 0) {
         playYourTurn();
       } else if (stepIndex === 1) {
         playCardSelect();
-        setTimeout(() => playDiscard(), 200);
+        setTimeout(() => playDiscard(), 300);
       } else if (stepIndex === 2) {
         playDraw();
       } else if (stepIndex === 3) {
         playCardSelect();
-        setTimeout(() => playDiscard(), 200);
+        setTimeout(() => playDiscard(), 300);
       } else if (stepIndex === 4) {
         playCallLeast();
-        setTimeout(() => playRoundEnd(), 500);
+        setTimeout(() => playRoundEnd(), 600);
       }
     } catch {
       // Audio safe fallback
     }
 
-    // 2. Play Web Speech API Voiceover Narration if supported in web browser
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
-        window.speechSynthesis.cancel(); // cancel previous speech
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(STEPS[stepIndex].voiceText);
         utterance.rate = 1.0;
-        utterance.pitch = 1.05;
+        utterance.pitch = 1.0;
         utterance.volume = 0.9;
         window.speechSynthesis.speak(utterance);
       } catch {
@@ -142,25 +146,25 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
     }
   };
 
-  // Trigger audio on step change
   useEffect(() => {
     if (isPlaying && audioEnabled) {
       triggerStepAudio(currentStepIdx);
     }
   }, [currentStepIdx]);
 
-  // Auto-advance loop when isPlaying is true
+  // Step Progress Timer: 8.5 seconds per step (1.0% per 85ms interval)
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isPlaying) {
-      const interval = 80;
+      const interval = 85; // 85ms tick
       timer = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
+            // Step end pause complete: transition to next step cleanly
             setCurrentStepIdx((sIdx) => (sIdx + 1) % STEPS.length);
             return 0;
           }
-          return prev + 2.5; // 4 seconds per step
+          return prev + 1.0; // 100 ticks = 8.5 seconds total step duration
         });
       }, interval);
     }
@@ -190,13 +194,14 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
     }
   };
 
+  const nextStepNum = currentStepIdx < STEPS.length - 1 ? currentStepIdx + 2 : 1;
+
   return (
     <View style={[styles.wrapper, style]}>
-
-      {/* Top Title & Header */}
+      {/* Top Header Controls */}
       <View style={styles.videoHeader}>
         <View style={styles.titleRow}>
-          <Text style={styles.videoBadge}>📹 ANIMATED VIDEO TUTORIAL</Text>
+          <Text style={styles.videoBadge}>📹 ANIMATED TUTORIAL DEMO</Text>
           
           <View style={styles.headerRightControls}>
             <TouchableOpacity onPress={toggleAudio} style={[styles.audioToggleBtn, audioEnabled && styles.audioToggleActive]}>
@@ -204,27 +209,31 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
             </TouchableOpacity>
 
             <View style={styles.statusLive}>
-              <View style={[styles.liveDot, isPlaying ? styles.dotActive : styles.dotPaused]} />
-              <Text style={styles.liveText}>{isPlaying ? 'PLAYING DEMO' : 'PAUSED'}</Text>
+              <View style={[styles.liveDot, isPlaying ? (isStepCompletePhase ? styles.dotStepFinished : styles.dotActive) : styles.dotPaused]} />
+              <Text style={styles.liveText}>
+                {isPlaying ? (isStepCompletePhase ? `STEP ${currentStep.id} FINISHED (PAUSING)` : 'PLAYING STEP') : 'PAUSED'}
+              </Text>
             </View>
           </View>
         </View>
-        <Text style={styles.videoTitle}>How to Play 7 Cards Game with Audio</Text>
+        <Text style={styles.videoTitle}>How to Play 7 Cards Game</Text>
       </View>
 
-      {/* Main Simulated Video Screen Box */}
+      {/* Main Video Frame Screen Box */}
       <View style={styles.videoScreen}>
-        {/* Step Progress Top Bar */}
+        {/* Step Progress Bar */}
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { width: `${((currentStepIdx + progress / 100) / STEPS.length) * 100}%` }]} />
         </View>
 
-        {/* Outer Felt Poker Table Canvas */}
+        {/* Felt Poker Table Canvas */}
         <View style={styles.feltTable}>
           {/* Top Bar inside Video Screen */}
           <View style={styles.tableHeader}>
-            <View style={styles.stepBadgeBox}>
-              <Text style={styles.stepBadgeText}>{currentStep.badge}</Text>
+            <View style={[styles.stepBadgeBox, isStepCompletePhase && styles.stepBadgeBoxComplete]}>
+              <Text style={styles.stepBadgeText}>
+                {isStepCompletePhase ? `✓ STEP ${currentStep.id} FINISHED` : currentStep.badge}
+              </Text>
             </View>
             <Text style={styles.stepTitleText}>{currentStep.title}</Text>
             <View style={styles.scorePill}>
@@ -232,11 +241,19 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
             </View>
           </View>
 
-          {/* Subtitle / Narrative Overhead Banner */}
-          <View style={styles.narrativeBanner}>
+          {/* Subtitle / Narrative Banner */}
+          <View style={[styles.narrativeBanner, isStepCompletePhase && styles.narrativeBannerComplete]}>
             <View style={styles.narrativeTitleRow}>
-              <Text style={styles.narrativeSub}>{currentStep.subtitle}</Text>
-              {audioEnabled && <Text style={styles.audioIconBadge}>🔊 Narration Playing</Text>}
+              <Text style={styles.narrativeSub}>
+                {isStepCompletePhase ? `✓ STEP ${currentStep.id} COMPLETE` : currentStep.subtitle}
+              </Text>
+              {isStepCompletePhase ? (
+                <Text style={styles.completePauseTag}>🏁 Step Finished → Next: Step {nextStepNum}</Text>
+              ) : isResultPhase ? (
+                <Text style={styles.completePauseTag}>✅ Action Executed</Text>
+              ) : (
+                audioEnabled && <Text style={styles.audioIconBadge}>🔊 Narration Playing</Text>
+              )}
             </View>
             <Text style={styles.narrativeDesc}>{currentStep.description}</Text>
           </View>
@@ -259,7 +276,7 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
               </View>
             </View>
 
-            {/* Piles & Action Callout */}
+            {/* Piles */}
             <View style={styles.pilesRow}>
               {/* Joker */}
               <View style={styles.pileCardSlot}>
@@ -297,9 +314,15 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
               </View>
             </View>
 
-            {/* Step Action Alert Highlight */}
-            <View style={styles.actionCalloutBox}>
-              <Text style={styles.actionCalloutText}>{currentStep.actionText}</Text>
+            {/* Clear Action Callout / Step Completion Pause Banner */}
+            <View style={[styles.actionCalloutBox, (isResultPhase || isStepCompletePhase) && styles.actionCalloutComplete]}>
+              <Text style={[styles.actionCalloutText, (isResultPhase || isStepCompletePhase) && styles.actionCalloutTextComplete]}>
+                {isStepCompletePhase 
+                  ? `🏁 STEP ${currentStep.id} FINISHED — STEP ${nextStepNum} STARTS NEXT`
+                  : isResultPhase 
+                  ? currentStep.resultText 
+                  : currentStep.actionText}
+              </Text>
             </View>
 
             {/* Player Hand Cards */}
@@ -365,18 +388,32 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
             </TouchableOpacity>
           </View>
 
+          {/* Step Tabs Row */}
           <View style={styles.stepTabsRow}>
-            {STEPS.map((s, idx) => (
-              <TouchableOpacity
-                key={s.id}
-                onPress={() => handleSelectStep(idx)}
-                style={[styles.stepTab, currentStepIdx === idx && styles.stepTabActive]}
-              >
-                <Text style={[styles.stepTabText, currentStepIdx === idx && styles.stepTabTextActive]}>
-                  Step {s.id}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {STEPS.map((s, idx) => {
+              const isCurrent = currentStepIdx === idx;
+              const isFinished = currentStepIdx > idx;
+
+              return (
+                <TouchableOpacity
+                  key={s.id}
+                  onPress={() => handleSelectStep(idx)}
+                  style={[
+                    styles.stepTab, 
+                    isCurrent && styles.stepTabActive,
+                    isFinished && styles.stepTabFinished
+                  ]}
+                >
+                  <Text style={[
+                    styles.stepTabText, 
+                    isCurrent && styles.stepTabTextActive,
+                    isFinished && styles.stepTabTextFinished
+                  ]}>
+                    {isFinished ? `✓ Step ${s.id}` : `Step ${s.id}`}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </View>
@@ -387,7 +424,7 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    marginVertical: 20,
+    marginVertical: 16,
     alignItems: 'center',
   },
   videoHeader: {
@@ -445,6 +482,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   dotActive: {
+    backgroundColor: '#38bdf8',
+  },
+  dotStepFinished: {
     backgroundColor: '#22c55e',
   },
   dotPaused: {
@@ -478,8 +518,8 @@ const styles = StyleSheet.create({
   },
   progressBarBg: {
     width: '100%',
-    height: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   progressBarFill: {
     height: '100%',
@@ -504,6 +544,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
+  },
+  stepBadgeBoxComplete: {
+    backgroundColor: '#22c55e',
   },
   stepBadgeText: {
     color: '#000000',
@@ -542,6 +585,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.18)',
     marginBottom: 14,
   },
+  narrativeBannerComplete: {
+    borderColor: '#22c55e',
+    backgroundColor: 'rgba(15, 23, 42, 0.96)',
+  },
   narrativeTitleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -553,8 +600,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
   },
-  audioIconBadge: {
+  completePauseTag: {
     color: '#4ade80',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  audioIconBadge: {
+    color: '#38bdf8',
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -698,16 +750,23 @@ const styles = StyleSheet.create({
   actionCalloutBox: {
     backgroundColor: 'rgba(250, 204, 21, 0.2)',
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: '#facc15',
+  },
+  actionCalloutComplete: {
+    backgroundColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: '#22c55e',
   },
   actionCalloutText: {
     color: '#facc15',
     fontWeight: '900',
     fontSize: 12,
     textAlign: 'center',
+  },
+  actionCalloutTextComplete: {
+    color: '#4ade80',
   },
 
   playerHandSection: {
@@ -867,6 +926,11 @@ const styles = StyleSheet.create({
   stepTabActive: {
     backgroundColor: '#facc15',
   },
+  stepTabFinished: {
+    backgroundColor: 'rgba(34, 197, 94, 0.25)',
+    borderWidth: 1,
+    borderColor: '#22c55e',
+  },
   stepTabText: {
     color: '#94a3b8',
     fontSize: 11,
@@ -875,5 +939,9 @@ const styles = StyleSheet.create({
   stepTabTextActive: {
     color: '#000000',
     fontWeight: '900',
+  },
+  stepTabTextFinished: {
+    color: '#4ade80',
+    fontWeight: 'bold',
   },
 });
