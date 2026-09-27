@@ -11,6 +11,7 @@ import { AdminLoginModal } from './AdminLoginModal';
 import { AdminDashboardModal } from './AdminDashboardModal';
 import { PrivacyModal } from './PrivacyModal';
 import { TermsModal } from './TermsModal';
+import { GamePreviewSection } from '../components/GamePreviewSection';
 
 interface Props {
   onJoinRoom: (playerName: string, roomId: string) => void;
@@ -271,6 +272,9 @@ export const HomeScreen: React.FC<Props> = ({
               </View>
             )}
           </View>
+
+          {/* ─── LANDING PAGE GAME PREVIEW SCREENSHOT ─── */}
+          <GamePreviewSection />
 
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
