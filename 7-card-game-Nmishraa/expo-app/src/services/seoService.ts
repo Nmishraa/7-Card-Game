@@ -7,10 +7,10 @@ export interface PageSeoConfig {
 
 export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
   home: {
-    title: "7 Cards Game Online (7cards) – Play 7 Cards Least Free With Friends & AI",
-    description: "Play 7 Cards Game (7cards / 7 Cards Least) online for free. Enjoy real-time 7 card game multiplayer with friends or practice solo against computer AI. No download required.",
+    title: "7 Card Game Online – Play 7 Cards Online Game & 7 Cards Least Free",
+    description: "Play 7 Card Game online for free! The ultimate 7 cards online game & 7 Cards Least experience. Enjoy real-time multiplayer card games with friends or play solo against AI.",
     canonical: "https://cards.gnanamai.com/",
-    h1: "7 Cards Game Online – 7cards & 7 Cards Least",
+    h1: "7 Card Game Online – Play 7 Cards Online Game Free",
   },
   "7-cards-least": {
     title: "7 Cards Game (7cards) – How to Play 7 Cards Least Online",
