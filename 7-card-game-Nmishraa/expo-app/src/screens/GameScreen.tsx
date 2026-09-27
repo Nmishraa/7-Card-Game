@@ -626,7 +626,15 @@ export const GameScreen: React.FC<Props> = ({
       <Modal visible={room.status === 'round-end' || room.status === 'game-over'} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.summaryContainer}>
-            <Text style={styles.summaryTitle}>{isGameOver ? 'GAME OVER' : 'ROUND OVER'}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 6 }}>
+              <Text style={styles.summaryTitle}>{isGameOver ? 'GAME OVER' : 'ROUND OVER'}</Text>
+              <TouchableOpacity 
+                style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#ef4444' }} 
+                onPress={onLeaveRoom}
+              >
+                <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>Exit Game ✕</Text>
+              </TouchableOpacity>
+            </View>
             {caller && <Text style={styles.callerText}>{caller.name} called LEAST!</Text>}
             
             <ScrollView style={styles.summaryCardsScroll} showsVerticalScrollIndicator={false}>
@@ -686,15 +694,20 @@ export const GameScreen: React.FC<Props> = ({
                   <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} onPress={onStartGame}>
                     <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#475569' }]} onPress={onLeaveRoom}>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444' }]} onPress={onLeaveRoom}>
                     <Text style={styles.summaryBtnText}>Back to Home</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
-              <TouchableOpacity style={styles.summaryBtn} onPress={onNextRound}>
-                <Text style={styles.summaryBtnText}>Start Round {(room.currentRound || 1) + 1}</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%', justifyContent: 'center' }}>
+                <TouchableOpacity style={[styles.summaryBtn, { flex: 1.2 }]} onPress={onNextRound}>
+                  <Text style={styles.summaryBtnText}>Start Round {(room.currentRound || 1) + 1}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom}>
+                  <Text style={styles.summaryBtnText}>Exit Game</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         </View>
@@ -795,6 +808,51 @@ export const GameScreen: React.FC<Props> = ({
     </Modal>
   );
 
+  const renderLiveScoreboard = () => (
+    <View style={styles.liveScoreboardCard} pointerEvents="box-none">
+      <View style={styles.liveScoreboardHeader}>
+        <Text style={styles.liveScoreboardColPlayer}>PLAYER</Text>
+        <Text style={styles.liveScoreboardColScore}>SCORE</Text>
+      </View>
+      <ScrollView style={{ maxHeight: isMobile ? 150 : 240 }} showsVerticalScrollIndicator={false}>
+        {turnOrder.map(id => {
+          const p = players[id];
+          if (!p) return null;
+          const isTurn = currentTurnId === id;
+          const isMe = id === currentPlayerId;
+
+          return (
+            <View 
+              key={id} 
+              style={[
+                styles.liveScoreboardRow, 
+                isTurn && styles.liveScoreboardRowActive
+              ]}
+            >
+              <Text 
+                style={[
+                  styles.liveScoreboardPlayerName, 
+                  isTurn && styles.liveScoreboardPlayerNameActive
+                ]}
+                numberOfLines={1}
+              >
+                {isTurn ? '▶ ' : ''}{p.name} {isMe ? '(You)' : ''}
+              </Text>
+              <Text 
+                style={[
+                  styles.liveScoreboardScoreText,
+                  isTurn && styles.liveScoreboardScoreTextActive
+                ]}
+              >
+                {p.totalScore}
+              </Text>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -802,6 +860,7 @@ export const GameScreen: React.FC<Props> = ({
         {renderChatModal()}
         {renderScoresModal()}
         {renderEditModal()}
+        {renderLiveScoreboard()}
         {systemToast && <View style={styles.systemToast}><Text style={styles.systemToastText}>{systemToast}</Text></View>}
         {errorMsg && <View style={styles.errorToast}><Text style={styles.errorToastText}>{errorMsg}</Text></View>}
         {chatToast && !showChat && (
@@ -863,36 +922,6 @@ export const GameScreen: React.FC<Props> = ({
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Scoreboard on the top-right of the page (desktop only) */}
-        {width >= 768 && (
-          <View style={styles.pageScoreboard}>
-            <Text style={styles.scoreboardTitle}>Scores</Text>
-            <ScrollView style={styles.pageScoreboardScroll} showsVerticalScrollIndicator={true}>
-              {turnOrder.map(id => {
-                const p = players[id];
-                if (!p) return null;
-                return (
-                  <View key={id} style={styles.scoreboardPlayerBox}>
-                    <View style={styles.scoreboardRow}>
-                      <Text style={[styles.scoreboardName, id === currentPlayerId && { color: '#fbbf24' }]} numberOfLines={1}>
-                        {p.name} {(!room.hostId || (id !== room.hostId && id !== currentPlayerId)) ? `(${p.hand?.length || 0} cards)` : ''}
-                      </Text>
-                      <Text style={styles.scoreboardPoints}>{p.totalScore}</Text>
-                    </View>
-                    <View style={styles.scoreboardPillsRow}>
-                      {(p.roundScores || []).map((sc, idx) => (
-                        <View key={idx} style={styles.scoreboardRoundPill}>
-                          <Text style={styles.scoreboardRoundPillText}>R{idx+1}: {sc}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </View>
-        )}
 
         {/* ── TABLE CENTERED ── */}
         <View style={styles.tableWrapper} pointerEvents="box-none">
@@ -1161,6 +1190,7 @@ export const GameScreen: React.FC<Props> = ({
 
 const createStyles = (width: number, height: number, n: number = 4, avatarSize: number = 40, feltColor: string = '#076324') => {
   const isSmall = width < 500;
+  const isMobile = width < 768;
   const isTiny = width < 360;
   const isLandscape = width > height;
 
@@ -1225,31 +1255,87 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     leaveBtnText: { color: '#fff', fontWeight: 'bold', fontSize: isSmall ? 11 : 14 },
 
-    /* Scoreboard */
-    pageScoreboard: {
+    /* Live Scoreboard (Compact Responsive Table) */
+    liveScoreboardCard: {
       position: 'absolute',
-      right: 20,
-      top: 90, 
-      maxHeight: '70%',
-      backgroundColor: 'rgba(0,0,0,0.75)',
-      padding: 15,
-      borderRadius: 18,
-      borderWidth: 1.5,
-      borderColor: 'rgba(255,255,255,0.25)',
-      width: 170, 
+      right: isMobile ? 8 : 20,
+      top: isMobile ? 54 : 75,
       zIndex: 200,
+      backgroundColor: 'rgba(15, 23, 42, 0.94)',
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderColor: 'rgba(255, 255, 255, 0.22)',
+      padding: isMobile ? 8 : 12,
+      minWidth: isMobile ? 180 : 220,
+      maxWidth: isMobile ? 220 : 270,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.5,
-      shadowRadius: 15,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 10,
+      elevation: 10,
     },
-    pageScoreboardScroll: {
-      marginTop: 2,
+    liveScoreboardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottomWidth: 1.5,
+      borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+      paddingBottom: 6,
+      marginBottom: 4,
     },
-    scoreboardTitle: { color: '#94a3b8', fontSize: 13, fontWeight: '900', textTransform: 'uppercase', marginBottom: 10, textAlign: 'center', letterSpacing: 1 },
-    scoreboardRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-    scoreboardName: { color: '#fff', fontSize: 14, fontWeight: 'bold', flex: 1, marginRight: 8 },
-    scoreboardPoints: { color: '#facc15', fontSize: 15, fontWeight: '900' },
+    liveScoreboardColPlayer: {
+      color: '#94a3b8',
+      fontSize: isMobile ? 11 : 12,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      flex: 1,
+    },
+    liveScoreboardColScore: {
+      color: '#94a3b8',
+      fontSize: isMobile ? 11 : 12,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      textAlign: 'right',
+      minWidth: 55,
+    },
+    liveScoreboardRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: isMobile ? 4 : 6,
+      paddingHorizontal: 6,
+      borderRadius: 8,
+      marginVertical: 1.5,
+    },
+    liveScoreboardRowActive: {
+      backgroundColor: 'rgba(250, 204, 21, 0.18)',
+      borderLeftWidth: 3.5,
+      borderLeftColor: '#facc15',
+    },
+    liveScoreboardPlayerName: {
+      color: '#cbd5e1',
+      fontSize: isMobile ? 12 : 13,
+      fontWeight: '600',
+      flex: 1,
+      marginRight: 8,
+    },
+    liveScoreboardPlayerNameActive: {
+      color: '#facc15',
+      fontWeight: '900',
+    },
+    liveScoreboardScoreText: {
+      color: '#ffffff',
+      fontSize: isMobile ? 13 : 15,
+      fontWeight: '700',
+      textAlign: 'right',
+      minWidth: 55,
+    },
+    liveScoreboardScoreTextActive: {
+      color: '#facc15',
+      fontWeight: '900',
+    },
 
     tableWrapper: {
       flex: 1,
