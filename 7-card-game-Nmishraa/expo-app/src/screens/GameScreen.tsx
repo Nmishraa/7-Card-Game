@@ -398,17 +398,26 @@ export const GameScreen: React.FC<Props> = ({
     setChatToast(null);
   };
 
+  const isInitialTurnMountRef = useRef<boolean>(true);
+
   useEffect(() => {
     if (!room || room.status !== 'playing') {
       prevTurnKeyRef.current = null;
+      isInitialTurnMountRef.current = true;
       return;
     }
 
     const turnId = room.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
     const currentKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${turnId}`;
 
+    if (isInitialTurnMountRef.current) {
+      isInitialTurnMountRef.current = false;
+      prevTurnKeyRef.current = currentKey;
+      return;
+    }
+
     if (prevTurnKeyRef.current && prevTurnKeyRef.current !== currentKey) {
-      // Real turn transition occurred! Play turn-end chime once
+      // Real turn transition occurred during active gameplay! Play turn-end chime once
       playTurnEnd();
     }
 
@@ -502,7 +511,13 @@ export const GameScreen: React.FC<Props> = ({
     }
   }, [errorMsg]);
 
-  if (!room) return <ActivityIndicator color="#fff" />;
+  if (!room) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container} />
+      </SafeAreaView>
+    );
+  }
 
   const players = room.players || {};
   const me = players[currentPlayerId];

@@ -98,9 +98,14 @@ export const playDraw = () => {
   osc.stop(t + 0.18);
 };
 
+let lastTurnEndSoundMs = 0;
 // ── Turn End Notification (0.35s pleasant notification sound) ──────────────
 export const playTurnEnd = () => {
   try {
+    const now = Date.now();
+    if (now - lastTurnEndSoundMs < 600) return;
+    lastTurnEndSoundMs = now;
+
     const ctx = getCtx();
     if (!ctx || _muted) return;
     const t = ctx.currentTime;
@@ -194,9 +199,13 @@ export const playCallLeast = () => {
   }
 };
 
+let lastTimerWarningMs = 0;
 // ── Timer 5s Warning Sound ────────────────────────────────────────────────
 export const playTimerWarning = () => {
   try {
+    const now = Date.now();
+    if (now - lastTimerWarningMs < 600) return;
+    lastTimerWarningMs = now;
     const ctx = getCtx();
     if (!ctx || _muted) return;
     const t = ctx.currentTime;

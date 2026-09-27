@@ -136,6 +136,11 @@ export default function App() {
     }
   }, []);
 
+  const currentRoomRef = useRef<GameRoom | null>(currentRoom);
+  useEffect(() => {
+    currentRoomRef.current = currentRoom;
+  }, [currentRoom]);
+
   // ── PostgreSQL (Neha_data) Room State Polling Sync ────────────────────────
   useEffect(() => {
     if (!roomId) return;
@@ -156,6 +161,11 @@ export default function App() {
               ? (Array.isArray(roomObj.messages) ? roomObj.messages : Object.values(roomObj.messages))
               : [],
           };
+
+          // Protect active gameplay screen from stale DB poll downgrades
+          if (currentRoomRef.current?.status === 'playing' && formattedRoom.status === 'lobby') {
+            return;
+          }
 
           setCurrentRoom(formattedRoom);
 
