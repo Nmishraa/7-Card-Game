@@ -120,29 +120,46 @@ export const playCardDeselect = () => {
   });
 };
 
-// ── Card Discard (swoosh) ────────────────────────────────────────────────────
+// ── Card Discard (crisp tactile slide & pop) ──────────────────────────────
 export const playDiscard = () => {
   withAudioContext((ctx) => {
     const t = ctx.currentTime;
-    const bufferSize = ctx.sampleRate * 0.15;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const bandpass = ctx.createBiquadFilter();
-    bandpass.type = 'bandpass';
-    bandpass.frequency.setValueAtTime(3000, t);
-    bandpass.frequency.exponentialRampToValueAtTime(800, t + 0.15);
-    bandpass.Q.value = 1.5;
+    
+    // Crisp tone glide (card slap on felt)
+    const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.2, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-    source.connect(bandpass).connect(gain).connect(ctx.destination);
-    source.onended = () => {
-      try { source.disconnect(); bandpass.disconnect(); gain.disconnect(); } catch {}
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(750, t);
+    osc.frequency.exponentialRampToValueAtTime(180, t + 0.08);
+
+    gain.gain.setValueAtTime(0.18, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
     };
-    source.start(t);
+
+    osc.start(t);
+    osc.stop(t + 0.09);
+
+    // Subtle crisp snap/click transient
+    const clickOsc = ctx.createOscillator();
+    const clickGain = ctx.createGain();
+    clickOsc.type = 'triangle';
+    clickOsc.frequency.setValueAtTime(1400, t);
+    clickOsc.frequency.exponentialRampToValueAtTime(300, t + 0.03);
+
+    clickGain.gain.setValueAtTime(0.12, t);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+    clickOsc.connect(clickGain).connect(ctx.destination);
+    clickOsc.onended = () => {
+      try { clickOsc.disconnect(); clickGain.disconnect(); } catch {}
+    };
+
+    clickOsc.start(t);
+    clickOsc.stop(t + 0.03);
   });
 };
 

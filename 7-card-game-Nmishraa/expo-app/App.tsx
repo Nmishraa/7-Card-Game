@@ -342,13 +342,22 @@ export default function App() {
     trackUserEvent(user.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
   };
 
-  const handlePlayWithComputer = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
+  const handlePlayWithComputer = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60, numBots: number = 1) => {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
     const humanPlayer = makePlayer(user.uid, pName);
-    const botId = 'bot-' + Date.now();
-    const botPlayer = makePlayer(botId, 'Computer 🤖', true);
+
+    const players: Record<string, Player> = { [user.uid]: humanPlayer };
+    const turnOrder: string[] = [user.uid];
+
+    const count = Math.min(7, Math.max(1, numBots));
+    for (let i = 1; i <= count; i++) {
+      const bId = i === 1 ? `bot-${Date.now()}` : `bot-${i}-${Date.now()}`;
+      const bName = i === 1 ? 'Computer 🤖' : `Bot ${i} 🤖`;
+      players[bId] = makePlayer(bId, bName, true);
+      turnOrder.push(bId);
+    }
 
     const room: GameRoom = {
       id: newRoomId,
@@ -356,9 +365,9 @@ export default function App() {
       status: 'playing',
       deck: [],
       discardPile: [],
-      players: { [user.uid]: humanPlayer, [botId]: botPlayer },
+      players,
       turnIndex: 0,
-      turnOrder: [user.uid, botId],
+      turnOrder,
       turnPhase: 'discarding',
       lastDiscardedCount: 1,
       currentRound: 1,
@@ -366,7 +375,7 @@ export default function App() {
       turnTimeLimit: turnTimeLimit,
       jokerCard: null,
       pendingDiscard: [],
-      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 🤖', text: 'Solo Game against Computer started!', timestamp: Date.now() }],
+      messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 🤖', text: `Solo Game against ${count} Computer ${count === 1 ? 'Bot' : 'Bots'} started!`, timestamp: Date.now() }],
     };
 
     const readyRoom = startRound(room);
@@ -374,7 +383,7 @@ export default function App() {
     setCurrentRoom(readyRoom);
     setScreen('game');
     await updateDbRoom(readyRoom);
-    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true });
+    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true, numBots: count });
   };
 
   const handleJoinRoom = async (playerName: string, rid: string) => {
