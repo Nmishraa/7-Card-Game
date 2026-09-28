@@ -109,68 +109,68 @@ const ActivePlayerGlow: React.FC<{ size: number }> = ({ size }) => {
 const getPerimeterCoords = (index: number, n: number) => {
   if (n === 8) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 82, y: 96 }, // 1: Bottom Right
-      { x: 93, y: 50 }, // 2: Far Right
-      { x: 82, y: 4 },   // 3: Top Right
-      { x: 50, y: 4 },   // 4: Top Center
-      { x: 18, y: 4 },   // 5: Top Left
-      { x: 7, y: 50 },   // 6: Far Left
-      { x: 18, y: 96 }, // 7: Bottom Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 82, y: 100 }, // 1: Bottom Right
+      { x: 100, y: 50 }, // 2: Far Right
+      { x: 82, y: 0 },   // 3: Top Right
+      { x: 50, y: 0 },   // 4: Top Center
+      { x: 18, y: 0 },   // 5: Top Left
+      { x: 0, y: 50 },   // 6: Far Left
+      { x: 18, y: 100 }, // 7: Bottom Left
     ];
     return coords[index % 8];
   }
   if (n === 7) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 82, y: 96 }, // 1: Bottom Right
-      { x: 93, y: 50 }, // 2: Far Right
-      { x: 80, y: 4 },   // 3: Top Right
-      { x: 50, y: 4 },   // 4: Top Center
-      { x: 20, y: 4 },   // 5: Top Left
-      { x: 7, y: 50 },   // 6: Far Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 82, y: 100 }, // 1: Bottom Right
+      { x: 100, y: 50 }, // 2: Far Right
+      { x: 80, y: 0 },   // 3: Top Right
+      { x: 50, y: 0 },   // 4: Top Center
+      { x: 20, y: 0 },   // 5: Top Left
+      { x: 0, y: 50 },   // 6: Far Left
     ];
     return coords[index % 7];
   }
   if (n === 6) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 85, y: 96 }, // 1: Bottom Right
-      { x: 85, y: 4 },   // 2: Top Right
-      { x: 50, y: 4 },   // 3: Top Center
-      { x: 15, y: 4 },   // 4: Top Left
-      { x: 15, y: 96 }, // 5: Bottom Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 85, y: 100 }, // 1: Bottom Right
+      { x: 85, y: 0 },   // 2: Top Right
+      { x: 50, y: 0 },   // 3: Top Center
+      { x: 15, y: 0 },   // 4: Top Left
+      { x: 15, y: 100 }, // 5: Bottom Left
     ];
     return coords[index % 6];
   }
   if (n === 5) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 85, y: 96 }, // 1: Bottom Right
-      { x: 93, y: 50 }, // 2: Far Right
-      { x: 50, y: 4 },   // 3: Top Center
-      { x: 7, y: 50 },   // 4: Far Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 85, y: 100 }, // 1: Bottom Right
+      { x: 100, y: 50 }, // 2: Far Right
+      { x: 50, y: 0 },   // 3: Top Center
+      { x: 0, y: 50 },   // 4: Far Left
     ];
     return coords[index % 5];
   }
   if (n === 4) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 93, y: 50 }, // 1: Far Right
-      { x: 50, y: 4 },   // 2: Top Center
-      { x: 7, y: 50 },   // 3: Far Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 100, y: 50 }, // 1: Far Right
+      { x: 50, y: 0 },   // 2: Top Center
+      { x: 0, y: 50 },   // 3: Far Left
     ];
     return coords[index % 4];
   }
   if (n === 3) {
     const coords = [
-      { x: 50, y: 96 }, // 0: Bottom Center
-      { x: 85, y: 4 },   // 1: Top Right
-      { x: 15, y: 4 },   // 2: Top Left
+      { x: 50, y: 100 }, // 0: Bottom Center
+      { x: 85, y: 0 },   // 1: Top Right
+      { x: 15, y: 0 },   // 2: Top Left
     ];
     return coords[index % 3];
   }
-  return index === 0 ? { x: 50, y: 96 } : { x: 50, y: 4 };
+  return index === 0 ? { x: 50, y: 100 } : { x: 50, y: 0 };
 };
 
 export const GameScreen: React.FC<Props> = ({ 
