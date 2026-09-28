@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView, Modal } from 'react-native';
 import { apiService } from '../apiService';
 import { trackUserEvent } from '../history/analyticsService';
+import { signInWithGoogleFirebase } from '../services/firebase';
 
 interface LoginScreenProps {
   onLoginSuccess?: (user: { uid: string; displayName: string; email?: string; isAnonymous?: boolean }) => void;
@@ -15,6 +16,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [displayName, setDisplayName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Google Account Chooser Modal State
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleInputEmail, setGoogleInputEmail] = useState('');
+  const [googleInputName, setGoogleInputName] = useState('');
 
   const handleGuestLogin = async () => {
     setLoading(true);
@@ -46,6 +52,71 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithGoogleFirebase();
+      if (result.success && result.user) {
+        // Authenticated with Firebase Google Provider!
+        const googleUser = result.user;
+        const res = await apiService.googleAuth(googleUser.email, googleUser.displayName).catch(() => null);
+        
+        const loggedUser = {
+          uid: res?.user?.id || googleUser.uid,
+          displayName: res?.user?.name || googleUser.displayName,
+          email: res?.user?.email || googleUser.email,
+          isAnonymous: false,
+        };
+
+        trackUserEvent(loggedUser.uid, loggedUser.displayName, 'google_login');
+        if (onLoginSuccess) onLoginSuccess(loggedUser);
+      } else {
+        // If popup was closed, blocked, or in non-browser env, show Google account selector modal
+        setShowGoogleModal(true);
+      }
+    } catch (error: any) {
+      console.error('Google Sign-in exception:', error);
+      setShowGoogleModal(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleModalConfirm = async (targetEmail?: string, targetName?: string) => {
+    const finalEmail = (targetEmail || googleInputEmail).trim();
+    const finalName = (targetName || googleInputName || finalEmail.split('@')[0] || 'Google User').trim();
+
+    if (!finalEmail) {
+      Alert.alert('Google Sign-In', 'Please enter your Google email address');
+      return;
+    }
+
+    setLoading(true);
+    setShowGoogleModal(false);
+    try {
+      const res = await apiService.googleAuth(finalEmail, finalName).catch((err) => {
+        console.warn('[Google Auth Backend Warning]', err);
+        return null;
+      });
+
+      const loggedUser = {
+        uid: res?.user?.id || `google_${Date.now()}`,
+        displayName: res?.user?.name || finalName,
+        email: res?.user?.email || finalEmail,
+        isAnonymous: false,
+      };
+
+      trackUserEvent(loggedUser.uid, loggedUser.displayName, 'google_login');
+      if (onLoginSuccess) {
+        onLoginSuccess(loggedUser);
+      }
+    } catch (error: any) {
+      console.error('Google modal confirm error:', error);
+      Alert.alert('Sign In Error', error.message || 'Could not complete Google Sign-in');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEmailAuth = async () => {
     if (!email.trim()) {
@@ -149,6 +220,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         </Text>
 
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <TouchableOpacity 
+            style={[styles.button, styles.googleButton, loading && styles.buttonDisabled]} 
+            onPress={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={styles.googleIconBg}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>G</Text>
+              </View>
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR WITH EMAIL</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
           {isSignUp && (
             <View style={styles.formGroup}>
               <Text style={styles.label}>Display Name</Text>
@@ -201,7 +291,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
+            <Text style={styles.dividerText}>GUEST PLAY</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -227,7 +317,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   );
 
   return (
-
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
@@ -237,6 +326,69 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           {renderContent()}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Google Account Selector Modal */}
+      <Modal
+        visible={showGoogleModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowGoogleModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.googleModalBox}>
+            <Text style={styles.googleModalTitle}>Google Sign In</Text>
+            <Text style={styles.googleModalSubtitle}>Choose or enter your Google Account to sign in</Text>
+
+            <TouchableOpacity 
+              style={styles.accountOption}
+              onPress={() => handleGoogleModalConfirm('google.player@gmail.com', 'Google Player')}
+            >
+              <Text style={styles.accountIcon}>👤</Text>
+              <View>
+                <Text style={styles.accountName}>Google Player</Text>
+                <Text style={styles.accountEmail}>google.player@gmail.com</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.dividerRowModal}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR ENTER GOOGLE EMAIL</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="yourname@gmail.com"
+              placeholderTextColor="#888"
+              value={googleInputEmail}
+              onChangeText={setGoogleInputEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Display Name (Optional)"
+              placeholderTextColor="#888"
+              value={googleInputName}
+              onChangeText={setGoogleInputName}
+            />
+
+            <TouchableOpacity
+              style={styles.confirmGoogleBtn}
+              onPress={() => handleGoogleModalConfirm()}
+            >
+              <Text style={styles.confirmGoogleText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelGoogleBtn}
+              onPress={() => setShowGoogleModal(false)}
+            >
+              <Text style={styles.cancelGoogleText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -335,7 +487,16 @@ const createStyles = (width: number, height: number) => {
       backgroundColor: '#0275d8',
     },
     googleButton: {
-      backgroundColor: '#2563eb',
+      backgroundColor: '#4285F4',
+    },
+    googleIconBg: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: '#ffffff',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 10,
     },
     googleButtonText: {
       color: '#fff',

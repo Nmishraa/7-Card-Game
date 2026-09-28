@@ -8,7 +8,7 @@ const getBaseUrl = () => {
   return 'http://2.24.200.44:8087/api/v1';
 };
 
-export type EventType = 'login' | 'guest_login' | 'auth_failure' | 'create_room' | 'join_room' | 'start_game' | 'play_turn' | 'call_least' | 'complete_game' | 'leave_room' | 'system_error';
+export type EventType = 'login' | 'guest_login' | 'google_login' | 'auth_failure' | 'create_room' | 'join_room' | 'start_game' | 'play_turn' | 'call_least' | 'complete_game' | 'leave_room' | 'system_error';
 
 export interface AnalyticsEvent {
   id: string;
@@ -80,7 +80,7 @@ export const fetchAllUserEvents = async (): Promise<AnalyticsSummary> => {
     totalUniqueUsers: 0,
     dailyActiveUsers: 0,
     eventCounts: {
-      login: 0, guest_login: 0, auth_failure: 0, create_room: 0, join_room: 0, start_game: 0,
+      login: 0, guest_login: 0, google_login: 0, auth_failure: 0, create_room: 0, join_room: 0, start_game: 0,
       play_turn: 0, call_least: 0, complete_game: 0, leave_room: 0, system_error: 0,
     },
     cohorts: [],
