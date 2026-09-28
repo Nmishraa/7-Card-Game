@@ -29,6 +29,8 @@ import { trackUserEvent } from './src/history/analyticsService';
 import { syncUserProfile } from './src/history/adminService';
 import { initGA, trackGAPageView } from './src/services/googleAnalytics';
 import { PwaInstallBanner } from './src/components/PwaInstallBanner';
+import { auth, logoutFirebase } from './src/services/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 type AppScreen = 'auth' | 'home' | 'lobby' | 'game';
 
@@ -36,6 +38,7 @@ export interface AppUser {
   uid: string;
   email?: string;
   displayName: string;
+  photoURL?: string;
   isAnonymous?: boolean;
 }
 
@@ -103,7 +106,25 @@ export default function App() {
     trackGAPageView(screen);
   }, [screen]);
 
-  // ── Sync user session to localStorage ──────────────────────────────────────
+  // ── Sync user session to localStorage & Firebase Auth state ────────────────
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const loggedUser: AppUser = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || undefined,
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Google User',
+          photoURL: firebaseUser.photoURL || undefined,
+          isAnonymous: firebaseUser.isAnonymous,
+        };
+        setUser(loggedUser);
+        syncUserProfile(loggedUser.uid, loggedUser.email || '', loggedUser.displayName, loggedUser.isAnonymous);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       if (user) {
@@ -265,8 +286,12 @@ export default function App() {
     setScreen('home');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutFirebase();
     setUser(null);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem('7card_game_user');
+    }
     setCurrentRoom(null);
     setRoomId(null);
     setScreen('auth');
@@ -658,6 +683,8 @@ export default function App() {
         <HomeScreen
           userName={user.displayName}
           userId={user.uid}
+          userEmail={user.email}
+          userPhoto={user.photoURL}
           onLogout={handleLogout}
           onCreateRoom={handleCreateRoom}
           onJoinRoom={handleJoinRoom}
