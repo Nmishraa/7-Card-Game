@@ -543,85 +543,78 @@ export const GameScreen: React.FC<Props> = ({
     ? [...turnOrder.slice(myIndex), ...turnOrder.slice(0, myIndex)]
     : turnOrder;
 
-  const validateCardSequenceSelection = (
-    handCards: CardType[],
-    targetCardIds: string[]
-  ): { valid: boolean; reason?: string } => {
-    if (targetCardIds.length <= 1) {
-      return { valid: true };
-    }
-
-    const cards = handCards.filter(c => targetCardIds.includes(c.id));
-    if (cards.length !== targetCardIds.length) {
-      return { valid: false, reason: "You can't continue this sequence because the next card is not available." };
-    }
-
-    // 1. Check for Set (Matching Ranks)
-    const firstRank = cards[0].rank;
-    const isSet = cards.every(c => c.rank === firstRank);
-    if (isSet) {
-      return { valid: true };
-    }
-
-    // 2. Check for Sequence / Run (Same Suit & Continuous Sequential Values)
-    const firstSuit = cards[0].suit;
-    const sameSuit = cards.every(c => c.suit === firstSuit);
-    if (!sameSuit) {
-      return { valid: false, reason: "You can't continue this sequence because the next card is not available." };
-    }
-
-    // Sort cards by sequence value
-    const sorted = [...cards].sort((a, b) => getSequenceValue(a.rank) - getSequenceValue(b.rank));
-    const vals = sorted.map(c => getSequenceValue(c.rank));
-
-    // Check for gaps (e.g. 2, 4 -> 3 is missing)
-    for (let i = 0; i < vals.length - 1; i++) {
-      if (vals[i + 1] !== vals[i] + 1) {
-        return { valid: false, reason: "You can't continue this sequence because the next card is not available." };
-      }
-    }
-
-    // If 2 cards are selected (e.g. 2, 3), check if there is an available card in hand (e.g. 4 or A of same suit) to form a 3+ run
-    if (cards.length === 2) {
-      const handSuitCards = handCards.filter(c => c.suit === firstSuit);
-      const handVals = handSuitCards.map(c => getSequenceValue(c.rank));
-      const minVal = vals[0];
-      const maxVal = vals[vals.length - 1];
-
-      const canExtend = handVals.includes(minVal - 1) || handVals.includes(maxVal + 1);
-      if (!canExtend) {
-        return { valid: false, reason: "You can't continue this sequence because the next card is not available." };
-      }
-    }
-
-    return { valid: true };
-  };
-
   const handleToggle = (id: string) => {
     if (!isMyTurn || room.turnPhase !== 'discarding' || isAnimatingCard) {
       return;
     }
 
     const hand = me && me.hand ? me.hand : [];
-    const isSelecting = !selected.includes(id);
-    const proposedSelection = isSelecting 
-      ? [...selected, id] 
-      : selected.filter(cardId => cardId !== id);
+    const clickedCard = hand.find(c => c.id === id);
+    if (!clickedCard) return;
 
-    const validation = validateCardSequenceSelection(hand, proposedSelection);
-
-    if (!validation.valid) {
-      // Invalid selection:
-      // 1. Show clear error message
-      setErrorMsg(validation.reason || "You can't continue this sequence because the next card is not available.");
-      
-      // 2. Return all selected cards smoothly to original unselected positions
-      setSelected([]);
+    // 1. Unselect if already selected
+    if (selected.includes(id)) {
+      const nextSelected = selected.filter(cardId => cardId !== id);
+      setSelected(nextSelected);
+      playCardDeselect();
       return;
     }
 
-    // Valid selection: update selected state
-    setSelected(proposedSelection);
+    // 2. Select first card
+    if (selected.length === 0) {
+      setSelected([id]);
+      playCardSelect();
+      return;
+    }
+
+    // 3. Multi-card selection check
+    const selectedCards = hand.filter(c => selected.includes(c.id));
+    if (selectedCards.length === 0) {
+      setSelected([id]);
+      playCardSelect();
+      return;
+    }
+
+    const proposedCards = [...selectedCards, clickedCard];
+
+    // Check A: Same Rank Set (e.g. two 8s, or three Kings)
+    const firstRank = selectedCards[0].rank;
+    const isSameRankSet = proposedCards.every(c => c.rank === firstRank);
+    if (isSameRankSet) {
+      setSelected([...selected, id]);
+      playCardSelect();
+      return;
+    }
+
+    // Check B: Same Suit Sequence (e.g. 2, 3, 4 of Hearts)
+    const firstSuit = selectedCards[0].suit;
+    if (clickedCard.suit === firstSuit && selectedCards.every(c => c.suit === firstSuit)) {
+      const sortedVals = proposedCards.map(c => getSequenceValue(c.rank)).sort((a, b) => a - b);
+      
+      // Check for gap (e.g. 2, 4 -> 3 is missing)
+      let isGap = false;
+      for (let i = 0; i < sortedVals.length - 1; i++) {
+        if (sortedVals[i + 1] !== sortedVals[i] + 1) {
+          isGap = true;
+          break;
+        }
+      }
+
+      if (isGap) {
+        setErrorMsg("You can't continue this sequence because the next card is not available.");
+        playError();
+        return;
+      }
+
+      // Valid continuous sequence card!
+      setSelected([...selected, id]);
+      playCardSelect();
+      return;
+    }
+
+    // Check C: Incompatible card clicked -> Switch selection to the new card
+    setSelected([id]);
+    playCardSelect();
   };
 
   const handleDiscard = () => {
