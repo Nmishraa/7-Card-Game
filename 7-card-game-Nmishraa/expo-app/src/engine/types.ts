@@ -53,4 +53,5 @@ export interface GameRoom {
   historySaved?: boolean;
   turnStartTime?: number;
   turnTimeLimit?: number; // 60 for 1 minute, 0 for No Timer
+  updatedAt?: number;
 }

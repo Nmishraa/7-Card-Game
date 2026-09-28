@@ -379,7 +379,7 @@ export const GameScreen: React.FC<Props> = ({
     }
   }, [remainingSec, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, isTimedMode]);
 
-  // Timeout Auto Action (triggered once per turn in timed mode by active player or host)
+  // Timeout Auto Action (triggered once per turn in timed mode)
   useEffect(() => {
     if (!room || room.status !== 'playing' || !currentTurnIdEarly || !onTimeoutTurn || !isTimedMode) return;
     const timeoutKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_timeout`;
@@ -387,7 +387,8 @@ export const GameScreen: React.FC<Props> = ({
     if (elapsedMs >= turnTimeLimit * 1000 && timeoutTriggeredRef.current !== timeoutKey) {
       const isTurnPlayer = currentTurnIdEarly === currentPlayerId;
       const isHost = room.hostId === currentPlayerId;
-      if (isTurnPlayer || isHost) {
+      // Primary trigger: Turn player. Fallback trigger: Host (only if turn player is remote/AFK)
+      if (isTurnPlayer || (!isTurnPlayer && isHost)) {
         timeoutTriggeredRef.current = timeoutKey;
         onTimeoutTurn(currentTurnIdEarly);
       }
@@ -407,6 +408,7 @@ export const GameScreen: React.FC<Props> = ({
   };
 
   const isInitialTurnMountRef = useRef<boolean>(true);
+  const playedTurnSoundKeysRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!room || room.status !== 'playing') {
@@ -421,15 +423,19 @@ export const GameScreen: React.FC<Props> = ({
     if (isInitialTurnMountRef.current) {
       isInitialTurnMountRef.current = false;
       prevTurnKeyRef.current = currentKey;
+      playedTurnSoundKeysRef.current.add(currentKey);
       return;
     }
 
     if (prevTurnKeyRef.current && prevTurnKeyRef.current !== currentKey) {
       // Real turn transition occurred during active gameplay!
-      if (turnId === currentPlayerId) {
-        playYourTurn();
-      } else {
-        playTurnEnd();
+      if (!playedTurnSoundKeysRef.current.has(currentKey)) {
+        playedTurnSoundKeysRef.current.add(currentKey);
+        if (turnId === currentPlayerId) {
+          playYourTurn();
+        } else {
+          playTurnEnd();
+        }
       }
     }
 
