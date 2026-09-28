@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 
 // Real Firebase Project credentials configured from user's account
 const firebaseConfig = {
@@ -38,10 +38,23 @@ export const signInWithGoogleFirebase = async () => {
       }
     };
   } catch (error: any) {
-    console.warn('[Firebase Auth] signInWithPopup error:', error);
+    console.warn('[Firebase Auth] signInWithPopup error:', error?.code, error?.message);
+    if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return { success: false, pendingRedirect: true };
+      } catch (redirectError: any) {
+        return {
+          success: false,
+          errorCode: redirectError?.code,
+          error: redirectError?.message || 'Google Sign-in redirect failed'
+        };
+      }
+    }
     return {
       success: false,
-      error: error.message || 'Google Sign-in failed'
+      errorCode: error?.code,
+      error: error?.message || 'Google Sign-in failed'
     };
   }
 };
