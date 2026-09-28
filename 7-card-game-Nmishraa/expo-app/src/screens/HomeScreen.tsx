@@ -18,7 +18,7 @@ import { GamePreviewSection } from '../components/GamePreviewSection';
 interface Props {
   onJoinRoom: (playerName: string, roomId: string) => void;
   onCreateRoom: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
-  onPlayWithComputer?: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
+  onPlayWithComputer?: (playerName: string, rounds: number, turnTimeLimit?: number, numBots?: number) => void;
   userName: string;
   userId: string;
   onLogout: () => void;
@@ -35,6 +35,7 @@ export const HomeScreen: React.FC<Props> = ({
   const styles = createStyles(width, height);
   const [name, setName] = useState(userName);
   const [selectedRounds, setSelectedRounds] = useState(5);
+  const [selectedBots, setSelectedBots] = useState(1);
   const [selectedTurnTime, setSelectedTurnTime] = useState<number>(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       const saved = window.localStorage.getItem('7card_game_turntime');
@@ -182,6 +183,26 @@ export const HomeScreen: React.FC<Props> = ({
               </TouchableOpacity>
             </View>
 
+            {/* Computer Bots Selector */}
+            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Number of Computer Bots (Singleplayer)</Text>
+            <View style={styles.roundsBox}>
+              <TouchableOpacity
+                style={styles.roundBtn}
+                onPress={() => setSelectedBots((b) => Math.max(1, b - 1))}
+              >
+                <Text style={styles.roundBtnText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.roundsText}>
+                🤖 {selectedBots} {selectedBots === 1 ? 'Bot' : 'Bots'} ({selectedBots + 1} Total Players)
+              </Text>
+              <TouchableOpacity
+                style={styles.roundBtn}
+                onPress={() => setSelectedBots((b) => Math.min(7, b + 1))}
+              >
+                <Text style={styles.roundBtnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Turn Time Selector */}
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Turn Time</Text>
             <View style={styles.timeSelectRow}>
@@ -217,7 +238,7 @@ export const HomeScreen: React.FC<Props> = ({
                   <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
                   <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
                   <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                  <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                  <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime, selectedBots); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
                 </View>
 
                 <View style={styles.colDivider} />
@@ -250,7 +271,7 @@ export const HomeScreen: React.FC<Props> = ({
                 <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
 
                 <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                <ActionButton label="Play vs Computer" onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime, selectedBots); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
 
                 <View style={styles.divider} />
 
