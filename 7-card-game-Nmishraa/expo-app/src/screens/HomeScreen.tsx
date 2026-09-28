@@ -21,6 +21,8 @@ interface Props {
   onPlayWithComputer?: (playerName: string, rounds: number, turnTimeLimit?: number, numBots?: number) => void;
   userName: string;
   userId: string;
+  userEmail?: string;
+  userPhoto?: string;
   onLogout: () => void;
   currentFeltColor: string;
   onSelectTheme: (color: string) => void;
@@ -29,7 +31,7 @@ interface Props {
 }
 
 export const HomeScreen: React.FC<Props> = ({
-  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, onLogout, currentFeltColor, onSelectTheme, onQuickMatch, onNavigate
+  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, userEmail, userPhoto, onLogout, currentFeltColor, onSelectTheme, onQuickMatch, onNavigate
 }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
@@ -110,9 +112,24 @@ export const HomeScreen: React.FC<Props> = ({
               <Text style={styles.adminBtnText}>🛡️ Master</Text>
             </TouchableOpacity>
           </ScrollView>
-          <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
-            <Text style={styles.logoutBtnText}>🚪 Exit</Text>
-          </TouchableOpacity>
+
+          {/* User Profile Badge */}
+          <View style={styles.userHeaderBadge}>
+            {userPhoto ? (
+              <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
+            ) : (
+              <View style={styles.userHeaderAvatarFallback}>
+                <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+              </View>
+            )}
+            <View style={styles.userHeaderDetails}>
+              <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+              {userEmail && <Text style={styles.userHeaderEmail} numberOfLines={1}>{userEmail}</Text>}
+            </View>
+            <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
+              <Text style={styles.logoutBtnText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ─── SCROLLABLE CONTENT ─── */}
@@ -586,21 +603,59 @@ const createStyles = (width: number, height: number) => {
       fontWeight: 'bold',
       fontSize: 15,
     },
-    logoutBtn: {
-      backgroundColor: '#ef4444',
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 10,
+    userHeaderBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: 'rgba(30, 41, 59, 0.7)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 20,
       borderWidth: 1,
-      borderColor: '#fca5a5',
+      borderColor: 'rgba(255,255,255,0.15)',
+    },
+    userHeaderAvatar: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: '#38bdf8',
+    },
+    userHeaderAvatarFallback: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: '#0284c7',
       alignItems: 'center',
       justifyContent: 'center',
-      shadowColor: '#ef4444',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.4,
-      shadowRadius: 6,
     },
-    logoutBtnText: { color: '#ffffff', fontWeight: '900', fontSize: 15 },
+    userHeaderAvatarText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 14,
+    },
+    userHeaderDetails: {
+      justifyContent: 'center',
+      maxWidth: 120,
+    },
+    userHeaderName: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: 13,
+    },
+    userHeaderEmail: {
+      color: '#94a3b8',
+      fontSize: 10,
+    },
+    logoutBtn: {
+      backgroundColor: '#ef4444',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logoutBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 12 },
     historyBtn: {
       backgroundColor: 'rgba(56, 189, 248, 0.15)',
       paddingHorizontal: 14,

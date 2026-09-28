@@ -218,7 +218,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <View style={styles.googleIconBg}>
                 <Text style={{ fontSize: 16, fontWeight: 'bold' }}>G</Text>
               </View>
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
+              <Text style={styles.googleButtonText}>Sign in with Google</Text>
             </View>
           </TouchableOpacity>
 

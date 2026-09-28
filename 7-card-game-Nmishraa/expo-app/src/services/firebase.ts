@@ -1,12 +1,12 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth';
 
-// Real Firebase Project credentials configured from user's account
+// Firebase Project credentials (can be overridden via EXPO_PUBLIC_FIREBASE_* env vars)
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyAmUOZ8VZhJgnGpAVi13Dx8BhGLXgI4or0",
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "family-night-game.firebaseapp.com",
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "family-night-game",
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "family-night-game.firebasestorage.app",
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "7-card-game.firebaseapp.com",
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "7-card-game",
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "7-card-game.firebasestorage.app",
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "886116021127",
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:886116021127:web:89dc7f1f75652fb00b9922"
 };
@@ -39,7 +39,14 @@ export const signInWithGoogleFirebase = async () => {
     };
   } catch (error: any) {
     console.warn('[Firebase Auth] signInWithPopup error:', error?.code, error?.message);
-    if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
+    if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+      return {
+        success: false,
+        errorCode: error?.code,
+        error: 'Google Sign-In was cancelled.'
+      };
+    }
+    if (error?.code === 'auth/popup-blocked') {
       try {
         await signInWithRedirect(auth, googleProvider);
         return { success: false, pendingRedirect: true };
@@ -47,14 +54,22 @@ export const signInWithGoogleFirebase = async () => {
         return {
           success: false,
           errorCode: redirectError?.code,
-          error: redirectError?.message || 'Google Sign-in redirect failed'
+          error: redirectError?.message || 'Google Sign-In redirect failed.'
         };
       }
     }
     return {
       success: false,
       errorCode: error?.code,
-      error: error?.message || 'Google Sign-in failed'
+      error: error?.message || 'Google Sign-In failed.'
     };
+  }
+};
+
+export const logoutFirebase = async () => {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.warn('[Firebase Auth] signOut error:', err);
   }
 };
