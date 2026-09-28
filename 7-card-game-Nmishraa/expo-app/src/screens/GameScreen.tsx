@@ -407,8 +407,6 @@ export const GameScreen: React.FC<Props> = ({
     setChatToast(null);
   };
 
-  const playedTurnSoundKeysRef = useRef<Set<string>>(new Set());
-
   useEffect(() => {
     if (!room || room.status !== 'playing') {
       prevTurnKeyRef.current = null;
@@ -417,20 +415,19 @@ export const GameScreen: React.FC<Props> = ({
 
     const turnId = room.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
     if (!turnId) return;
-    const currentKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${turnId}`;
+
+    // Unique turn key combining room, round, active turn player ID, and turn start timestamp
+    const currentKey = `${room.id}_R${room.currentRound}_P${turnId}_ST${room.turnStartTime || 0}`;
 
     if (prevTurnKeyRef.current !== currentKey) {
       prevTurnKeyRef.current = currentKey;
-      if (!playedTurnSoundKeysRef.current.has(currentKey)) {
-        playedTurnSoundKeysRef.current.add(currentKey);
-        if (turnId === currentPlayerId) {
-          playYourTurn();
-        } else {
-          playTurnEnd();
-        }
+      if (turnId === currentPlayerId) {
+        playYourTurn();
+      } else {
+        playTurnEnd();
       }
     }
-  }, [room?.id, room?.currentRound, room?.turnIndex, room?.status, currentPlayerId]);
+  }, [room?.id, room?.currentRound, room?.turnIndex, room?.turnStartTime, room?.status, currentPlayerId]);
 
   const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
