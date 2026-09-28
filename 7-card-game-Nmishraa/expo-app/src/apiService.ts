@@ -1,12 +1,18 @@
 const getBaseUrl = () => {
-  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+  if (typeof window !== 'undefined' && window.location) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'https://cards.gnanamai.com/api/v1';
+    }
     return `${window.location.origin}/api/v1`;
   }
   return 'https://cards.gnanamai.com/api/v1';
 };
 
 const getHealthUrl = () => {
-  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+  if (typeof window !== 'undefined' && window.location) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'https://cards.gnanamai.com/health';
+    }
     return `${window.location.origin}/health`;
   }
   return 'https://cards.gnanamai.com/health';
