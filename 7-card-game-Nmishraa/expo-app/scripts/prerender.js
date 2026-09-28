@@ -273,7 +273,7 @@ routes.forEach(route => {
   // Update fallback Semantic HTML inside <div id="root">
   const fallbackHtml = `
     <div id="root">
-      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #062d12; color: #ffffff; text-align: center; padding: 20px;">
+      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background-color: #062d12; color: #ffffff; text-align: center; padding: 20px; box-sizing: border-box; flex: 1;">
         <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 10px; color: #ffffff;">${route.h1}</h1>
         <h2 style="font-size: 1.25rem; color: #cbd5e1; font-weight: normal; margin-bottom: 20px;">${route.h2}</h2>
         <p style="max-width: 600px; line-height: 1.6; color: #94a3b8;">
