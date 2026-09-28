@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert, useWindowDimensions, Image, SafeAreaView } from 'react-native';
 import { apiService } from '../apiService';
 import { trackUserEvent } from '../history/analyticsService';
-import { signInWithGoogleFirebase } from '../services/firebase';
+import { signInWithGoogleFirebase, auth } from '../services/firebase';
+import { getRedirectResult } from 'firebase/auth';
 
 interface LoginScreenProps {
   onLoginSuccess?: (user: { uid: string; displayName: string; email?: string; isAnonymous?: boolean }) => void;
@@ -17,10 +18,27 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Google Account Chooser Modal State
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [googleInputEmail, setGoogleInputEmail] = useState('');
-  const [googleInputName, setGoogleInputName] = useState('');
+  useEffect(() => {
+    // Check if user is returning from Google Auth redirect
+    if (typeof window !== 'undefined') {
+      getRedirectResult(auth).then(async (result) => {
+        if (result && result.user) {
+          const googleUser = result.user;
+          const res = await apiService.googleAuth(googleUser.email || '', googleUser.displayName || 'Google User').catch(() => null);
+          const loggedUser = {
+            uid: res?.user?.id || googleUser.uid,
+            displayName: res?.user?.name || googleUser.displayName || 'Google User',
+            email: res?.user?.email || googleUser.email || '',
+            isAnonymous: false,
+          };
+          trackUserEvent(loggedUser.uid, loggedUser.displayName, 'google_login');
+          if (onLoginSuccess) onLoginSuccess(loggedUser);
+        }
+      }).catch((err) => {
+        console.warn('Google Redirect Auth Result Error:', err);
+      });
+    }
+  }, []);
 
   const handleGuestLogin = async () => {
     setLoading(true);
@@ -70,49 +88,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         trackUserEvent(loggedUser.uid, loggedUser.displayName, 'google_login');
         if (onLoginSuccess) onLoginSuccess(loggedUser);
-      } else {
-        // If popup was closed, blocked, or in non-browser env, show Google account selector modal
-        setShowGoogleModal(true);
+      } else if (result.pendingRedirect) {
+        // Redirecting to Google Auth page...
+        return;
+      } else if (result.errorCode === 'auth/unauthorized-domain') {
+        Alert.alert(
+          'Authorized Domain Required',
+          'cards.gnanamai.com is not added to Authorized Domains in Firebase Console.\n\nPlease add cards.gnanamai.com in Firebase Console -> Authentication -> Settings -> Authorized Domains.'
+        );
+      } else if (result.error) {
+        Alert.alert('Google Sign-In Error', result.error);
       }
     } catch (error: any) {
       console.error('Google Sign-in exception:', error);
-      setShowGoogleModal(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleModalConfirm = async (targetEmail?: string, targetName?: string) => {
-    const finalEmail = (targetEmail || googleInputEmail).trim();
-    const finalName = (targetName || googleInputName || finalEmail.split('@')[0] || 'Google User').trim();
-
-    if (!finalEmail) {
-      Alert.alert('Google Sign-In', 'Please enter your Google email address');
-      return;
-    }
-
-    setLoading(true);
-    setShowGoogleModal(false);
-    try {
-      const res = await apiService.googleAuth(finalEmail, finalName).catch((err) => {
-        console.warn('[Google Auth Backend Warning]', err);
-        return null;
-      });
-
-      const loggedUser = {
-        uid: res?.user?.id || `google_${Date.now()}`,
-        displayName: res?.user?.name || finalName,
-        email: res?.user?.email || finalEmail,
-        isAnonymous: false,
-      };
-
-      trackUserEvent(loggedUser.uid, loggedUser.displayName, 'google_login');
-      if (onLoginSuccess) {
-        onLoginSuccess(loggedUser);
-      }
-    } catch (error: any) {
-      console.error('Google modal confirm error:', error);
-      Alert.alert('Sign In Error', error.message || 'Could not complete Google Sign-in');
+      Alert.alert('Google Sign-In Error', error.message || 'Could not complete Google Sign-in');
     } finally {
       setLoading(false);
     }
@@ -326,69 +315,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           {renderContent()}
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* Google Account Selector Modal */}
-      <Modal
-        visible={showGoogleModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowGoogleModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.googleModalBox}>
-            <Text style={styles.googleModalTitle}>Google Sign In</Text>
-            <Text style={styles.googleModalSubtitle}>Choose or enter your Google Account to sign in</Text>
-
-            <TouchableOpacity 
-              style={styles.accountOption}
-              onPress={() => handleGoogleModalConfirm('google.player@gmail.com', 'Google Player')}
-            >
-              <Text style={styles.accountIcon}>👤</Text>
-              <View>
-                <Text style={styles.accountName}>Google Player</Text>
-                <Text style={styles.accountEmail}>google.player@gmail.com</Text>
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.dividerRowModal}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR ENTER GOOGLE EMAIL</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TextInput
-              style={styles.modalInput}
-              placeholder="yourname@gmail.com"
-              placeholderTextColor="#888"
-              value={googleInputEmail}
-              onChangeText={setGoogleInputEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Display Name (Optional)"
-              placeholderTextColor="#888"
-              value={googleInputName}
-              onChangeText={setGoogleInputName}
-            />
-
-            <TouchableOpacity
-              style={styles.confirmGoogleBtn}
-              onPress={() => handleGoogleModalConfirm()}
-            >
-              <Text style={styles.confirmGoogleText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.cancelGoogleBtn}
-              onPress={() => setShowGoogleModal(false)}
-            >
-              <Text style={styles.cancelGoogleText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
