@@ -1022,11 +1022,11 @@ export const GameScreen: React.FC<Props> = ({
                             if (x > 50) infoStyle.alignItems = 'flex-end';
                             cardStyle = { ...cardStyle, marginBottom: 5 };
                             showCardsAbove = true;
-                          } else if (x === 100) {
-                            infoStyle = { ...infoStyle, top: avatarSize + 4, right: -15, alignItems: 'flex-end' };
+                          } else if (x >= 80) {
+                            infoStyle = { ...infoStyle, bottom: avatarSize + 4, right: 0, alignItems: 'flex-end' };
                             showCardsAbove = true;
-                          } else if (x === 0) {
-                            infoStyle = { ...infoStyle, top: avatarSize + 4, left: -15, alignItems: 'flex-start' };
+                          } else if (x <= 20) {
+                            infoStyle = { ...infoStyle, bottom: avatarSize + 4, left: 0, alignItems: 'flex-start' };
                             showCardsAbove = true;
                           }
 
