@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, Alert } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, Alert, TouchableOpacity } from 'react-native';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { apiService } from './src/apiService';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -671,16 +672,25 @@ export default function App() {
 
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0275d8" />
+        <ActivityIndicator size="large" color="#0275d8" style={{ marginBottom: 16 }} />
+        <Text style={{ color: '#cbd5e1', fontSize: 16, marginBottom: 20 }}>Loading game...</Text>
+        <TouchableOpacity 
+          style={{ backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+          onPress={() => setScreen('home')}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Return to Main Menu</Text>
+        </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {renderContent()}
-      <PwaInstallBanner />
-    </View>
+    <ErrorBoundary>
+      <View style={{ flex: 1 }}>
+        {renderContent()}
+        <PwaInstallBanner />
+      </View>
+    </ErrorBoundary>
   );
 }
 

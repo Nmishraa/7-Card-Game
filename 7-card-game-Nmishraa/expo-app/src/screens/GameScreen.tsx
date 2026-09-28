@@ -30,7 +30,8 @@ import {
   playDraw, 
   playCallLeast,
   playChatMessage,
-  playTimerWarning
+  playTimerWarning,
+  playError
 } from '../engine/soundService';
 
 interface Props {
