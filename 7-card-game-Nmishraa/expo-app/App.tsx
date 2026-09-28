@@ -168,6 +168,25 @@ export default function App() {
             return;
           }
 
+          // Protect optimistic local actions from being overwritten by stale DB responses
+          if (currentRoomRef.current) {
+            const currentTurn = currentRoomRef.current.turnIndex;
+            const currentRound = currentRoomRef.current.currentRound;
+            const localUpdatedAt = currentRoomRef.current.updatedAt || 0;
+            const serverUpdatedAt = formattedRoom.updatedAt || 0;
+
+            if (serverUpdatedAt > 0 && localUpdatedAt > serverUpdatedAt + 500) {
+              return;
+            }
+
+            if (
+              formattedRoom.currentRound < currentRound ||
+              (formattedRoom.currentRound === currentRound && formattedRoom.turnIndex < currentTurn && (localUpdatedAt - serverUpdatedAt < 3000))
+            ) {
+              return;
+            }
+          }
+
           setCurrentRoom(formattedRoom);
 
           if (formattedRoom.status === 'playing') {
@@ -213,17 +232,19 @@ export default function App() {
 
     botTimerRef.current = setTimeout(async () => {
       try {
-        if (!currentRoom || currentRoom.status !== 'playing') return;
-        const turnId = currentRoom.turnOrder[currentRoom.turnIndex];
-        if (!currentRoom.players[turnId]?.isBot) return;
+        const latestRoom = currentRoomRef.current;
+        if (!latestRoom || latestRoom.status !== 'playing') return;
+        const turnId = latestRoom.turnOrder[latestRoom.turnIndex];
+        if (!latestRoom.players[turnId]?.isBot) return;
 
-        const updatedRoom = botPlayTurn(currentRoom, turnId);
+        const updatedRoom = botPlayTurn(latestRoom, turnId);
+        updatedRoom.updatedAt = Date.now();
         setCurrentRoom(updatedRoom);
         await updateDbRoom(updatedRoom);
       } catch (e) {
         console.error('Bot Error:', e);
       }
-    }, 2000);
+    }, 1200);
 
     return () => {
       if (botTimerRef.current) clearTimeout(botTimerRef.current);
@@ -458,6 +479,7 @@ export default function App() {
   const handleDiscardAndDraw = async (cardIds: string[]) => {
     if (!currentRoom || !user) return;
     const updated = playTurn(currentRoom, user.uid, cardIds);
+    updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
     trackUserEvent(user.uid, user.displayName, 'play_turn', { roomId, action: 'discard' });
@@ -466,6 +488,7 @@ export default function App() {
   const handleDrawCard = async (source: 'deck' | 'discard') => {
     if (!currentRoom || !user) return;
     const updated = drawCard(currentRoom, user.uid, source);
+    updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
   };
@@ -473,6 +496,7 @@ export default function App() {
   const handleCallLeast = async () => {
     if (!currentRoom || !user) return;
     const updated = callLeast(currentRoom, user.uid);
+    updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
     if (updated.status === 'game-over') {
@@ -488,6 +512,7 @@ export default function App() {
       currentRound: currentRoom.currentRound + 1,
     };
     const startedRoom = startRound(nextRoom);
+    startedRoom.updatedAt = Date.now();
     setCurrentRoom(startedRoom);
     await updateDbRoom(startedRoom);
   };
@@ -508,7 +533,7 @@ export default function App() {
       [user.uid]: { ...currentRoom.players[user.uid], name: trimmed }
     };
 
-    const updated = { ...currentRoom, players: updatedPlayers };
+    const updated = { ...currentRoom, players: updatedPlayers, updatedAt: Date.now() };
     setCurrentRoom(updated);
     if (user) setUser({ ...user, displayName: trimmed });
     await updateDbRoom(updated);
@@ -525,7 +550,8 @@ export default function App() {
     };
     const updated = {
       ...currentRoom,
-      messages: [...(currentRoom.messages || []), newMsg]
+      messages: [...(currentRoom.messages || []), newMsg],
+      updatedAt: Date.now(),
     };
     setCurrentRoom(updated);
     await updateDbRoom(updated);
@@ -543,7 +569,7 @@ export default function App() {
       [user.uid]: { ...me, hand: sortedHand }
     };
 
-    const updated = { ...currentRoom, players: updatedPlayers };
+    const updated = { ...currentRoom, players: updatedPlayers, updatedAt: Date.now() };
     setCurrentRoom(updated);
     await updateDbRoom(updated);
   };
@@ -554,6 +580,7 @@ export default function App() {
     if (currentTurnId !== playerId) return;
 
     const updated = handleTurnTimeout(currentRoom, playerId);
+    updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
   };
