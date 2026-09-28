@@ -407,28 +407,20 @@ export const GameScreen: React.FC<Props> = ({
     setChatToast(null);
   };
 
-  const isInitialTurnMountRef = useRef<boolean>(true);
   const playedTurnSoundKeysRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!room || room.status !== 'playing') {
       prevTurnKeyRef.current = null;
-      isInitialTurnMountRef.current = true;
       return;
     }
 
     const turnId = room.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
+    if (!turnId) return;
     const currentKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${turnId}`;
 
-    if (isInitialTurnMountRef.current) {
-      isInitialTurnMountRef.current = false;
+    if (prevTurnKeyRef.current !== currentKey) {
       prevTurnKeyRef.current = currentKey;
-      playedTurnSoundKeysRef.current.add(currentKey);
-      return;
-    }
-
-    if (prevTurnKeyRef.current && prevTurnKeyRef.current !== currentKey) {
-      // Real turn transition occurred during active gameplay!
       if (!playedTurnSoundKeysRef.current.has(currentKey)) {
         playedTurnSoundKeysRef.current.add(currentKey);
         if (turnId === currentPlayerId) {
@@ -438,8 +430,6 @@ export const GameScreen: React.FC<Props> = ({
         }
       }
     }
-
-    prevTurnKeyRef.current = currentKey;
   }, [room?.id, room?.currentRound, room?.turnIndex, room?.status, currentPlayerId]);
 
   const prevStatusRef = useRef<string | null>(null);

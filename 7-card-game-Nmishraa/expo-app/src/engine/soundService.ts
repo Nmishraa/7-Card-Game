@@ -45,10 +45,31 @@ const getCtx = (): AudioContext | null => {
       return null;
     }
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume().catch(() => {});
-  }
   return audioCtx;
+};
+
+const withAudioContext = (callback: (ctx: AudioContext) => void) => {
+  if (typeof window === 'undefined' || _muted) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(() => {
+      try {
+        if (ctx.state === 'running' && !_muted) {
+          callback(ctx);
+        }
+      } catch {
+        // Safe audio fallback
+      }
+    }).catch(() => {});
+  } else if (ctx.state === 'running') {
+    try {
+      callback(ctx);
+    } catch {
+      // Safe audio fallback
+    }
+  }
 };
 
 // Auto-register touch/click unlocker on browser load
@@ -61,90 +82,94 @@ export const isMuted = () => _muted;
 
 // ── Card Select / Toggle ─────────────────────────────────────────────────────
 export const playCardSelect = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(880, t);
-  osc.frequency.exponentialRampToValueAtTime(1320, t + 0.06);
-  gain.gain.setValueAtTime(0.12, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.1);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(1320, t + 0.06);
+    gain.gain.setValueAtTime(0.12, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+    osc.start(t);
+    osc.stop(t + 0.1);
+  });
 };
 
 // ── Card Deselect ────────────────────────────────────────────────────────────
 export const playCardDeselect = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(1100, t);
-  osc.frequency.exponentialRampToValueAtTime(660, t + 0.08);
-  gain.gain.setValueAtTime(0.1, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.08);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1100, t);
+    osc.frequency.exponentialRampToValueAtTime(660, t + 0.08);
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+    osc.start(t);
+    osc.stop(t + 0.08);
+  });
 };
 
 // ── Card Discard (swoosh) ────────────────────────────────────────────────────
 export const playDiscard = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  // White noise swoosh
-  const bufferSize = ctx.sampleRate * 0.15;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  const bandpass = ctx.createBiquadFilter();
-  bandpass.type = 'bandpass';
-  bandpass.frequency.setValueAtTime(3000, t);
-  bandpass.frequency.exponentialRampToValueAtTime(800, t + 0.15);
-  bandpass.Q.value = 1.5;
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.2, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-  source.connect(bandpass).connect(gain).connect(ctx.destination);
-  source.start(t);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const bufferSize = ctx.sampleRate * 0.15;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(3000, t);
+    bandpass.frequency.exponentialRampToValueAtTime(800, t + 0.15);
+    bandpass.Q.value = 1.5;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    source.connect(bandpass).connect(gain).connect(ctx.destination);
+    source.onended = () => {
+      try { source.disconnect(); bandpass.disconnect(); gain.disconnect(); } catch {}
+    };
+    source.start(t);
+  });
 };
 
 // ── Draw Card (pick from deck) ───────────────────────────────────────────────
 export const playDraw = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(400, t);
-  osc.frequency.exponentialRampToValueAtTime(800, t + 0.08);
-  osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
-  gain.gain.setValueAtTime(0.15, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.18);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, t);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+    osc.start(t);
+    osc.stop(t + 0.18);
+  });
 };
 
-let lastTurnEndSoundMs = 0;
 // ── Turn End Notification (0.35s pleasant notification sound) ──────────────
 export const playTurnEnd = () => {
-  try {
-    const now = Date.now();
-    if (now - lastTurnEndSoundMs < 600) return;
-    lastTurnEndSoundMs = now;
-
-    const ctx = getCtx();
-    if (!ctx || _muted) return;
+  withAudioContext((ctx) => {
     const t = ctx.currentTime;
 
     const osc1 = ctx.createOscillator();
@@ -168,40 +193,53 @@ export const playTurnEnd = () => {
     osc2.connect(gain);
     gain.connect(ctx.destination);
 
+    let endedCount = 0;
+    const cleanup = () => {
+      endedCount++;
+      if (endedCount >= 2) {
+        try {
+          osc1.disconnect();
+          osc2.disconnect();
+          gain.disconnect();
+        } catch {}
+      }
+    };
+    osc1.onended = cleanup;
+    osc2.onended = cleanup;
+
     osc1.start(t);
     osc1.stop(t + 0.18);
     osc2.start(t + 0.12);
     osc2.stop(t + 0.35);
-  } catch (e) {
-    // Audio errors should never break gameplay
-  }
+  });
 };
 
 // ── Your Turn Notification ───────────────────────────────────────────────────
 export const playYourTurn = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 - major chord arpeggio
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t + i * 0.1);
-    gain.gain.setValueAtTime(0, t + i * 0.1);
-    gain.gain.linearRampToValueAtTime(0.12, t + i * 0.1 + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.25);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t + i * 0.1);
-    osc.stop(t + i * 0.1 + 0.25);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 - major chord arpeggio
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + i * 0.1);
+      gain.gain.setValueAtTime(0, t + i * 0.1);
+      gain.gain.linearRampToValueAtTime(0.12, t + i * 0.1 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.25);
+      osc.connect(gain).connect(ctx.destination);
+      osc.onended = () => {
+        try { osc.disconnect(); gain.disconnect(); } catch {}
+      };
+      osc.start(t + i * 0.1);
+      osc.stop(t + i * 0.1 + 0.25);
+    });
   });
 };
 
 // ── Call Least ───────────────────────────────────────────────────────────────
 export const playCallLeast = () => {
-  try {
-    const ctx = getCtx();
-    if (!ctx || _muted) return;
+  withAudioContext((ctx) => {
     const t = ctx.currentTime;
 
     // 6-note rising triumphant fanfare: C5 -> E5 -> G5 -> B5 -> C6 -> E6
@@ -225,26 +263,25 @@ export const playCallLeast = () => {
       gain.gain.linearRampToValueAtTime(0.1, t + time + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, t + time + 0.38);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      osc.connect(gain).connect(ctx.destination);
+      osc.onended = () => {
+        try { osc.disconnect(); gain.disconnect(); } catch {}
+      };
 
       osc.start(t + time);
       osc.stop(t + time + 0.38);
     });
-  } catch (e) {
-    // Audio safe fallback
-  }
+  });
 };
 
 let lastTimerWarningMs = 0;
 // ── Timer 5s Warning Sound ────────────────────────────────────────────────
 export const playTimerWarning = () => {
-  try {
-    const now = Date.now();
-    if (now - lastTimerWarningMs < 600) return;
-    lastTimerWarningMs = now;
-    const ctx = getCtx();
-    if (!ctx || _muted) return;
+  const now = Date.now();
+  if (now - lastTimerWarningMs < 600) return;
+  lastTimerWarningMs = now;
+
+  withAudioContext((ctx) => {
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -257,103 +294,113 @@ export const playTimerWarning = () => {
     gain.gain.linearRampToValueAtTime(0.08, t + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
 
     osc.start(t);
     osc.stop(t + 0.08);
-  } catch (e) {
-    // Audio safe fallback
-  }
+  });
 };
 
 // ── Round End ────────────────────────────────────────────────────────────────
 export const playRoundEnd = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5-E5-G5-C6
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t + i * 0.12);
-    gain.gain.setValueAtTime(0, t + i * 0.12);
-    gain.gain.linearRampToValueAtTime(0.15, t + i * 0.12 + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.5);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t + i * 0.12);
-    osc.stop(t + i * 0.12 + 0.5);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5-E5-G5-C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + i * 0.12);
+      gain.gain.setValueAtTime(0, t + i * 0.12);
+      gain.gain.linearRampToValueAtTime(0.15, t + i * 0.12 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.5);
+      osc.connect(gain).connect(ctx.destination);
+      osc.onended = () => {
+        try { osc.disconnect(); gain.disconnect(); } catch {}
+      };
+      osc.start(t + i * 0.12);
+      osc.stop(t + i * 0.12 + 0.5);
+    });
   });
 };
 
 // ── Game Over Fanfare ────────────────────────────────────────────────────────
 export const playGameOver = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  // Triumphant fanfare: C-E-G-C octave with harmonics
-  const chords = [
-    { freq: 261.63, delay: 0 },
-    { freq: 329.63, delay: 0.15 },
-    { freq: 392.00, delay: 0.30 },
-    { freq: 523.25, delay: 0.45 },
-    { freq: 659.25, delay: 0.60 },
-    { freq: 783.99, delay: 0.75 },
-  ];
-  chords.forEach(({ freq, delay }) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t + delay);
-    gain.gain.setValueAtTime(0, t + delay);
-    gain.gain.linearRampToValueAtTime(0.12, t + delay + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.8);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t + delay);
-    osc.stop(t + delay + 0.8);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    // Triumphant fanfare: C-E-G-C octave with harmonics
+    const chords = [
+      { freq: 261.63, delay: 0 },
+      { freq: 329.63, delay: 0.15 },
+      { freq: 392.00, delay: 0.30 },
+      { freq: 523.25, delay: 0.45 },
+      { freq: 659.25, delay: 0.60 },
+      { freq: 783.99, delay: 0.75 },
+    ];
+    chords.forEach(({ freq, delay }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + delay);
+      gain.gain.setValueAtTime(0, t + delay);
+      gain.gain.linearRampToValueAtTime(0.12, t + delay + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.8);
+      osc.connect(gain).connect(ctx.destination);
+      osc.onended = () => {
+        try { osc.disconnect(); gain.disconnect(); } catch {}
+      };
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.8);
+    });
   });
 };
 
 // ── Button Press (generic) ──────────────────────────────────────────────────
 export const playButtonPress = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(600, t);
-  osc.frequency.exponentialRampToValueAtTime(400, t + 0.05);
-  gain.gain.setValueAtTime(0.08, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.06);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(400, t + 0.05);
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+    osc.start(t);
+    osc.stop(t + 0.06);
+  });
 };
 
 // ── Error / Invalid ─────────────────────────────────────────────────────────
 export const playError = () => {
-  const ctx = getCtx();
-  if (!ctx || _muted) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(200, t);
-  osc.frequency.setValueAtTime(150, t + 0.1);
-  gain.gain.setValueAtTime(0.08, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.2);
+  withAudioContext((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, t);
+    osc.frequency.setValueAtTime(150, t + 0.1);
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain).connect(ctx.destination);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+    osc.start(t);
+    osc.stop(t + 0.2);
+  });
 };
 
 // ── Chat Message ────────────────────────────────────────────────────────────
 export const playChatMessage = () => {
-  try {
-    const ctx = getCtx();
-    if (!ctx || _muted) return;
+  withAudioContext((ctx) => {
     const t = ctx.currentTime;
 
     const osc1 = ctx.createOscillator();
@@ -375,12 +422,25 @@ export const playChatMessage = () => {
     osc2.connect(gain);
     gain.connect(ctx.destination);
 
+    let endedCount = 0;
+    const cleanup = () => {
+      endedCount++;
+      if (endedCount >= 2) {
+        try {
+          osc1.disconnect();
+          osc2.disconnect();
+          gain.disconnect();
+        } catch {}
+      }
+    };
+    osc1.onended = cleanup;
+    osc2.onended = cleanup;
+
     osc1.start(t);
     osc1.stop(t + 0.1);
     osc2.start(t + 0.07);
     osc2.stop(t + 0.22);
-  } catch (e) {
-    // Safe audio fallback
-  }
+  });
 };
+
 
