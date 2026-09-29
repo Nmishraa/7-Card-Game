@@ -85,6 +85,15 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
               <ScrollView showsVerticalScrollIndicator={false}>
                 {players.map((p, index) => (
                   <View key={p.id} style={styles.playerItem}>
+                    <View style={styles.playerAvatarBox}>
+                      {p.photoURL ? (
+                        <Image source={{ uri: p.photoURL }} style={styles.playerAvatarImage} resizeMode="cover" />
+                      ) : (
+                        <View style={styles.playerAvatarFallback}>
+                          <Text style={styles.playerAvatarText}>{(p.name || '?').charAt(0).toUpperCase()}</Text>
+                        </View>
+                      )}
+                    </View>
                     <Text style={styles.playerText}>
                       {index + 1}. {p.name} {p.id === room.hostId ? '(Host)' : ''} {p.isBot ? '(Bot)' : ''}
                     </Text>
@@ -311,6 +320,33 @@ const createStyles = (width: number, height: number) => {
       paddingVertical: 6,
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(255,255,255,0.05)',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    playerAvatarBox: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      overflow: 'hidden',
+    },
+    playerAvatarImage: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+    },
+    playerAvatarFallback: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: '#0284c7',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    playerAvatarText: {
+      color: '#ffffff',
+      fontSize: 12,
+      fontWeight: 'bold',
     },
     playerText: {
       fontSize: 15,

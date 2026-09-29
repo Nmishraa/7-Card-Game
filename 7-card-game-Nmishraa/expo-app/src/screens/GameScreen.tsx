@@ -1066,7 +1066,15 @@ export const GameScreen: React.FC<Props> = ({
                         
                         {/* Avatar */}
                         <View style={[styles.avatarBox, isCurrentTurn && styles.activeAvatar]}>
-                          <Text style={styles.avatarText}>{player.name ? player.name.charAt(0).toUpperCase() : '?'}</Text>
+                          {player.photoURL ? (
+                            <Image 
+                              source={{ uri: player.photoURL }} 
+                              style={{ width: '100%', height: '100%', borderRadius: avatarSize / 2 }} 
+                              resizeMode="cover" 
+                            />
+                          ) : (
+                            <Text style={styles.avatarText}>{player.name ? player.name.charAt(0).toUpperCase() : '?'}</Text>
+                          )}
                           {isCurrentTurn ? <ActivePlayerGlow size={avatarSize} /> : null}
                           {isHost && <View style={styles.hostBadge}><Text style={styles.hostBadgeText}>HOST</Text></View>}
                           {!isOut && <View style={styles.cardCountBadge}><Text style={styles.cardCountText}>{(player.hand && player.hand.length) || 0}</Text></View>}

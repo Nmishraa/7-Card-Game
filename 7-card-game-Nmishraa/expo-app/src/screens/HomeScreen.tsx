@@ -12,6 +12,8 @@ import { AdminDashboardModal } from './AdminDashboardModal';
 import { PrivacyModal } from './PrivacyModal';
 import { TermsModal } from './TermsModal';
 import { GamePreviewSection } from '../components/GamePreviewSection';
+import { GameplayDemoVideo } from '../components/GameplayDemoVideo';
+import { GameInActionSection } from '../components/GameInActionSection';
 
 
 
@@ -313,8 +315,40 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
+          {/* ─── GAMEPLAY DEMO VIDEO SECTION ─── */}
+          <GameplayDemoVideo />
+
           {/* ─── LANDING PAGE GAME PREVIEW SCREENSHOT ─── */}
           <GamePreviewSection />
+
+          {/* ─── GAME IN ACTION SCREENSHOTS GALLERY ─── */}
+          <GameInActionSection />
+
+          {/* ─── SEO SUPPORTING SECTION: LEAST SCORE CARD GAME ─── */}
+          <View style={styles.seoContentContainer}>
+            <View style={styles.seoSectionCard}>
+              <Text style={styles.h2Title}>7 Cards Least – A Lowest Score Card Game</Text>
+              <Text style={styles.seoSectionText}>
+                7 Cards Least is an engaging online card game where the core objective is to finish with the <Text style={styles.boldFeature}>least score</Text> (lowest point total). Unlike traditional games where higher points win, in this lowest score card game players strategically discard high-point cards, form sets or suited runs, and utilize Wild 7 Jokers (0 points) to minimize their hand value.
+              </Text>
+              <Text style={[styles.seoSectionText, { marginTop: 10 }]}>
+                When your total hand score drops to 10 points or less, declare <Text style={styles.boldFeature}>LEAST!</Text> to end the round. The player with the least score earns 0 points for the round, while opponents collect penalty points. Practice against AI bots or challenge friends in online multiplayer matches.
+              </Text>
+              
+              {/* Internal Linking Buttons */}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
+                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/7-cards-least')} accessibilityRole="button">
+                  <Text style={styles.inlineLinkText}>📖 Learn 7 Cards Least Guide ➔</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
+                  <Text style={styles.inlineLinkText}>🎮 Play Multiplayer Online ➔</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
+                  <Text style={styles.inlineLinkText}>📜 Read Game Rules &amp; Scoring ➔</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
 
 
 
