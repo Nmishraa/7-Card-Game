@@ -32,6 +32,13 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface RematchRequest {
+  fromPlayerId: string;
+  fromPlayerName: string;
+  status: 'pending' | 'accepted' | 'declined';
+  timestamp: number;
+}
+
 export interface GameRoom {
   id: string;
   hostId: string;
@@ -55,5 +62,7 @@ export interface GameRoom {
   turnTimeLimit?: number; // 60 for 1 minute, 0 for No Timer
   updatedAt?: number;
   version?: number;
+  rematchRequest?: RematchRequest | null;
 }
+
 

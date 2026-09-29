@@ -518,6 +518,90 @@ export default function App() {
     }
   };
 
+  const handleRequestRematch = async () => {
+    if (!currentRoom || !user) return;
+
+    const humanPlayers = Object.values(currentRoom.players).filter(p => !p.isBot);
+
+    // If solo game against computer bots, immediately start new game
+    if (humanPlayers.length <= 1) {
+      handleStartGame();
+      return;
+    }
+
+    // Prevent duplicate requests while one is already pending
+    if (currentRoom.rematchRequest && currentRoom.rematchRequest.status === 'pending') {
+      return;
+    }
+
+    const newMsg = {
+      id: 'msg-' + Date.now(),
+      senderId: 'system',
+      senderName: 'System 📢',
+      text: `🎮 ${user.displayName} sent a rematch request!`,
+      timestamp: Date.now(),
+    };
+
+    const updated: GameRoom = {
+      ...currentRoom,
+      rematchRequest: {
+        fromPlayerId: user.uid,
+        fromPlayerName: user.displayName,
+        status: 'pending',
+        timestamp: Date.now(),
+      },
+      messages: [...(currentRoom.messages || []), newMsg],
+    };
+
+    setCurrentRoom(updated);
+    await updateDbRoom(updated);
+  };
+
+  const handleAcceptRematch = async () => {
+    if (!currentRoom || !user) return;
+
+    const startedRoom = startRound(currentRoom);
+    startedRoom.rematchRequest = null;
+    const newMsg = {
+      id: 'msg-' + Date.now(),
+      senderId: 'system',
+      senderName: 'System ⚡',
+      text: `✅ ${user.displayName} accepted the rematch! Starting new game...`,
+      timestamp: Date.now(),
+    };
+    startedRoom.messages = [...(startedRoom.messages || []), newMsg];
+
+    setCurrentRoom(startedRoom);
+    setScreen('game');
+    await updateDbRoom(startedRoom);
+  };
+
+  const handleDeclineRematch = async () => {
+    if (!currentRoom || !user) return;
+
+    const newMsg = {
+      id: 'msg-' + Date.now(),
+      senderId: 'system',
+      senderName: 'System 📢',
+      text: `❌ ${user.displayName} declined the rematch request.`,
+      timestamp: Date.now(),
+    };
+
+    const updated: GameRoom = {
+      ...currentRoom,
+      rematchRequest: {
+        fromPlayerId: currentRoom.rematchRequest?.fromPlayerId || '',
+        fromPlayerName: currentRoom.rematchRequest?.fromPlayerName || 'Player',
+        status: 'declined',
+        timestamp: Date.now(),
+      },
+      messages: [...(currentRoom.messages || []), newMsg],
+    };
+
+    setCurrentRoom(updated);
+    await updateDbRoom(updated);
+  };
+
   const handleDiscardAndDraw = async (cardIds: string[]) => {
     if (!currentRoom || !user) return;
     const updated = playTurn(currentRoom, user.uid, cardIds);
@@ -737,6 +821,9 @@ export default function App() {
           onSortHand={handleSortHand}
           onTimeoutTurn={handleTimeoutTurn}
           currentFeltColor={tableTheme}
+          onRequestRematch={handleRequestRematch}
+          onAcceptRematch={handleAcceptRematch}
+          onDeclineRematch={handleDeclineRematch}
         />
       );
     }

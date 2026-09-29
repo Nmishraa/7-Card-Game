@@ -49,6 +49,9 @@ interface Props {
   onSortHand?: () => void;
   onTimeoutTurn?: (playerId: string) => void;
   currentFeltColor?: string;
+  onRequestRematch?: () => void;
+  onAcceptRematch?: () => void;
+  onDeclineRematch?: () => void;
 }
 
 const ActivePlayerGlow: React.FC<{ size: number }> = ({ size }) => {
@@ -174,7 +177,7 @@ const getPerimeterCoords = (index: number, n: number) => {
 };
 
 export const GameScreen: React.FC<Props> = ({ 
-  room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, onTimeoutTurn, currentFeltColor 
+  room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, onTimeoutTurn, currentFeltColor, onRequestRematch, onAcceptRematch, onDeclineRematch 
 }) => {
   const { width, height } = useWindowDimensions();
   const allPlayersEarly = room?.turnOrder || [];
@@ -652,6 +655,83 @@ export const GameScreen: React.FC<Props> = ({
     );
   };
 
+  const renderRematchSection = () => {
+    const req = room.rematchRequest;
+    const isPending = req && req.status === 'pending';
+    const isSender = isPending && req.fromPlayerId === currentPlayerId;
+    const isReceiver = isPending && req.fromPlayerId !== currentPlayerId;
+    const isDeclined = req && req.status === 'declined';
+
+    if (isReceiver) {
+      return (
+        <View style={styles.rematchRequestBox}>
+          <Text style={styles.rematchPromptText}>
+            🎮 <Text style={{ fontWeight: 'bold', color: '#fbbf24' }}>{req.fromPlayerName}</Text> wants a rematch. Do you want to play again?
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%', justifyContent: 'center' }}>
+            <TouchableOpacity 
+              style={[styles.summaryBtn, { backgroundColor: '#16a34a', flex: 1 }]} 
+              onPress={onAcceptRematch} 
+              activeOpacity={0.8}
+            >
+              <Text style={styles.summaryBtnText}>Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 1 }]} 
+              onPress={onDeclineRematch} 
+              activeOpacity={0.8}
+            >
+              <Text style={styles.summaryBtnText}>Decline</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    if (isSender) {
+      return (
+        <View style={styles.rematchPendingBox}>
+          <Text style={styles.rematchPendingText}>
+            ⏳ Rematch request sent to other player... Waiting for response.
+          </Text>
+          <TouchableOpacity 
+            style={[styles.summaryBtn, { backgroundColor: '#ef4444', marginTop: 10 }]} 
+            onPress={onLeaveRoom} 
+            activeOpacity={0.8}
+          >
+            <Text style={styles.summaryBtnText}>Exit Game</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={{ width: '100%', alignItems: 'center' }}>
+        {isDeclined && (
+          <Text style={styles.rematchDeclinedText}>
+            ❌ Rematch request was declined.
+          </Text>
+        )}
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
+          <TouchableOpacity 
+            style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} 
+            onPress={onRequestRematch || onStartGame} 
+            activeOpacity={0.8}
+          >
+            <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.summaryBtn, { backgroundColor: '#ef4444' }]} 
+            onPress={onLeaveRoom} 
+            activeOpacity={0.8}
+          >
+            <Text style={styles.summaryBtnText}>Back to Home</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   const renderRoundSummary = () => {
     const isGameOver = room.status === 'game-over';
     const playersList = Object.values(players).sort((a, b) => a.totalScore - b.totalScore);
@@ -726,14 +806,7 @@ export const GameScreen: React.FC<Props> = ({
             {isGameOver ? (
               <View style={styles.winnerSection}>
                 <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
-                <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
-                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#16a34a' }]} onPress={onStartGame} activeOpacity={0.8}>
-                    <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444' }]} onPress={onLeaveRoom} activeOpacity={0.8}>
-                    <Text style={styles.summaryBtnText}>Back to Home</Text>
-                  </TouchableOpacity>
-                </View>
+                {renderRematchSection()}
               </View>
             ) : (
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
@@ -1948,6 +2021,45 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     headerIconBtnUnread: {
       borderColor: '#ef4444',
       backgroundColor: 'rgba(239, 68, 68, 0.25)',
+    },
+    rematchRequestBox: {
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+      borderWidth: 2,
+      borderColor: '#22c55e',
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 12,
+      width: '100%',
+      alignItems: 'center',
+    },
+    rematchPromptText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    rematchPendingBox: {
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+      borderWidth: 1.5,
+      borderColor: '#eab308',
+      borderRadius: 14,
+      padding: 14,
+      marginTop: 12,
+      width: '100%',
+      alignItems: 'center',
+    },
+    rematchPendingText: {
+      color: '#fde047',
+      fontSize: 14,
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    rematchDeclinedText: {
+      color: '#f87171',
+      fontSize: 14,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 6,
     },
   });
 };
