@@ -189,22 +189,21 @@ export default function App() {
             return;
           }
 
-          // Protect optimistic local actions from being overwritten by stale DB responses
+          // Protect optimistic local actions from being overwritten by stale DB poll responses
           if (currentRoomRef.current) {
-            const currentTurn = currentRoomRef.current.turnIndex;
-            const currentRound = currentRoomRef.current.currentRound;
+            const currentVer = currentRoomRef.current.version || 0;
+            const serverVer = formattedRoom.version || 0;
             const localUpdatedAt = currentRoomRef.current.updatedAt || 0;
             const serverUpdatedAt = formattedRoom.updatedAt || 0;
 
-            if (serverUpdatedAt > 0 && localUpdatedAt > serverUpdatedAt + 500) {
-              return;
-            }
-
-            if (
-              formattedRoom.currentRound < currentRound ||
-              (formattedRoom.currentRound === currentRound && formattedRoom.turnIndex < currentTurn && (localUpdatedAt - serverUpdatedAt < 3000))
-            ) {
-              return;
+            if (serverVer > 0 && currentVer > 0) {
+              if (serverVer < currentVer) {
+                return;
+              }
+            } else if (serverUpdatedAt > 0 && localUpdatedAt > 0) {
+              if (serverUpdatedAt < localUpdatedAt) {
+                return;
+              }
             }
           }
 
@@ -232,7 +231,16 @@ export default function App() {
 
   const updateDbRoom = async (room: GameRoom) => {
     try {
-      await apiService.syncRoom(room);
+      const roomToSync: GameRoom = {
+        ...room,
+        version: (room.version || 0) + 1,
+        updatedAt: Date.now(),
+      };
+      if (currentRoomRef.current && currentRoomRef.current.id === roomToSync.id) {
+        currentRoomRef.current = roomToSync;
+        setCurrentRoom(roomToSync);
+      }
+      await apiService.syncRoom(roomToSync);
     } catch (e) {
       console.error('[PostgreSQL Room Sync Error]', e);
     }
