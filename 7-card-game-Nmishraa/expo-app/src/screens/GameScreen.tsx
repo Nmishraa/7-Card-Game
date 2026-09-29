@@ -199,6 +199,12 @@ export const GameScreen: React.FC<Props> = ({
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Card Reveal Animation state (when Least is called before scoreboard)
+  const [isRevealingCards, setIsRevealingCards] = useState<boolean>(false);
+  const [revealCompleted, setRevealCompleted] = useState<boolean>(false);
+  const [revealedPlayerCount, setRevealedPlayerCount] = useState<number>(0);
+  const lastRevealKeyRef = useRef<string | null>(null);
   
   const seenMsgIdsRef = useRef<Set<string>>(new Set());
   const isInitialMsgLoadRef = useRef<boolean>(true);
@@ -440,6 +446,47 @@ export const GameScreen: React.FC<Props> = ({
     }
     prevStatusRef.current = room?.status || null;
   }, [room?.status]);
+
+  // Trigger Card Reveal Animation on Round End / Game Over when Least is called
+  useEffect(() => {
+    if (!room) return;
+    if (room.status === 'round-end' || room.status === 'game-over') {
+      const revealKey = `${room.id}_R${room.currentRound}_${room.status}`;
+      if (lastRevealKeyRef.current !== revealKey) {
+        lastRevealKeyRef.current = revealKey;
+        setIsRevealingCards(true);
+        setRevealCompleted(false);
+        setRevealedPlayerCount(1);
+        playCallLeast();
+      }
+    } else if (room.status === 'playing') {
+      setIsRevealingCards(false);
+      setRevealCompleted(false);
+      setRevealedPlayerCount(0);
+      lastRevealKeyRef.current = null;
+    }
+  }, [room?.status, room?.currentRound, room?.id]);
+
+  // Staggered Player Reveal Timer (2 - 3.5 seconds reveal duration)
+  useEffect(() => {
+    if (!isRevealingCards || !room) return;
+
+    const totalPlayers = (room.turnOrder || Object.keys(room.players || {})).length;
+
+    if (revealedPlayerCount < totalPlayers) {
+      const timer = setTimeout(() => {
+        setRevealedPlayerCount(prev => prev + 1);
+      }, 350);
+      return () => clearTimeout(timer);
+    } else {
+      // All player hands revealed — hold screen for 1.2s so players can see all cards clearly
+      const finishTimer = setTimeout(() => {
+        setIsRevealingCards(false);
+        setRevealCompleted(true);
+      }, 1200);
+      return () => clearTimeout(finishTimer);
+    }
+  }, [isRevealingCards, revealedPlayerCount, room?.turnOrder, room?.players]);
 
   useEffect(() => {
     const rawMsgs: ChatMessage[] = room?.messages 
@@ -739,7 +786,7 @@ export const GameScreen: React.FC<Props> = ({
     const jokerRank = room.jokerCard?.rank;
 
     return (
-      <Modal visible={room.status === 'round-end' || room.status === 'game-over'} transparent animationType="fade">
+      <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && (revealCompleted || !isRevealingCards)} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.summaryContainer}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 6 }}>
@@ -803,6 +850,56 @@ export const GameScreen: React.FC<Props> = ({
               })}
             </ScrollView>
 
+            {/* Viral Social Challenge & Share Row */}
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <TouchableOpacity 
+                style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 140 }]} 
+                onPress={() => {
+                  const myScore = players[currentPlayerId]?.totalScore ?? 0;
+                  const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                  const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nMy score: ${myScore} pts\nClick to play: ${shareUrl}`;
+                  if (typeof window !== 'undefined') {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                  }
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.summaryBtnText}>💬 Invite via WhatsApp</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 140 }]} 
+                onPress={async () => {
+                  const myScore = players[currentPlayerId]?.totalScore ?? 0;
+                  const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                  const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nScore: ${myScore} pts\nPlay now: ${shareUrl}`;
+                  
+                  if (typeof window !== 'undefined' && window.navigator && window.navigator.share) {
+                    try {
+                      await window.navigator.share({
+                        title: '7 Card Game Challenge',
+                        text: shareText,
+                        url: shareUrl,
+                      });
+                      return;
+                    } catch (e) {}
+                  }
+
+                  if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard) {
+                    try {
+                      await window.navigator.clipboard.writeText(shareText);
+                      alert(`Copied challenge link to clipboard!\n${shareUrl}`);
+                    } catch (e) {
+                      alert(shareUrl);
+                    }
+                  }
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.summaryBtnText}>📋 Copy Challenge Link</Text>
+              </TouchableOpacity>
+            </View>
+
             {isGameOver ? (
               <View style={styles.winnerSection}>
                 <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
@@ -819,6 +916,88 @@ export const GameScreen: React.FC<Props> = ({
               </View>
             )}
 
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const renderCardRevealModal = () => {
+    if (!isRevealingCards || !room) return null;
+
+    const turnOrderList = room.turnOrder || Object.keys(room.players || {});
+    const playersList = turnOrderList.map(id => room.players[id]).filter(Boolean);
+    const caller = playersList.find(p => p.hasCalledLeast);
+    const jokerRank = room.jokerCard?.rank;
+
+    return (
+      <Modal visible={isRevealingCards} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.cardRevealContainer}>
+            {/* Reveal Header */}
+            <View style={styles.cardRevealHeader}>
+              <Text style={styles.cardRevealTitle}>🎴 LEAST CALLED! REVEALING HANDS...</Text>
+              {caller ? (
+                <Text style={styles.cardRevealSubtitle}>
+                  📣 <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{caller.name}</Text> called LEAST with hand score {caller.roundScore} pts!
+                </Text>
+              ) : (
+                <Text style={styles.cardRevealSubtitle}>Revealing all player hands for end of round!</Text>
+              )}
+            </View>
+
+            {/* Players Hands List */}
+            <ScrollView style={styles.cardRevealScroll} showsVerticalScrollIndicator={false}>
+              {playersList.slice(0, revealedPlayerCount).map((p, idx) => {
+                const isCaller = p.hasCalledLeast;
+                const hand = p.hand || [];
+
+                return (
+                  <View key={p.id || idx} style={[styles.cardRevealPlayerRow, isCaller && styles.cardRevealCallerRow]}>
+                    <View style={styles.cardRevealPlayerInfo}>
+                      <View style={styles.playerAvatarBox}>
+                        {p.photoURL ? (
+                          <Image source={{ uri: p.photoURL }} style={styles.playerAvatarImage} resizeMode="cover" />
+                        ) : (
+                          <View style={styles.playerAvatarFallback}>
+                            <Text style={styles.playerAvatarText}>{(p.name || '?').charAt(0).toUpperCase()}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.cardRevealPlayerName}>
+                          {p.name} {p.id === currentPlayerId ? '(You)' : ''} {p.isBot ? '🤖' : ''}
+                        </Text>
+                        <Text style={styles.cardRevealScoreText}>
+                          Hand Score: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{p.roundScore} pts</Text>
+                        </Text>
+                      </View>
+                      {isCaller && (
+                        <View style={styles.callerBadge}>
+                          <Text style={styles.callerBadgeText}>⚡ CALLED LEAST</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Cards horizontal row */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRevealCardsRow}>
+                      {hand.map((c, cIdx) => {
+                        const isJoker = jokerRank && c.rank === jokerRank;
+                        return (
+                          <View key={c.id || cIdx} style={styles.cardRevealCardItem}>
+                            {renderCard(c, false, undefined, isJoker)}
+                          </View>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
+                );
+              })}
+            </ScrollView>
+
+            <View style={styles.cardRevealFooter}>
+              <Text style={styles.cardRevealFooterText}>Scoreboard appearing in a moment...</Text>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1335,6 +1514,12 @@ export const GameScreen: React.FC<Props> = ({
             )}
           </Animated.View>
         )}
+        {/* Modals & Overlays */}
+        {renderRoundSummary()}
+        {renderChatModal()}
+        {renderScoresModal()}
+        {renderEditModal()}
+        {renderCardRevealModal()}
       </View>
     </SafeAreaView>
   );
@@ -2068,6 +2253,131 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       fontWeight: 'bold',
       textAlign: 'center',
       marginBottom: 6,
+    },
+    /* Card Reveal Animation Modal Overlay */
+    cardRevealContainer: {
+      width: '100%',
+      maxWidth: 650,
+      maxHeight: '90%',
+      backgroundColor: '#0f172a',
+      borderRadius: 24,
+      padding: isSmall ? 18 : 26,
+      borderWidth: 2,
+      borderColor: '#fbbf24',
+      shadowColor: '#fbbf24',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.6,
+      shadowRadius: 20,
+      elevation: 15,
+      alignItems: 'center',
+    },
+    cardRevealHeader: {
+      alignItems: 'center',
+      marginBottom: 16,
+      width: '100%',
+    },
+    cardRevealTitle: {
+      color: '#fbbf24',
+      fontSize: isSmall ? 18 : 22,
+      fontWeight: 'bold',
+      letterSpacing: 1,
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    cardRevealSubtitle: {
+      color: '#cbd5e1',
+      fontSize: isSmall ? 13 : 15,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    cardRevealScroll: {
+      width: '100%',
+      flexGrow: 0,
+      marginVertical: 10,
+    },
+    cardRevealPlayerRow: {
+      backgroundColor: '#1e293b',
+      borderRadius: 16,
+      padding: 14,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: '#334155',
+    },
+    cardRevealCallerRow: {
+      backgroundColor: 'rgba(251, 191, 36, 0.12)',
+      borderColor: '#fbbf24',
+      borderWidth: 2,
+    },
+    cardRevealPlayerInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 10,
+      gap: 12,
+    },
+    cardRevealPlayerName: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    cardRevealScoreText: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      marginTop: 2,
+    },
+    callerBadge: {
+      backgroundColor: '#fbbf24',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+    },
+    callerBadgeText: {
+      color: '#0f172a',
+      fontWeight: 'bold',
+      fontSize: 11,
+      letterSpacing: 0.5,
+    },
+    cardRevealCardsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingVertical: 4,
+    },
+    cardRevealCardItem: {
+      transform: [{ scale: 0.9 }],
+      marginRight: -6,
+    },
+    cardRevealFooter: {
+      marginTop: 12,
+      alignItems: 'center',
+    },
+    cardRevealFooterText: {
+      color: '#94a3b8',
+      fontSize: 13,
+      fontStyle: 'italic',
+    },
+    playerAvatarBox: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      overflow: 'hidden',
+    },
+    playerAvatarImage: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+    },
+    playerAvatarFallback: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: '#0284c7',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    playerAvatarText: {
+      color: '#ffffff',
+      fontSize: 14,
+      fontWeight: 'bold',
     },
   });
 };

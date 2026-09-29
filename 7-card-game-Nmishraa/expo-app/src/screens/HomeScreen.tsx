@@ -58,7 +58,23 @@ export const HomeScreen: React.FC<Props> = ({
     }
   };
 
-  const [roomId, setRoomId] = useState('');
+  const [roomId, setRoomId] = useState<string>(() => {
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      const roomParam = params.get('room') || params.get('join') || params.get('code');
+      if (roomParam) return roomParam.toUpperCase().trim().slice(0, 4);
+    }
+    return '';
+  });
+  const [inviteNotice, setInviteNotice] = useState<string | null>(() => {
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      const roomParam = params.get('room') || params.get('join') || params.get('code');
+      if (roomParam) return `💬 You were invited to join room ${roomParam.toUpperCase()}! Enter your name below and tap "Join Table".`;
+    }
+    return null;
+  });
+
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -160,6 +176,15 @@ export const HomeScreen: React.FC<Props> = ({
 
           {/* Card */}
           <View style={[styles.card, isWide && styles.cardWide]}>
+            {inviteNotice && (
+              <View style={{ backgroundColor: 'rgba(56, 189, 248, 0.2)', borderWidth: 1, borderColor: '#38bdf8', padding: 12, borderRadius: 10, marginBottom: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 14, flex: 1 }}>{inviteNotice}</Text>
+                <TouchableOpacity onPress={() => setInviteNotice(null)} style={{ paddingLeft: 8 }}>
+                  <Text style={{ color: '#cbd5e1', fontWeight: 'bold' }}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* Header Row */}
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle} accessibilityRole="header">7 Card Game Online</Text>
