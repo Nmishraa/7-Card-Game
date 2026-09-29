@@ -281,8 +281,8 @@ export default function App() {
   }, [currentRoom?.turnIndex, currentRoom?.turnPhase, currentRoom?.status, user?.uid]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  const makePlayer = (id: string, name: string, isBot = false): Player => ({
-    id, name, hand: [], roundScore: 0, totalScore: 0, hasCalledLeast: false,
+  const makePlayer = (id: string, name: string, isBot = false, photoURL?: string): Player => ({
+    id, name, photoURL, hand: [], roundScore: 0, totalScore: 0, hasCalledLeast: false,
     isBot, isOut: false, roundScores: [],
   });
 
@@ -311,7 +311,7 @@ export default function App() {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
-    const player = makePlayer(user.uid, pName);
+    const player = makePlayer(user.uid, pName, false, user.photoURL);
 
     const room: GameRoom = {
       id: newRoomId,
@@ -343,7 +343,7 @@ export default function App() {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
-    const p1 = makePlayer(user.uid, pName);
+    const p1 = makePlayer(user.uid, pName, false, user.photoURL);
     const p2 = makePlayer('bot_1', 'AlphaBot 🤖', true);
     const p3 = makePlayer('bot_2', 'BetaBot 🤖', true);
     const p4 = makePlayer('bot_3', 'OmegaBot 🤖', true);
@@ -379,7 +379,7 @@ export default function App() {
     if (!user) return;
     const newRoomId = generateRoomId();
     const pName = playerName || user.displayName;
-    const humanPlayer = makePlayer(user.uid, pName);
+    const humanPlayer = makePlayer(user.uid, pName, false, user.photoURL);
 
     const players: Record<string, Player> = { [user.uid]: humanPlayer };
     const turnOrder: string[] = [user.uid];
@@ -423,7 +423,7 @@ export default function App() {
     if (!user || !rid) return;
     const cleanRid = rid.trim().toUpperCase();
     const pName = playerName || user.displayName;
-    const player = makePlayer(user.uid, pName);
+    const player = makePlayer(user.uid, pName, false, user.photoURL);
 
     try {
       const res = await apiService.getRoom(cleanRid);

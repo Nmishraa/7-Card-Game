@@ -6,7 +6,8 @@ import {
   playDraw, 
   playYourTurn, 
   playCallLeast, 
-  playRoundEnd 
+  playRoundEnd,
+  unlockMobileAudio
 } from '../engine/soundService';
 
 interface Step {
@@ -136,6 +137,8 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
     stopStepAudio();
     if (!audioEnabledRef.current) return;
 
+    unlockMobileAudio();
+
     try {
       if (stepIndex === 0) {
         playYourTurn();
@@ -160,10 +163,20 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
 
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.resume();
+
         const utterance = new SpeechSynthesisUtterance(STEPS[stepIndex].voiceText);
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
-        utterance.volume = 0.9;
+        utterance.volume = 1.0;
+
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+          const engVoice = voices.find(v => v.lang.startsWith('en'));
+          if (engVoice) utterance.voice = engVoice;
+        }
+
         window.speechSynthesis.speak(utterance);
       } catch {
         // Speech safe fallback
@@ -207,20 +220,28 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
   }, [isPlaying]);
 
   const handleSelectStep = (idx: number) => {
+    unlockMobileAudio();
     stopStepAudio();
     lastPlayedStepKeyRef.current = null;
     setCurrentStepIdx(idx);
     setProgress(0);
+    if (isPlaying && audioEnabledRef.current) {
+      triggerStepAudio(idx);
+    }
   };
 
   const togglePlayPause = () => {
+    unlockMobileAudio();
     if (isPlaying) {
       stopStepAudio();
+    } else if (audioEnabledRef.current) {
+      triggerStepAudio(currentStepIdx);
     }
     setIsPlaying(!isPlaying);
   };
 
   const toggleAudio = () => {
+    unlockMobileAudio();
     const next = !audioEnabled;
     setAudioEnabled(next);
     audioEnabledRef.current = next;
@@ -229,6 +250,9 @@ export const HowToPlayVideoDemo: React.FC<HowToPlayVideoDemoProps> = ({ style })
       lastPlayedStepKeyRef.current = null;
     } else {
       lastPlayedStepKeyRef.current = null;
+      if (isPlaying) {
+        triggerStepAudio(currentStepIdx);
+      }
     }
   };
 

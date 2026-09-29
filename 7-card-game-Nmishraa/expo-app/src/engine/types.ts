@@ -11,6 +11,7 @@ export interface Card {
 export interface Player {
   id: string; // socket/firebase id
   name: string;
+  photoURL?: string; // Google account profile picture URL
   hand: Card[];
   roundScore: number;
   totalScore: number;

@@ -119,6 +119,13 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.cardSection}>
+            <Text style={styles.h2}>🏆 Master the Least Score Card Game online</Text>
+            <Text style={styles.bodyText}>
+              In 7 Cards Least, every player aims for the <Text style={{fontWeight: 'bold', color: '#fbbf24'}}>least score</Text> at the table. By discarding high-value face cards and building matching sets, you minimize your points to declare "Least". Learn more about official <TouchableOpacity onPress={() => onNavigate('/rules')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>7 Cards Game Rules</Text></TouchableOpacity> or explore our main guide on <TouchableOpacity onPress={() => onNavigate('/7-cards-least')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>7 Cards Least online card game strategies</Text></TouchableOpacity>.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
             <Text style={styles.h2}>Ready to Battle Online?</Text>
             <View style={styles.ctaRow}>
               <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
