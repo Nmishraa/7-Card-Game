@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, useWindowDimensions, ScrollView, Image, SafeAreaView, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, useWindowDimensions, ScrollView, Image, SafeAreaView, Modal, TextInput, Alert } from 'react-native';
 import { GameRoom } from '../engine/types';
 
 interface Props {
@@ -19,6 +19,36 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
   const isHost = room.hostId === userId;
   const [showEdit, setShowEdit] = useState(false);
   const [newName, setNewName] = useState(room.players[userId]?.name || '');
+  const [shareToast, setShareToast] = useState<string | null>(null);
+
+  const copyToClipboard = async (textToCopy: string): Promise<boolean> => {
+    try {
+      if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+        await window.navigator.clipboard.writeText(textToCopy);
+        return true;
+      }
+    } catch (e) {}
+    try {
+      if (typeof document !== 'undefined') {
+        const el = document.createElement('textarea');
+        el.value = textToCopy;
+        el.setAttribute('readonly', '');
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(el);
+        if (success) return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  const showShareToastMsg = (msg: string) => {
+    setShareToast(msg);
+    setTimeout(() => setShareToast(null), 3500);
+  };
   
   const players = Object.values(room.players || {});
 
@@ -55,29 +85,33 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
             <Text style={styles.playerCountText}>Players: {players.length} / 8</Text>
 
             {/* Invite Friends Action Row */}
+            {shareToast && (
+              <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginBottom: 12, width: '100%', alignItems: 'center' }}>
+                <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
+              </View>
+            )}
+
             <View style={styles.shareRow}>
-              <TouchableOpacity style={styles.whatsappBtn} onPress={() => {
+              <TouchableOpacity style={styles.whatsappBtn} onPress={async () => {
                 const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
                 const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                await copyToClipboard(shareText);
                 if (typeof window !== 'undefined') {
-                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                  window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
                 }
+                showShareToastMsg('💬 Invite link copied! Opening WhatsApp...');
               }}>
-                <Text style={styles.whatsappBtnText}>💬 Invite via WhatsApp</Text>
+                <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.copyLinkBtn} onPress={async () => {
                 const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard) {
-                  try {
-                    await window.navigator.clipboard.writeText(inviteUrl);
-                    alert(`Copied invite link!\n${inviteUrl}`);
-                  } catch (e) {
-                    alert(`Room Link: ${inviteUrl}`);
-                  }
-                }
+                const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                const copied = await copyToClipboard(shareText);
+                showShareToastMsg(copied ? '📋 Room link copied to clipboard!' : `Room Link: ${inviteUrl}`);
+                Alert.alert('Room Link Copied', `Copied to clipboard!\n\n${inviteUrl}`);
               }}>
-                <Text style={styles.copyLinkBtnText}>📋 Copy Invite Link</Text>
+                <Text style={styles.copyLinkBtnText}>📋 Copy Link</Text>
               </TouchableOpacity>
             </View>
 
