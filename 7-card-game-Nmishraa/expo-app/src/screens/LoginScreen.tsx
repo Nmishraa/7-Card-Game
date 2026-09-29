@@ -73,16 +73,23 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      console.log('[LoginScreen] Triggering Google Sign-In...');
       const result = await signInWithGoogleFirebase();
+      console.log('[LoginScreen] Google Sign-In result:', result);
+
       if (result.success && result.user) {
         // Authenticated with Firebase Google Provider!
         const googleUser = result.user;
-        const res = await apiService.googleAuth(googleUser.email, googleUser.displayName).catch(() => null);
+        const res = await apiService.googleAuth(googleUser.email, googleUser.displayName).catch((err) => {
+          console.warn('[Backend Google Auth Warning]', err);
+          return null;
+        });
         
         const loggedUser = {
           uid: res?.user?.id || googleUser.uid,
           displayName: res?.user?.name || googleUser.displayName,
           email: res?.user?.email || googleUser.email,
+          photoURL: googleUser.photoURL,
           isAnonymous: false,
         };
 
@@ -92,16 +99,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         // Redirecting to Google Auth page...
         return;
       } else if (result.errorCode === 'auth/unauthorized-domain') {
-        Alert.alert(
-          'Authorized Domain Required',
-          'cards.gnanamai.com is not added to Authorized Domains in Firebase Console.\n\nPlease add cards.gnanamai.com in Firebase Console -> Authentication -> Settings -> Authorized Domains.'
-        );
+        const domain = typeof window !== 'undefined' ? window.location.hostname : 'cards.gnanamai.com';
+        const msg = `Domain Authorization Required:\n\nDomain "${domain}" is not authorized in Firebase Console.\n\nPlease add "${domain}" in Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert(msg);
+        } else {
+          Alert.alert('Authorized Domain Required', msg);
+        }
       } else if (result.error) {
-        Alert.alert('Google Sign-In Error', result.error);
+        const msg = `Google Sign-In Notice:\n\n${result.error}\n(Code: ${result.errorCode || 'N/A'})`;
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert(msg);
+        } else {
+          Alert.alert('Google Sign-In', msg);
+        }
       }
     } catch (error: any) {
-      console.error('Google Sign-in exception:', error);
-      Alert.alert('Google Sign-In Error', error.message || 'Could not complete Google Sign-in');
+      console.error('[LoginScreen] Google Sign-in exception:', error);
+      const errMsg = error.message || 'Could not complete Google Sign-in';
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert(`Google Sign-In Error: ${errMsg}`);
+      } else {
+        Alert.alert('Google Sign-In Error', errMsg);
+      }
     } finally {
       setLoading(false);
     }
