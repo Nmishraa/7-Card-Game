@@ -17,7 +17,7 @@ import {
   Image,
   SafeAreaView
 } from 'react-native';
-import { GameRoom, Card as CardType, ChatMessage } from '../engine/types';
+import { GameRoom, Card as CardType, ChatMessage, Player } from '../engine/types';
 import { isValidSetOrRun, getSequenceValue } from '../engine/gameLogic';
 import { 
   playTurnEnd, 
@@ -176,6 +176,9 @@ const getPerimeterCoords = (index: number, n: number) => {
   return index === 0 ? { x: 50, y: 100 } : { x: 50, y: 0 };
 };
 
+// Feature Flag: Toggle to true to re-enable physical card-throw motion & bounce animations
+const ENABLE_CARD_THROW_ANIMATION = false;
+
 export const GameScreen: React.FC<Props> = ({ 
   room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, onTimeoutTurn, currentFeltColor, onRequestRematch, onAcceptRematch, onDeclineRematch 
 }) => {
@@ -196,6 +199,39 @@ export const GameScreen: React.FC<Props> = ({
   const [showEdit, setShowEdit] = useState(false);
   const [newName, setNewName] = useState(room?.players?.[currentPlayerId]?.name || '');
   const [systemToast, setSystemToast] = useState<string | null>(null);
+  const [shareToast, setShareToast] = useState<string | null>(null);
+  const [isScoreboardCollapsed, setIsScoreboardCollapsed] = useState<boolean>(() => {
+    return (room?.turnOrder?.length || 0) >= 6;
+  });
+
+  const copyToClipboard = async (textToCopy: string): Promise<boolean> => {
+    try {
+      if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+        await window.navigator.clipboard.writeText(textToCopy);
+        return true;
+      }
+    } catch (e) {}
+    try {
+      if (typeof document !== 'undefined') {
+        const el = document.createElement('textarea');
+        el.value = textToCopy;
+        el.setAttribute('readonly', '');
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(el);
+        if (success) return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  const showShareToastMsg = (msg: string) => {
+    setShareToast(msg);
+    setTimeout(() => setShareToast(null), 3500);
+  };
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -204,6 +240,7 @@ export const GameScreen: React.FC<Props> = ({
   const [isRevealingCards, setIsRevealingCards] = useState<boolean>(false);
   const [revealCompleted, setRevealCompleted] = useState<boolean>(false);
   const [revealedPlayerCount, setRevealedPlayerCount] = useState<number>(0);
+  const [revealCountdown, setRevealCountdown] = useState<number>(45);
   const lastRevealKeyRef = useRef<string | null>(null);
   
   const seenMsgIdsRef = useRef<Set<string>>(new Set());
@@ -454,39 +491,55 @@ export const GameScreen: React.FC<Props> = ({
       const revealKey = `${room.id}_R${room.currentRound}_${room.status}`;
       if (lastRevealKeyRef.current !== revealKey) {
         lastRevealKeyRef.current = revealKey;
+        const totalPlayers = (room.turnOrder || Object.keys(room.players || {})).length;
         setIsRevealingCards(true);
         setRevealCompleted(false);
-        setRevealedPlayerCount(1);
+        setRevealedPlayerCount(ENABLE_CARD_THROW_ANIMATION ? 1 : totalPlayers);
+        setRevealCountdown(45);
         playCallLeast();
       }
     } else if (room.status === 'playing') {
       setIsRevealingCards(false);
       setRevealCompleted(false);
       setRevealedPlayerCount(0);
+      setRevealCountdown(45);
       lastRevealKeyRef.current = null;
     }
   }, [room?.status, room?.currentRound, room?.id]);
 
-  // Staggered Player Reveal Timer (2 - 3.5 seconds reveal duration)
+  // Staggered Player Throw & 45-Second Viewing Countdown Timer
   useEffect(() => {
     if (!isRevealingCards || !room) return;
 
     const totalPlayers = (room.turnOrder || Object.keys(room.players || {})).length;
 
-    if (revealedPlayerCount < totalPlayers) {
+    if (ENABLE_CARD_THROW_ANIMATION && revealedPlayerCount < totalPlayers) {
       const timer = setTimeout(() => {
+        playDiscard();
         setRevealedPlayerCount(prev => prev + 1);
-      }, 350);
+      }, 400);
       return () => clearTimeout(timer);
     } else {
-      // All player hands revealed — hold screen for 1.2s so players can see all cards clearly
-      const finishTimer = setTimeout(() => {
+      // All player hands revealed — run 45-second countdown timer
+      if (revealCountdown > 0) {
+        const cdTimer = setInterval(() => {
+          setRevealCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(cdTimer);
+              setIsRevealingCards(false);
+              setRevealCompleted(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(cdTimer);
+      } else {
         setIsRevealingCards(false);
         setRevealCompleted(true);
-      }, 1200);
-      return () => clearTimeout(finishTimer);
+      }
     }
-  }, [isRevealingCards, revealedPlayerCount, room?.turnOrder, room?.players]);
+  }, [isRevealingCards, revealedPlayerCount, revealCountdown, room?.turnOrder, room?.players]);
 
   useEffect(() => {
     const rawMsgs: ChatMessage[] = room?.messages 
@@ -786,7 +839,7 @@ export const GameScreen: React.FC<Props> = ({
     const jokerRank = room.jokerCard?.rank;
 
     return (
-      <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && (revealCompleted || !isRevealingCards)} transparent animationType="fade">
+      <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && revealCompleted} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.summaryContainer}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 6 }}>
@@ -851,52 +904,43 @@ export const GameScreen: React.FC<Props> = ({
             </ScrollView>
 
             {/* Viral Social Challenge & Share Row */}
+            {shareToast && (
+              <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, width: '100%', alignItems: 'center' }}>
+                <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
+              </View>
+            )}
+
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
               <TouchableOpacity 
-                style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 140 }]} 
-                onPress={() => {
+                style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
+                onPress={async () => {
                   const myScore = players[currentPlayerId]?.totalScore ?? 0;
                   const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
                   const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nMy score: ${myScore} pts\nClick to play: ${shareUrl}`;
+                  await copyToClipboard(shareText);
                   if (typeof window !== 'undefined') {
-                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
                   }
+                  showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.summaryBtnText}>💬 Invite via WhatsApp</Text>
+                <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 140 }]} 
+                style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 130 }]} 
                 onPress={async () => {
                   const myScore = players[currentPlayerId]?.totalScore ?? 0;
                   const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
                   const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nScore: ${myScore} pts\nPlay now: ${shareUrl}`;
-                  
-                  if (typeof window !== 'undefined' && window.navigator && window.navigator.share) {
-                    try {
-                      await window.navigator.share({
-                        title: '7 Card Game Challenge',
-                        text: shareText,
-                        url: shareUrl,
-                      });
-                      return;
-                    } catch (e) {}
-                  }
-
-                  if (typeof window !== 'undefined' && window.navigator && window.navigator.clipboard) {
-                    try {
-                      await window.navigator.clipboard.writeText(shareText);
-                      alert(`Copied challenge link to clipboard!\n${shareUrl}`);
-                    } catch (e) {
-                      alert(shareUrl);
-                    }
-                  }
+                  const copied = await copyToClipboard(shareText);
+                  showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Link: ${shareUrl}`);
+                  Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.summaryBtnText}>📋 Copy Challenge Link</Text>
+                <Text style={styles.summaryBtnText}>📋 Copy Link</Text>
               </TouchableOpacity>
             </View>
 
@@ -906,11 +950,18 @@ export const GameScreen: React.FC<Props> = ({
                 {renderRematchSection()}
               </View>
             ) : (
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, width: '100%', justifyContent: 'center' }}>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1.2 }]} onPress={onNextRound} activeOpacity={0.8}>
-                  <Text style={styles.summaryBtnText}>Start Round {(room.currentRound || 1) + 1}</Text>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1, minWidth: 120 }]} onPress={onNextRound} activeOpacity={0.8}>
+                  <Text style={styles.summaryBtnText}>▶️ Next Round {(room.currentRound || 1) + 1}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
+                <TouchableOpacity 
+                  style={[styles.summaryBtn, { backgroundColor: '#16a34a', flex: 1, minWidth: 120 }]} 
+                  onPress={onRequestRematch || onStartGame} 
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8, minWidth: 100 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
                   <Text style={styles.summaryBtnText}>Exit Game</Text>
                 </TouchableOpacity>
               </View>
@@ -922,8 +973,148 @@ export const GameScreen: React.FC<Props> = ({
     );
   };
 
+  const AnimatedPlayerRow: React.FC<{
+    player: Player;
+    seatIndex: number;
+    totalSeats: number;
+    isCaller: boolean;
+    currentPlayerId: string;
+    jokerRank?: string;
+    renderCard: (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => React.ReactNode;
+    styles: any;
+  }> = ({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles }) => {
+    const coords = getPerimeterCoords(seatIndex, totalSeats);
+
+    let startX = 0;
+    let startY = 0;
+    let initialRotate = (seatIndex % 2 === 0 ? 1 : -1) * (5 + (seatIndex * 4) % 10);
+
+    if (coords.y === 100) startY = 85;
+    else if (coords.y === 0) startY = -85;
+    else startY = 0;
+
+    if (coords.x === 100 || coords.x > 75) startX = 110;
+    else if (coords.x === 0 || coords.x < 25) startX = -110;
+    else startX = 0;
+
+    const [hasLanded, setHasLanded] = useState(false);
+
+    const animPos = useRef(new Animated.ValueXY({ x: startX, y: startY })).current;
+    const animScale = useRef(new Animated.Value(1.15)).current;
+    const animOpacity = useRef(new Animated.Value(0.15)).current;
+    const animRotate = useRef(new Animated.Value(initialRotate)).current;
+
+    useEffect(() => {
+      Animated.parallel([
+        Animated.spring(animPos, {
+          toValue: { x: 0, y: 0 },
+          friction: 6,
+          tension: 55,
+          useNativeDriver: false,
+        }),
+        Animated.spring(animScale, {
+          toValue: 1,
+          friction: 5,
+          tension: 70,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animOpacity, {
+          toValue: 1,
+          duration: 200,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+        Animated.spring(animRotate, {
+          toValue: 0,
+          friction: 6,
+          tension: 45,
+          useNativeDriver: false,
+        }),
+      ]).start(() => {
+        // Stop animating completely once landed
+        setHasLanded(true);
+      });
+    }, []);
+
+    const hand = player.hand || [];
+
+    const rowContent = (
+      <>
+        <View style={styles.cardRevealPlayerInfo}>
+          <View style={styles.playerAvatarBox}>
+            {player.photoURL ? (
+              <Image source={{ uri: player.photoURL }} style={styles.playerAvatarImage} resizeMode="cover" />
+            ) : (
+              <View style={styles.playerAvatarFallback}>
+                <Text style={styles.playerAvatarText}>{(player.name || '?').charAt(0).toUpperCase()}</Text>
+              </View>
+            )}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardRevealPlayerName}>
+              {player.name} {player.id === currentPlayerId ? '(You)' : ''} {player.isBot ? '🤖' : ''}
+            </Text>
+            <Text style={styles.cardRevealScoreText}>
+              Hand Score: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{player.roundScore} pts</Text>
+            </Text>
+          </View>
+          {isCaller && (
+            <View style={styles.callerBadge}>
+              <Text style={styles.callerBadgeText}>⚡ CALLED LEAST</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Cards horizontal row */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRevealCardsRow}>
+          {hand.map((c: CardType, cIdx: number) => {
+            const isJoker = Boolean(jokerRank && c.rank === jokerRank);
+            return (
+              <View key={c.id || cIdx} style={styles.cardRevealCardItem}>
+                {renderCard(c, false, undefined, isJoker)}
+              </View>
+            );
+          })}
+        </ScrollView>
+      </>
+    );
+
+    if (!ENABLE_CARD_THROW_ANIMATION || hasLanded) {
+      return (
+        <View style={[styles.cardRevealPlayerRow, isCaller && styles.cardRevealCallerRow]}>
+          {rowContent}
+        </View>
+      );
+    }
+
+    return (
+      <Animated.View
+        style={[
+          styles.cardRevealPlayerRow,
+          isCaller && styles.cardRevealCallerRow,
+          {
+            opacity: animOpacity,
+            transform: [
+              { translateX: animPos.x },
+              { translateY: animPos.y },
+              { scale: animScale },
+              {
+                rotate: animRotate.interpolate({
+                  inputRange: [-360, 360],
+                  outputRange: ['-360deg', '360deg'],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        {rowContent}
+      </Animated.View>
+    );
+  };
+
   const renderCardRevealModal = () => {
-    if (!isRevealingCards || !room) return null;
+    if (!room || (room.status !== 'round-end' && room.status !== 'game-over') || revealCompleted) return null;
 
     const turnOrderList = room.turnOrder || Object.keys(room.players || {});
     const playersList = turnOrderList.map(id => room.players[id]).filter(Boolean);
@@ -931,7 +1122,7 @@ export const GameScreen: React.FC<Props> = ({
     const jokerRank = room.jokerCard?.rank;
 
     return (
-      <Modal visible={isRevealingCards} transparent animationType="fade">
+      <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && !revealCompleted} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.cardRevealContainer}>
             {/* Reveal Header */}
@@ -946,57 +1137,45 @@ export const GameScreen: React.FC<Props> = ({
               )}
             </View>
 
-            {/* Players Hands List */}
+            {/* Players Hands List with Physical Table Throw & Spring Bounce Animation */}
             <ScrollView style={styles.cardRevealScroll} showsVerticalScrollIndicator={false}>
               {playersList.slice(0, revealedPlayerCount).map((p, idx) => {
                 const isCaller = p.hasCalledLeast;
-                const hand = p.hand || [];
+                const seatIndex = rotatedPlayers.indexOf(p.id);
+                const actualSeatIndex = seatIndex >= 0 ? seatIndex : idx;
 
                 return (
-                  <View key={p.id || idx} style={[styles.cardRevealPlayerRow, isCaller && styles.cardRevealCallerRow]}>
-                    <View style={styles.cardRevealPlayerInfo}>
-                      <View style={styles.playerAvatarBox}>
-                        {p.photoURL ? (
-                          <Image source={{ uri: p.photoURL }} style={styles.playerAvatarImage} resizeMode="cover" />
-                        ) : (
-                          <View style={styles.playerAvatarFallback}>
-                            <Text style={styles.playerAvatarText}>{(p.name || '?').charAt(0).toUpperCase()}</Text>
-                          </View>
-                        )}
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.cardRevealPlayerName}>
-                          {p.name} {p.id === currentPlayerId ? '(You)' : ''} {p.isBot ? '🤖' : ''}
-                        </Text>
-                        <Text style={styles.cardRevealScoreText}>
-                          Hand Score: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{p.roundScore} pts</Text>
-                        </Text>
-                      </View>
-                      {isCaller && (
-                        <View style={styles.callerBadge}>
-                          <Text style={styles.callerBadgeText}>⚡ CALLED LEAST</Text>
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Cards horizontal row */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRevealCardsRow}>
-                      {hand.map((c, cIdx) => {
-                        const isJoker = jokerRank && c.rank === jokerRank;
-                        return (
-                          <View key={c.id || cIdx} style={styles.cardRevealCardItem}>
-                            {renderCard(c, false, undefined, isJoker)}
-                          </View>
-                        );
-                      })}
-                    </ScrollView>
-                  </View>
+                  <AnimatedPlayerRow
+                    key={p.id || idx}
+                    player={p}
+                    seatIndex={actualSeatIndex}
+                    totalSeats={rotatedPlayers.length}
+                    isCaller={isCaller}
+                    currentPlayerId={currentPlayerId}
+                    jokerRank={jokerRank}
+                    renderCard={renderCard}
+                    styles={styles}
+                  />
                 );
               })}
             </ScrollView>
 
             <View style={styles.cardRevealFooter}>
-              <Text style={styles.cardRevealFooterText}>Scoreboard appearing in a moment...</Text>
+              <View style={styles.revealTimerBox}>
+                <Text style={styles.revealTimerText}>
+                  ⏱️ Cards Revealed • Scoreboard appearing in <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{revealCountdown}s</Text>
+                </Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.skipToScoreboardBtn} 
+                onPress={() => {
+                  setIsRevealingCards(false);
+                  setRevealCompleted(true);
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.skipToScoreboardBtnText}>⚡ View Scoreboard Now ➔</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -1100,51 +1279,73 @@ export const GameScreen: React.FC<Props> = ({
   const renderLiveScoreboard = () => {
     if (width < 768) return null;
 
+    if (isScoreboardCollapsed) {
+      return (
+        <TouchableOpacity 
+          style={styles.collapsedScoreboardBtn} 
+          onPress={() => setIsScoreboardCollapsed(false)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.collapsedScoreboardBtnText}>📊 Scores ({turnOrder.length}) ▾</Text>
+        </TouchableOpacity>
+      );
+    }
+
     return (
       <View style={styles.liveScoreboardCard} pointerEvents="box-none">
-      <View style={styles.liveScoreboardHeader}>
-        <Text style={styles.liveScoreboardColPlayer}>PLAYER</Text>
-        <Text style={styles.liveScoreboardColScore}>SCORE</Text>
-      </View>
-      <ScrollView style={{ maxHeight: isMobile ? 150 : 240 }} showsVerticalScrollIndicator={false}>
-        {turnOrder.map(id => {
-          const p = players[id];
-          if (!p) return null;
-          const isTurn = currentTurnId === id;
-          const isMe = id === currentPlayerId;
-
-          return (
-            <View 
-              key={id} 
-              style={[
-                styles.liveScoreboardRow, 
-                isTurn && styles.liveScoreboardRowActive
-              ]}
+        <View style={styles.liveScoreboardHeader}>
+          <Text style={styles.liveScoreboardColPlayer}>PLAYER</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.liveScoreboardColScore}>SCORE</Text>
+            <TouchableOpacity 
+              onPress={() => setIsScoreboardCollapsed(true)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              style={styles.minimizeScoreboardBtn}
+              accessibilityLabel="Minimize scoreboard"
             >
-              <Text 
+              <Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: 'bold' }}>─</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={false}>
+          {turnOrder.map(id => {
+            const p = players[id];
+            if (!p) return null;
+            const isTurn = currentTurnId === id;
+            const isMe = id === currentPlayerId;
+
+            return (
+              <View 
+                key={id} 
                 style={[
-                  styles.liveScoreboardPlayerName, 
-                  isTurn && styles.liveScoreboardPlayerNameActive
-                ]}
-                numberOfLines={1}
-              >
-                {isTurn ? '▶ ' : ''}{p.name} {isMe ? '(You)' : ''}
-              </Text>
-              <Text 
-                style={[
-                  styles.liveScoreboardScoreText,
-                  isTurn && styles.liveScoreboardScoreTextActive
+                  styles.liveScoreboardRow, 
+                  isTurn && styles.liveScoreboardRowActive
                 ]}
               >
-                {p.totalScore}
-              </Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
-};
+                <Text 
+                  style={[
+                    styles.liveScoreboardPlayerName, 
+                    isTurn && styles.liveScoreboardPlayerNameActive
+                  ]}
+                  numberOfLines={1}
+                >
+                  {isTurn ? '▶ ' : ''}{p.name} {isMe ? '(You)' : ''}
+                </Text>
+                <Text 
+                  style={[
+                    styles.liveScoreboardScoreText,
+                    isTurn && styles.liveScoreboardScoreTextActive
+                  ]}
+                >
+                  {p.totalScore}
+                </Text>
+              </View>
+            );
+          })}
+        </ScrollView>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -1592,7 +1793,35 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     leaveBtnText: { color: '#fff', fontWeight: 'bold', fontSize: isSmall ? 11 : 14 },
 
-    /* Live Scoreboard (Compact Responsive Table) */
+    /* Live Scoreboard (Compact Responsive Table & Collapsible Button) */
+    collapsedScoreboardBtn: {
+      position: 'absolute',
+      right: isMobile ? 8 : 20,
+      top: isMobile ? 54 : 75,
+      zIndex: 200,
+      backgroundColor: 'rgba(15, 23, 42, 0.92)',
+      borderRadius: 20,
+      borderWidth: 1.5,
+      borderColor: '#38bdf8',
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 6,
+    },
+    collapsedScoreboardBtnText: {
+      color: '#38bdf8',
+      fontSize: 13,
+      fontWeight: 'bold',
+    },
+    minimizeScoreboardBtn: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
     liveScoreboardCard: {
       position: 'absolute',
       right: isMobile ? 8 : 20,
@@ -2349,11 +2578,39 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     cardRevealFooter: {
       marginTop: 12,
       alignItems: 'center',
+      gap: 10,
+      width: '100%',
     },
     cardRevealFooterText: {
       color: '#94a3b8',
       fontSize: 13,
       fontStyle: 'italic',
+    },
+    revealTimerBox: {
+      backgroundColor: 'rgba(30, 41, 59, 0.9)',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: '#38bdf8',
+    },
+    revealTimerText: {
+      color: '#cbd5e1',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    skipToScoreboardBtn: {
+      backgroundColor: '#0284c7',
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#38bdf8',
+    },
+    skipToScoreboardBtnText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: 14,
     },
     playerAvatarBox: {
       width: 34,
