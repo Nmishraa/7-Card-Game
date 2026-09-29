@@ -38,7 +38,7 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
           </View>
         </View>
 
-        <View style={styles.contentWrapper}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContentWrapper} showsVerticalScrollIndicator={false}>
           <View style={styles.brandContainer}>
             <Image 
               source={require('../../assets/logo.png')} 
@@ -175,7 +175,7 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
               )}
             </View>
           </View>
-        </View>
+        </ScrollView>
 
         {/* Edit Name Modal */}
         <Modal visible={showEdit} transparent animationType="fade">
@@ -224,18 +224,30 @@ const createStyles = (width: number, height: number) => {
       width: isSmall ? 130 : 160, 
       height: isSmall ? 50 : 60 
     },
+    scrollView: {
+      flex: 1,
+      width: '100%',
+    },
+    scrollContentWrapper: {
+      flexGrow: 1,
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+    },
     brandContainer: {
       alignItems: 'center',
-      marginBottom: 20,
+      marginBottom: 16,
+      marginTop: 4,
     },
     logoLarge: {
-      width: isSmall ? 180 : 220,
-      height: isSmall ? 80 : 100,
-      marginBottom: 5,
+      width: isSmall ? 150 : 180,
+      height: isSmall ? 60 : 75,
+      marginBottom: 4,
     },
     welcomeTagline: {
       color: '#cbd5e1',
-      fontSize: isSmall ? 14 : 16,
+      fontSize: isSmall ? 13 : 15,
       fontStyle: 'italic',
       fontWeight: '300',
       textAlign: 'center',
@@ -250,12 +262,6 @@ const createStyles = (width: number, height: number) => {
       borderRadius: 8 
     },
     leaveBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-    contentWrapper: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 16,
-    },
     contentBox: {
       width: '100%',
       maxWidth: 450,

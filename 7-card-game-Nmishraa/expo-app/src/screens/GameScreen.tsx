@@ -292,7 +292,8 @@ export const GameScreen: React.FC<Props> = ({
 
     const cardsToDiscard = (me && me.hand ? me.hand : []).filter(c => selected.includes(c.id));
     if (!isValidSetOrRun(cardsToDiscard)) {
-      Alert.alert("Invalid Discard", "2 different values cannot be discarded at a time.");
+      setErrorMsg("No valid sequence is available for the cards you selected. Please choose another sequence.");
+      playError();
       return;
     }
 
@@ -585,7 +586,7 @@ export const GameScreen: React.FC<Props> = ({
     if (clickedCard.suit === firstSuit && selectedCards.every(c => c.suit === firstSuit)) {
       const sortedVals = proposedCards.map(c => getSequenceValue(c.rank)).sort((a, b) => a - b);
       
-      // Check for gap (e.g. 2, 4 -> 3 is missing)
+      // Check for gap (e.g. 5, 7 -> 6 is missing)
       let isGap = false;
       for (let i = 0; i < sortedVals.length - 1; i++) {
         if (sortedVals[i + 1] !== sortedVals[i] + 1) {
@@ -595,7 +596,7 @@ export const GameScreen: React.FC<Props> = ({
       }
 
       if (isGap) {
-        setErrorMsg("You can't continue this sequence because the next card is not available.");
+        setErrorMsg("No valid sequence is available for the cards you selected. Please choose another sequence.");
         playError();
         return;
       }
@@ -606,16 +607,17 @@ export const GameScreen: React.FC<Props> = ({
       return;
     }
 
-    // Check C: Incompatible card clicked -> Switch selection to the new card
-    setSelected([id]);
-    playCardSelect();
+    // Check C: Incompatible card clicked -> Cannot form valid sequence or set
+    setErrorMsg("No valid sequence is available for the cards you selected. Please choose another sequence.");
+    playError();
   };
 
   const handleDiscard = () => {
     if (selected.length === 0) return;
     const cardsToDiscard = (me && me.hand ? me.hand : []).filter(c => selected.includes(c.id));
     if (!isValidSetOrRun(cardsToDiscard)) {
-      Alert.alert("Invalid Discard", "2 different values cannot be discarded at a time.");
+      setErrorMsg("No valid sequence is available for the cards you selected. Please choose another sequence.");
+      playError();
       return;
     }
     onDiscardAndDraw(selected);
