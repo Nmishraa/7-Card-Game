@@ -950,18 +950,11 @@ export const GameScreen: React.FC<Props> = ({
                 {renderRematchSection()}
               </View>
             ) : (
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1, minWidth: 120 }]} onPress={onNextRound} activeOpacity={0.8}>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, width: '100%', justifyContent: 'center' }}>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1.2 }]} onPress={onNextRound} activeOpacity={0.8}>
                   <Text style={styles.summaryBtnText}>▶️ Next Round {(room.currentRound || 1) + 1}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.summaryBtn, { backgroundColor: '#16a34a', flex: 1, minWidth: 120 }]} 
-                  onPress={onRequestRematch || onStartGame} 
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.summaryBtnText}>⚡ Play Rematch</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8, minWidth: 100 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
+                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
                   <Text style={styles.summaryBtnText}>Exit Game</Text>
                 </TouchableOpacity>
               </View>
