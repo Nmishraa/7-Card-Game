@@ -430,9 +430,10 @@ export const GameInActionSection: React.FC<{ style?: any }> = ({ style }) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxWidth: 820,
+    maxWidth: 780,
     alignSelf: 'center',
-    marginVertical: 28,
+    marginTop: 40,
+    marginBottom: 24,
     paddingHorizontal: 12,
   },
   sectionHeader: {

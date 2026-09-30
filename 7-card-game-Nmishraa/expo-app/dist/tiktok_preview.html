@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Video Simulator - 7 Card Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      color: #fff;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #94a3b8;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .phone-container {
+      width: 360px;
+      height: 640px;
+      background: #062d12;
+      border: 12px solid #1e293b;
+      border-radius: 36px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .video-screen {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+      transition: all 0.5s ease;
+    }
+    .text-overlay {
+      background: rgba(0,0,0,0.75);
+      border: 2px solid #fbbf24;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+      margin-bottom: 20px;
+      animation: pulse 1.5s infinite alternate;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+    .cards-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 15px;
+    }
+    .mini-card {
+      width: 44px;
+      height: 62px;
+      background: #fff;
+      border-radius: 6px;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .joker-card {
+      border: 2px solid #fbbf24;
+      background: #fef08a;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    button {
+      background: #0275d8;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0284c7;
+    }
+    .progress-bar {
+      height: 4px;
+      background: #38bdf8;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 TikTok Video Simulator</h1>
+  <p>Preview Scene Animation for 7 Card Game Promo</p>
+
+  <div class="phone-container">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="video-screen" id="screen">
+      <div class="text-overlay" id="overlayText">The card game that destroys friendships 💀</div>
+      <div id="visualBox"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="playScene(1)">Scene 1 (Hook)</button>
+    <button onclick="playScene(2)">Scene 2 (Least!)</button>
+    <button onclick="playScene(3)">Scene 3 (Joker Reveal)</button>
+    <button onclick="playScene(4)">Scene 4 (Penalty)</button>
+    <button onclick="startAutoPlay()">▶ Play Full Video</button>
+  </div>
+
+  <script>
+    const scenes = [
+      { text: "The card game that destroys friendships 💀", bg: "#062d12", cards: ["2♠", "2♣", "5♣"], time: 3000 },
+      { text: "I had 4 points... feeling confident 😈", bg: "#0b5e28", cards: ["2♠", "2♣", "5♣"], time: 4000 },
+      { text: "THEN BRO REVEALS TWO WILD 7 JOKERS (0 PTS) 😭", bg: "#7f1d1d", cards: ["7♦ (Joker)", "7♥ (Joker)"], time: 5000 },
+      { text: "80 POINT PENALTY 💔", bg: "#450a0a", cards: ["Penalty: +80 pts"], time: 4000 },
+      { text: "Play free in browser 👉 cards.gnanamai.com", bg: "#0284c7", cards: ["No Install Needed"], time: 4000 }
+    ];
+
+    let currentScene = 0;
+    let timer = null;
+
+    function renderScene(idx) {
+      const s = scenes[idx];
+      document.getElementById('overlayText').innerText = s.text;
+      document.getElementById('screen').style.backgroundColor = s.bg;
+      
+      const vBox = document.getElementById('visualBox');
+      vBox.innerHTML = '<div class="cards-row">' + s.cards.map(c => `<div class="mini-card ${c.includes('Joker') ? 'joker-card' : ''}">${c}</div>`).join('') + '</div>';
+    }
+
+    function playScene(num) {
+      if (timer) clearInterval(timer);
+      renderScene(num - 1);
+    }
+
+    function startAutoPlay() {
+      if (timer) clearInterval(timer);
+      let idx = 0;
+      renderScene(idx);
+      timer = setInterval(() => {
+        idx = (idx + 1) % scenes.length;
+        renderScene(idx);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

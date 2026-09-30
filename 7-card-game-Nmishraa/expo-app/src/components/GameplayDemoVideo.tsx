@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
 import {
   playCardSelect,
   playDiscard,
@@ -16,7 +16,6 @@ interface Props {
 
 export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
   const { width } = useWindowDimensions();
-  const isMobile = width < 768;
   const isSmall = width < 480;
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -39,15 +38,16 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
       activePlayer: "You (Turn)",
       banner: "⚡ YOUR TURN: Select cards to Discard",
       hand: [
-        { rank: '5', suit: '♥', isRed: true, selected: true },
-        { rank: '6', suit: '♥', isRed: true, selected: true },
-        { rank: '7', suit: '♥', isRed: true, selected: true },
-        { rank: '9', suit: '♣', isRed: false, selected: false },
-        { rank: 'J', suit: '♠', isRed: false, selected: false },
+        { rank: '5', suit: '♥', isRed: true, selected: true, rot: '-6deg' },
+        { rank: '6', suit: '♥', isRed: true, selected: true, rot: '-3deg' },
+        { rank: '7', suit: '♥', isRed: true, selected: true, rot: '0deg' },
+        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '3deg' },
+        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '6deg' },
       ],
       discardTop: { rank: 'K', suit: '♠', isRed: false },
-      actionText: "Discarding 5♥ 6♥ 7♥ (Sequence)...",
-      scores: { you: 12, bot: 29 }
+      discardUnder: { rank: '9', suit: '♦', isRed: true },
+      actionText: "Discarding 5♥ 6♥ 7♥ (Suited Run)...",
+      scores: { you: 12, bot: 29, beta: 24 }
     },
     {
       title: "Step 2: Draw a Card",
@@ -56,12 +56,13 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
       activePlayer: "You (Turn)",
       banner: "🎴 DRAW PHASE: Pick from Secret Deck or Open Discard",
       hand: [
-        { rank: '9', suit: '♣', isRed: false, selected: false },
-        { rank: 'J', suit: '♠', isRed: false, selected: false },
+        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '-3deg' },
+        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '3deg' },
       ],
       discardTop: { rank: '7', suit: '♥', isRed: true },
+      discardUnder: { rank: '6', suit: '♥', isRed: true },
       actionText: "Drawing 1 card from Secret Deck...",
-      scores: { you: 12, bot: 29 }
+      scores: { you: 12, bot: 29, beta: 24 }
     },
     {
       title: "Step 3: Turn Switches to Opponent",
@@ -70,41 +71,44 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
       activePlayer: "AlphaBot 🤖 (Turn)",
       banner: "⏳ AlphaBot 🤖 is thinking & taking turn...",
       hand: [
-        { rank: '2', suit: '♦', isRed: true, selected: false },
-        { rank: '9', suit: '♣', isRed: false, selected: false },
-        { rank: 'J', suit: '♠', isRed: false, selected: false },
+        { rank: '2', suit: '♦', isRed: true, selected: false, rot: '-4deg' },
+        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '0deg' },
+        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '4deg' },
       ],
       discardTop: { rank: 'Q', suit: '♦', isRed: true },
+      discardUnder: { rank: '7', suit: '♥', isRed: true },
       actionText: "AlphaBot discarded Q♦ and drew 1 card",
-      scores: { you: 12, bot: 29 }
+      scores: { you: 12, bot: 29, beta: 24 }
     },
     {
-      title: "Step 4: Call LEAST! when your points are low",
+      title: "Step 4: Call LEAST! when points ≤ 10",
       desc: "When your card total is 10 points or less, click LEAST! to claim victory.",
       voiceText: "Step 4: Call LEAST when your points are 10 or less to win the round!",
       activePlayer: "You (Turn)",
       banner: "🏆 YOUR TURN: Hand total is 2 pts! Click LEAST!",
       hand: [
-        { rank: 'A', suit: '♠', isRed: false, selected: false },
-        { rank: 'A', suit: '♥', isRed: true, selected: false },
+        { rank: 'A', suit: '♠', isRed: false, selected: false, rot: '-3deg' },
+        { rank: 'A', suit: '♥', isRed: true, selected: false, rot: '3deg' },
       ],
       discardTop: { rank: '4', suit: '♣', isRed: false },
+      discardUnder: { rank: 'Q', suit: '♦', isRed: true },
       actionText: "CALLING LEAST! (Total Hand Score: 2 pts)",
-      scores: { you: 2, bot: 29 }
+      scores: { you: 2, bot: 29, beta: 24 }
     },
     {
-      title: "Step 5: Round Over & Final Scores",
+      title: "Step 5: Round Over & Victory",
       desc: "Lowest score wins 0 points. Caller with lowest score wins round!",
       voiceText: "Step 5: Round over! Lowest score wins 0 points and takes the round!",
       activePlayer: "Round Complete",
       banner: "🎉 YOU WON THE ROUND! (0 pts awarded to Winner)",
       hand: [
-        { rank: 'A', suit: '♠', isRed: false, selected: false },
-        { rank: 'A', suit: '♥', isRed: true, selected: false },
+        { rank: 'A', suit: '♠', isRed: false, selected: false, rot: '-3deg' },
+        { rank: 'A', suit: '♥', isRed: true, selected: false, rot: '3deg' },
       ],
       discardTop: { rank: '4', suit: '♣', isRed: false },
+      discardUnder: { rank: 'Q', suit: '♦', isRed: true },
       actionText: "🏆 ROUND WINNER: You (0 pts) | AlphaBot: 29 pts",
-      scores: { you: 0, bot: 29 }
+      scores: { you: 0, bot: 29, beta: 24 }
     }
   ];
 
@@ -264,14 +268,25 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
 
   return (
     <View style={[styles.container, style]}>
-      {/* Heading & Subtitle */}
-      <View style={styles.headingBox}>
-        <Text style={styles.headingTitle}>See How 7 Cards Least Works</Text>
-        <Text style={styles.headingSubtitle}>Watch a quick gameplay demo before you start playing.</Text>
+      {/* Header Row */}
+      <View style={styles.headerRow}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.previewTitle}>🎬 Gameplay Demo</Text>
+          <Text style={styles.previewSubtitle}>Watch How 7 Cards Least Works</Text>
+        </View>
+        <View style={styles.demoBadge}>
+          <Text style={styles.demoBadgeText}>⏱️ 45-Sec Interactive Demo</Text>
+        </View>
       </View>
 
       {/* Main Video Frame */}
       <View style={styles.videoFrame}>
+
+        {/* Step Progress Bar Header */}
+        <View style={styles.progressBarTrack}>
+          <View style={[styles.progressBarFill, { width: `${isPlaying ? progress : ((currentStep + 1) / STEPS.length) * 100}%` }]} />
+        </View>
+
         {!isPlaying && currentStep === 0 && progress === 0 ? (
           /* Thumbnail Poster Mode with Play Button */
           <View style={styles.thumbnailContainer}>
@@ -280,7 +295,18 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
               <View style={styles.tableRailInner}>
                 <View style={styles.feltTable}>
                   <View style={styles.feltSeam} />
-                  {/* Piles */}
+
+                  {/* Header Bar */}
+                  <View style={styles.gameHeaderBar}>
+                    <View style={styles.gameRoundBadge}>
+                      <Text style={styles.gameRoundBadgeText}>ROUND 1/5</Text>
+                    </View>
+                    <View style={styles.gameTimerBadge}>
+                      <Text style={styles.gameTimerText}>⏱️ 0:59</Text>
+                    </View>
+                  </View>
+
+                  {/* Piles Row */}
                   <View style={styles.pilesRow}>
                     <View style={styles.pileCol}>
                       <Text style={styles.pileLabel}>JOKER</Text>
@@ -288,17 +314,39 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
                         <Text style={styles.jokerBadge}>★ JOKER</Text>
                         <Text style={[styles.cardRank, { color: '#e11d48' }]}>7</Text>
                         <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♥</Text>
+                        <View style={styles.cardCornerBottom}>
+                          <Text style={[styles.cardRankSmall, { color: '#e11d48' }]}>7♥</Text>
+                        </View>
                       </View>
                     </View>
+
+                    {/* Stacked 3D Deck */}
                     <View style={styles.pileCol}>
                       <Text style={styles.pileLabel}>DECK</Text>
-                      <View style={styles.deckCardBack} />
+                      <View style={styles.deckStackWrapper}>
+                        <View style={[styles.deckCardBack, styles.deckLayer2]} />
+                        <View style={[styles.deckCardBack, styles.deckLayer1]} />
+                        <View style={styles.deckCardBack}>
+                          <View style={styles.cardPattern} />
+                        </View>
+                      </View>
                     </View>
+
+                    {/* Discard Pile with Under Layer */}
                     <View style={styles.pileCol}>
                       <Text style={styles.pileLabel}>DISCARD</Text>
-                      <View style={styles.miniCard}>
-                        <Text style={[styles.cardRank, { color: '#0f172a' }]}>10</Text>
-                        <Text style={[styles.cardSuit, { color: '#0f172a' }]}>♠</Text>
+                      <View style={styles.discardStackWrapper}>
+                        <View style={[styles.miniCard, styles.discardUnderCard]}>
+                          <Text style={[styles.cardRank, { color: '#e11d48' }]}>9</Text>
+                          <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♦</Text>
+                        </View>
+                        <View style={styles.miniCard}>
+                          <Text style={[styles.cardRank, { color: '#0f172a' }]}>10</Text>
+                          <Text style={[styles.cardSuit, { color: '#0f172a' }]}>♠</Text>
+                          <View style={styles.cardCornerBottom}>
+                            <Text style={[styles.cardRankSmall, { color: '#0f172a' }]}>10♠</Text>
+                          </View>
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -306,9 +354,19 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
                   {/* Fanned Cards */}
                   <View style={styles.handRow}>
                     {STEPS[0].hand.map((c, i) => (
-                      <View key={i} style={[styles.miniCard, { marginLeft: i === 0 ? 0 : -8 }]}>
-                        <Text style={[styles.cardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
-                        <Text style={[styles.cardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                      <View 
+                        key={i} 
+                        style={[
+                          styles.handCard, 
+                          c.selected && styles.handCardSelected,
+                          { marginLeft: i === 0 ? 0 : -10, transform: [{ rotate: c.rot }, { translateY: c.selected ? -12 : 0 }] }
+                        ]}
+                      >
+                        <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
+                        <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                        <View style={styles.cardCornerBottom}>
+                          <Text style={[styles.handCardRankSmall, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}{c.suit}</Text>
+                        </View>
                       </View>
                     ))}
                   </View>
@@ -320,10 +378,10 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
             <View style={styles.playOverlay}>
               <TouchableOpacity style={styles.playBtn} onPress={handlePlayDemo} activeOpacity={0.85}>
                 <Text style={styles.playBtnIcon}>▶</Text>
-                <Text style={styles.playBtnText}>Play Demo</Text>
+                <Text style={styles.playBtnText}>Play Interactive Demo</Text>
               </TouchableOpacity>
               <View style={styles.badgeRow}>
-                <Text style={styles.badgeText}>⏱️ 45-Sec Gameplay Demo</Text>
+                <Text style={styles.badgeText}>⏱️ Step-by-Step Simulator</Text>
                 <TouchableOpacity onPress={toggleSound} activeOpacity={0.8} style={styles.audioBadgeBtn}>
                   <Text style={styles.badgeText}>{isMuted ? '🔇 Sound Off' : '🔊 Sound On'}</Text>
                 </TouchableOpacity>
@@ -352,53 +410,122 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
                 <View style={styles.feltTable}>
                   <View style={styles.feltSeam} />
 
-                  {/* Opponent Header */}
-                  <View style={styles.opponentRow}>
-                    <View style={[styles.avatarBox, activeStepData.activePlayer.includes('AlphaBot') && styles.activeAvatar]}>
-                      <Text style={styles.avatarText}>🤖</Text>
+                  {/* Header Bar inside Table */}
+                  <View style={styles.gameHeaderBar}>
+                    <View style={styles.gameRoundBadge}>
+                      <Text style={styles.gameRoundBadgeText}>ROUND 1/5</Text>
                     </View>
-                    <View>
-                      <Text style={styles.opponentNameText}>AlphaBot 🤖</Text>
-                      <Text style={styles.opponentScoreText}>Score: {activeStepData.scores.bot} pts</Text>
+                    <View style={styles.opponentRow}>
+                      <View style={[styles.avatarBox, activeStepData.activePlayer.includes('AlphaBot') && styles.activeAvatar]}>
+                        <Text style={styles.avatarText}>🤖</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.opponentNameText}>{activeStepData.activePlayer}</Text>
+                        <Text style={styles.opponentScoreText}>Score: {activeStepData.scores.bot} pts</Text>
+                      </View>
+                    </View>
+                    <View style={styles.gameTimerBadge}>
+                      <Text style={styles.gameTimerText}>⏱️ 0:59</Text>
                     </View>
                   </View>
 
-                  {/* Center Piles */}
-                  <View style={styles.pilesRow}>
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>JOKER (0 pts)</Text>
-                      <View style={[styles.miniCard, styles.jokerGlow]}>
-                        <Text style={styles.jokerBadge}>★ JOKER</Text>
-                        <Text style={[styles.cardRank, { color: '#e11d48' }]}>7</Text>
-                        <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♥</Text>
-                      </View>
-                    </View>
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>DECK</Text>
-                      <View style={styles.deckCardBack} />
-                    </View>
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>DISCARD</Text>
-                      <View style={styles.miniCard}>
-                        <Text style={[styles.cardRank, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.rank}</Text>
-                        <Text style={[styles.cardSuit, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.suit}</Text>
-                      </View>
-                    </View>
-                  </View>
+                  {/* Table Middle Area with Scoreboard Card */}
+                  <View style={styles.tableMiddleRow}>
+                    {/* Center Piles */}
+                    <View style={styles.centerSection}>
+                      <View style={styles.pilesRow}>
+                        <View style={styles.pileCol}>
+                          <Text style={styles.pileLabel}>JOKER (0 pts)</Text>
+                          <View style={[styles.miniCard, styles.jokerGlow]}>
+                            <Text style={styles.jokerBadge}>★ JOKER</Text>
+                            <Text style={[styles.cardRank, { color: '#e11d48' }]}>7</Text>
+                            <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♥</Text>
+                            <View style={styles.cardCornerBottom}>
+                              <Text style={[styles.cardRankSmall, { color: '#e11d48' }]}>7♥</Text>
+                            </View>
+                          </View>
+                        </View>
 
-                  {/* Action Banner */}
-                  <View style={styles.actionBanner}>
-                    <Text style={styles.actionBannerText}>⚡ {activeStepData.actionText}</Text>
+                        {/* Stacked 3D Deck */}
+                        <View style={styles.pileCol}>
+                          <Text style={styles.pileLabel}>DECK</Text>
+                          <View style={styles.deckStackWrapper}>
+                            <View style={[styles.deckCardBack, styles.deckLayer2]} />
+                            <View style={[styles.deckCardBack, styles.deckLayer1]} />
+                            <View style={styles.deckCardBack}>
+                              <View style={styles.cardPattern} />
+                            </View>
+                          </View>
+                        </View>
+
+                        {/* Discard Pile */}
+                        <View style={styles.pileCol}>
+                          <Text style={styles.pileLabel}>DISCARD</Text>
+                          <View style={styles.discardStackWrapper}>
+                            {activeStepData.discardUnder && (
+                              <View style={[styles.miniCard, styles.discardUnderCard]}>
+                                <Text style={[styles.cardRank, { color: activeStepData.discardUnder.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardUnder.rank}</Text>
+                                <Text style={[styles.cardSuit, { color: activeStepData.discardUnder.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardUnder.suit}</Text>
+                              </View>
+                            )}
+                            <View style={styles.miniCard}>
+                              <Text style={[styles.cardRank, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.rank}</Text>
+                              <Text style={[styles.cardSuit, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.suit}</Text>
+                              <View style={styles.cardCornerBottom}>
+                                <Text style={[styles.cardRankSmall, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.rank}{activeStepData.discardTop.suit}</Text>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Action Banner */}
+                      <View style={styles.actionBanner}>
+                        <Text style={styles.actionBannerText}>⚡ {activeStepData.actionText}</Text>
+                      </View>
+                    </View>
+
+                    {/* Live Scoreboard Side Card */}
+                    {!isSmall && (
+                      <View style={styles.scoreCardMini}>
+                        <View style={styles.scoreHeader}>
+                          <Text style={styles.scoreColPlayer}>PLAYER</Text>
+                          <Text style={styles.scoreColVal}>PTS</Text>
+                        </View>
+                        <View style={[styles.scoreRow, activeStepData.activePlayer.includes('You') && styles.scoreRowActive]}>
+                          <Text style={activeStepData.activePlayer.includes('You') ? styles.scoreNameActive : styles.scoreName} numberOfLines={1}>You</Text>
+                          <Text style={activeStepData.activePlayer.includes('You') ? styles.scoreValActive : styles.scoreVal}>{activeStepData.scores.you}</Text>
+                        </View>
+                        <View style={[styles.scoreRow, activeStepData.activePlayer.includes('AlphaBot') && styles.scoreRowActive]}>
+                          <Text style={activeStepData.activePlayer.includes('AlphaBot') ? styles.scoreNameActive : styles.scoreName} numberOfLines={1}>AlphaBot</Text>
+                          <Text style={activeStepData.activePlayer.includes('AlphaBot') ? styles.scoreValActive : styles.scoreVal}>{activeStepData.scores.bot}</Text>
+                        </View>
+                        <View style={styles.scoreRow}>
+                          <Text style={styles.scoreName} numberOfLines={1}>BetaBot</Text>
+                          <Text style={styles.scoreVal}>{activeStepData.scores.beta}</Text>
+                        </View>
+                      </View>
+                    )}
                   </View>
 
                   {/* Player Hand */}
                   <View style={styles.playerDock}>
                     <Text style={styles.handTitle}>Your Hand (Score: {activeStepData.scores.you} pts):</Text>
                     <View style={styles.handRow}>
-                      {activeStepData.hand.map((c, i) => (
-                        <View key={i} style={[styles.miniCard, c.selected && styles.cardSelected, { marginLeft: i === 0 ? 0 : -8 }]}>
-                          <Text style={[styles.cardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
-                          <Text style={[styles.cardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                      {activeStepData.hand.map((c: any, i: number) => (
+                        <View 
+                          key={i} 
+                          style={[
+                            styles.handCard, 
+                            c.selected && styles.handCardSelected, 
+                            { marginLeft: i === 0 ? 0 : -10, transform: [{ rotate: c.rot || '0deg' }, { translateY: c.selected ? -14 : 0 }] }
+                          ]}
+                        >
+                          <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
+                          <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                          <View style={styles.cardCornerBottom}>
+                            <Text style={[styles.handCardRankSmall, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}{c.suit}</Text>
+                          </View>
                         </View>
                       ))}
                     </View>
@@ -407,7 +534,7 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
               </View>
             </View>
 
-            {/* Bottom Controls & Timeline Bar */}
+            {/* Bottom Controls & Step Navigation Bar */}
             <View style={styles.controlsBar}>
               <View style={styles.leftControlsGroup}>
                 <TouchableOpacity style={styles.controlBtn} onPress={isPlaying ? handlePause : handlePlayDemo}>
@@ -435,6 +562,11 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
           </View>
         )}
       </View>
+
+      {/* Caption under demo */}
+      <Text style={styles.captionText}>
+        Watch step-by-step game rules, card discards, and victory calls.
+      </Text>
     </View>
   );
 };
@@ -444,41 +576,83 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 780,
     alignSelf: 'center',
-    marginVertical: 20,
+    marginVertical: 24,
     alignItems: 'center',
     paddingHorizontal: 12,
   },
-  headingBox: {
+  headerRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
   },
-  headingTitle: {
+  headerLeft: {
+    flexDirection: 'column',
+  },
+  previewTitle: {
     color: '#38bdf8',
     fontSize: 22,
     fontWeight: '900',
-    textAlign: 'center',
     letterSpacing: 0.5,
   },
-  headingSubtitle: {
+  previewSubtitle: {
     color: '#94a3b8',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  demoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: '#38bdf8',
+  },
+  demoBadgeText: {
+    color: '#38bdf8',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  captionText: {
+    color: '#94a3b8',
+    fontSize: 15,
+    fontWeight: '600',
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: 14,
+    fontStyle: 'italic',
+    letterSpacing: 0.3,
   },
 
+  /* Video Outer Frame */
   videoFrame: {
     width: '100%',
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'rgba(56, 189, 248, 0.4)',
-    backgroundColor: '#0f172a',
-    elevation: 12,
+    borderColor: 'rgba(56, 189, 248, 0.5)',
+    backgroundColor: '#0a1628',
     shadowColor: '#38bdf8',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 28,
+    elevation: 20,
+    position: 'relative',
+  },
+
+  /* Top Progress Bar Track */
+  progressBarTrack: {
+    width: '100%',
+    height: 4,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#38bdf8',
   },
 
   thumbnailContainer: {
@@ -487,13 +661,13 @@ const styles = StyleSheet.create({
   },
   playOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backgroundColor: 'rgba(15, 23, 42, 0.78)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
   playBtn: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#0284c7',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -501,12 +675,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 999,
     borderWidth: 2,
-    borderColor: '#60a5fa',
-    shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 4 },
+    borderColor: '#38bdf8',
+    shadowColor: '#0284c7',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.6,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 10,
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
   playBtnIcon: {
     color: '#ffffff',
@@ -529,8 +704,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 12,
   },
 
@@ -548,7 +723,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 8,
-    marginBottom: 4,
   },
   stepBadgeText: {
     color: '#ffffff',
@@ -559,42 +733,87 @@ const styles = StyleSheet.create({
     color: '#cbd5e1',
     fontSize: 12,
     textAlign: 'center',
+    marginTop: 4,
   },
 
+  /* Felt Table & Wood Rails */
   tableRailOuter: {
     backgroundColor: '#351203',
-    padding: 8,
-    borderRadius: 16,
+    padding: 10,
   },
   tableRailInner: {
     backgroundColor: '#4d1904',
     padding: 4,
-    borderRadius: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(251, 191, 36, 0.3)',
   },
   feltTable: {
     backgroundColor: '#065f28',
-    borderRadius: 10,
-    padding: 12,
+    borderRadius: 16,
+    padding: 14,
     position: 'relative',
-    minHeight: 220,
+    minHeight: 420,
     justifyContent: 'space-between',
   },
   feltSeam: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 10,
-    borderWidth: 4,
-    borderColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 16,
+    borderWidth: 8,
+    borderColor: 'rgba(0,0,0,0.22)',
+  },
+
+  /* Table Header Bar inside Felt Table */
+  gameHeaderBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 10,
+    marginBottom: 8,
+  },
+  gameRoundBadge: {
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#facc15',
+  },
+  gameRoundBadgeText: {
+    color: '#facc15',
+    fontWeight: '900',
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  gameTimerBadge: {
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#38bdf8',
+  },
+  gameTimerText: {
+    color: '#38bdf8',
+    fontWeight: '900',
+    fontSize: 12,
   },
 
   opponentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   avatarBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#1e293b',
     alignItems: 'center',
     justifyContent: 'center',
@@ -604,26 +823,43 @@ const styles = StyleSheet.create({
   activeAvatar: {
     borderColor: '#4ade80',
     borderWidth: 2,
+    backgroundColor: '#16a34a',
   },
   avatarText: {
-    fontSize: 14,
+    fontSize: 13,
   },
   opponentNameText: {
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 11,
   },
   opponentScoreText: {
     color: '#fbbf24',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
   },
 
+  /* Table Middle Layout */
+  tableMiddleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    flex: 1,
+    paddingVertical: 6,
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Center Piles */
   pilesRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    marginVertical: 10,
+    marginVertical: 8,
   },
   pileCol: {
     alignItems: 'center',
@@ -632,70 +868,197 @@ const styles = StyleSheet.create({
     color: '#facc15',
     fontSize: 9,
     fontWeight: '900',
-    marginBottom: 3,
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
   miniCard: {
-    width: 44,
-    height: 60,
+    width: 48,
+    height: 66,
     backgroundColor: '#ffffff',
-    borderRadius: 6,
-    padding: 3,
+    borderRadius: 7,
+    padding: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#cbd5e1',
     position: 'relative',
-  },
-  cardSelected: {
-    borderColor: '#facc15',
-    borderWidth: 2.5,
-    transform: [{ translateY: -8 }],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   jokerGlow: {
     borderColor: '#fbbf24',
     borderWidth: 2,
+    shadowColor: '#fbbf24',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
   },
   jokerBadge: {
     fontSize: 6,
     color: '#d97706',
     fontWeight: '900',
+    marginBottom: 1,
   },
   cardRank: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '900',
+    lineHeight: 19,
   },
   cardSuit: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 17,
+  },
+  cardCornerBottom: {
+    position: 'absolute',
+    right: 3,
+    bottom: 2,
+  },
+  cardRankSmall: {
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+
+  /* Stacked 3D Deck */
+  deckStackWrapper: {
+    position: 'relative',
+    width: 48,
+    height: 66,
   },
   deckCardBack: {
-    width: 44,
-    height: 60,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 48,
+    height: 66,
     backgroundColor: '#1e3a8a',
-    borderRadius: 6,
+    borderRadius: 7,
     borderWidth: 1.5,
     borderColor: '#ffffff',
+    padding: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+  },
+  deckLayer1: {
+    top: -2.5,
+    left: -2.5,
+  },
+  deckLayer2: {
+    top: -5,
+    left: -5,
+  },
+  cardPattern: {
+    flex: 1,
+    backgroundColor: '#2563eb',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+
+  /* Discard Stack */
+  discardStackWrapper: {
+    position: 'relative',
+    width: 48,
+    height: 66,
+  },
+  discardUnderCard: {
+    position: 'absolute',
+    top: 3,
+    left: -10,
+    transform: [{ rotate: '-12deg' }],
   },
 
   actionBanner: {
     backgroundColor: 'rgba(15, 23, 42, 0.9)',
     paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1.5,
     borderColor: '#facc15',
     alignSelf: 'center',
     marginVertical: 6,
+    shadowColor: '#facc15',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   actionBannerText: {
     color: '#facc15',
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '900',
     textAlign: 'center',
   },
 
+  /* Scoreboard mini card */
+  scoreCardMini: {
+    width: 110,
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 6,
+  },
+  scoreHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.2)',
+    paddingBottom: 3,
+    marginBottom: 3,
+  },
+  scoreColPlayer: {
+    color: '#94a3b8',
+    fontSize: 9,
+    fontWeight: '800',
+    flex: 1,
+  },
+  scoreColVal: {
+    color: '#94a3b8',
+    fontSize: 9,
+    fontWeight: '800',
+    textAlign: 'right',
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 2,
+    paddingHorizontal: 3,
+    borderRadius: 4,
+  },
+  scoreRowActive: {
+    backgroundColor: 'rgba(250, 204, 21, 0.2)',
+    borderLeftWidth: 2,
+    borderLeftColor: '#facc15',
+  },
+  scoreName: {
+    color: '#cbd5e1',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  scoreNameActive: {
+    color: '#facc15',
+    fontWeight: '900',
+    fontSize: 10,
+  },
+  scoreVal: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  scoreValActive: {
+    color: '#facc15',
+    fontWeight: '900',
+    fontSize: 10,
+  },
+
+  /* Player Dock & Hand */
   playerDock: {
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
   },
   handTitle: {
     color: '#ffffff',
@@ -706,8 +1069,47 @@ const styles = StyleSheet.create({
   handRow: {
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  handCard: {
+    width: 48,
+    height: 66,
+    backgroundColor: '#ffffff',
+    borderRadius: 7,
+    padding: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
+  },
+  handCardSelected: {
+    borderColor: '#facc15',
+    borderWidth: 2.5,
+    shadowColor: '#facc15',
+    shadowOpacity: 0.85,
+    shadowRadius: 10,
+  },
+  handCardRank: {
+    fontSize: 16,
+    fontWeight: '900',
+    lineHeight: 18,
+  },
+  handCardSuit: {
+    fontSize: 14,
+    lineHeight: 16,
+  },
+  handCardRankSmall: {
+    fontSize: 8,
+    fontWeight: 'bold',
   },
 
+  /* Controls Bar */
   controlsBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -721,6 +1123,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 8,
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
   controlBtnText: {
     color: '#ffffff',
@@ -739,6 +1142,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#334155',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
   stepPillActive: {
     backgroundColor: '#facc15',
@@ -763,7 +1167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   topAudioBtn: {
     backgroundColor: 'rgba(30, 41, 59, 0.85)',
@@ -772,6 +1176,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
   topAudioBtnActive: {
     backgroundColor: 'rgba(34, 197, 94, 0.25)',
@@ -794,6 +1199,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#475569',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
   soundControlBtnActive: {
     backgroundColor: 'rgba(34, 197, 94, 0.25)',

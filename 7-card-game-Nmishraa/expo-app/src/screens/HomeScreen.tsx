@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Platform, Modal, ScrollView, useWindowDimensions,
@@ -85,6 +85,17 @@ export const HomeScreen: React.FC<Props> = ({
   const [showTerms, setShowTerms] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const isWide = width >= 640;
+  const isDesktop = width >= 900;
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const gameCardRef = useRef<View>(null);
+
+  const handleHeroPlayPress = () => {
+    const playerName = (name && name.trim().length > 0) ? name.trim() : (userName || 'Player');
+    if (onPlayWithComputer) {
+      onPlayWithComputer(playerName, selectedRounds, selectedTurnTime, 1);
+    }
+  };
 
   const handleNav = (route: string) => {
     if (onNavigate) onNavigate(route);
@@ -152,6 +163,7 @@ export const HomeScreen: React.FC<Props> = ({
 
         {/* ─── SCROLLABLE CONTENT ─── */}
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={[
             styles.scrollContent,
             isWide && styles.scrollContentWide,
@@ -174,8 +186,26 @@ export const HomeScreen: React.FC<Props> = ({
             </Text>
           </View>
 
-          {/* Card */}
-          <View style={[styles.card, isWide && styles.cardWide]}>
+          {/* ─── TOP SHOWCASE: PREVIEW TOP, DEMO VIDEO UNDERNEATH ─── */}
+          <View style={styles.topShowcaseContainer}>
+            <GamePreviewSection style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
+            <GameplayDemoVideo style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
+
+            {/* 🤖 PROMINENT HERO PRIMARY PLAY VS 1 BOT BUTTON 🤖 */}
+            <TouchableOpacity
+              style={styles.heroPrimaryPlayBtn}
+              onPress={handleHeroPlayPress}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Play 7 Cards vs 1 Bot"
+            >
+              <Text style={styles.heroPrimaryPlayBtnIcon}>🤖</Text>
+              <Text style={styles.heroPrimaryPlayBtnText}>PLAY VS 1 BOT</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Game Setup Card */}
+          <View ref={gameCardRef} style={[styles.card, isWide && styles.cardWide]}>
             {inviteNotice && (
               <View style={{ backgroundColor: 'rgba(56, 189, 248, 0.2)', borderWidth: 1, borderColor: '#38bdf8', padding: 12, borderRadius: 10, marginBottom: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 14, flex: 1 }}>{inviteNotice}</Text>
@@ -340,15 +370,6 @@ export const HomeScreen: React.FC<Props> = ({
             )}
           </View>
 
-          {/* ─── GAMEPLAY DEMO VIDEO SECTION ─── */}
-          <GameplayDemoVideo />
-
-          {/* ─── LANDING PAGE GAME PREVIEW SCREENSHOT ─── */}
-          <GamePreviewSection />
-
-          {/* ─── GAME IN ACTION SCREENSHOTS GALLERY ─── */}
-          <GameInActionSection />
-
           {/* ─── SEO SUPPORTING SECTION: LEAST SCORE CARD GAME ─── */}
           <View style={styles.seoContentContainer}>
             <View style={styles.seoSectionCard}>
@@ -374,6 +395,9 @@ export const HomeScreen: React.FC<Props> = ({
               </View>
             </View>
           </View>
+
+          {/* ─── GAME IN ACTION SCREENSHOTS GALLERY (AT BOTTOM OF PAGE) ─── */}
+          <GameInActionSection />
 
 
 
@@ -569,31 +593,75 @@ const createStyles = (width: number, height: number) => {
     },
     brandContainer: {
       alignItems: 'center',
-      marginBottom: 20,
-      maxWidth: 700,
+      marginTop: 8,
+      marginBottom: 24,
+      maxWidth: 720,
     },
     logoLarge: {
-      width: isSmall ? 180 : 220,
-      height: isSmall ? 80 : 100,
-      marginBottom: 5,
+      width: isSmall ? 180 : 240,
+      height: isSmall ? 80 : 108,
+      marginBottom: 8,
     },
     h1Title: {
       color: '#ffffff',
-      fontSize: isSmall ? 22 : 28,
-      fontWeight: 'bold',
+      fontSize: isSmall ? 24 : 32,
+      fontWeight: '900',
       textAlign: 'center',
       marginTop: 4,
-      marginBottom: 8,
+      marginBottom: 10,
+      letterSpacing: 0.5,
       textShadowColor: 'rgba(0, 0, 0, 0.6)',
       textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 4,
+      textShadowRadius: 6,
     },
     introParagraph: {
       color: '#cbd5e1',
-      fontSize: isSmall ? 13 : 15,
-      lineHeight: 22,
+      fontSize: isSmall ? 13 : 16,
+      lineHeight: 24,
       textAlign: 'center',
-      paddingHorizontal: 12,
+      paddingHorizontal: 16,
+      maxWidth: 640,
+    },
+    /* Prominent Hero Primary Play Button */
+    heroPrimaryPlayBtn: {
+      backgroundColor: '#16a34a',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      paddingHorizontal: isSmall ? 32 : 48,
+      paddingVertical: isSmall ? 16 : 20,
+      borderRadius: 16,
+      marginTop: 24,
+      marginBottom: 8,
+      borderWidth: 2,
+      borderColor: '#4ade80',
+      shadowColor: '#22c55e',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.65,
+      shadowRadius: 20,
+      elevation: 12,
+      ...(Platform.OS === 'web' ? {
+        cursor: 'pointer',
+      } : {}),
+    },
+    heroPrimaryPlayBtnIcon: {
+      fontSize: 24,
+    },
+    heroPrimaryPlayBtnText: {
+      color: '#ffffff',
+      fontSize: isSmall ? 18 : 21,
+      fontWeight: '900',
+      letterSpacing: 1,
+    },
+
+    /* Top Showcase Container: Preview top, Demo video underneath */
+    topShowcaseContainer: {
+      width: '100%',
+      maxWidth: 780,
+      marginVertical: 24,
+      gap: 28,
+      alignItems: 'center',
     },
     welcomeTagline: {
       color: '#cbd5e1',
@@ -606,7 +674,8 @@ const createStyles = (width: number, height: number) => {
     /* SEO Content Sections */
     seoContentContainer: {
       width: '100%',
-      marginTop: 24,
+      maxWidth: 780,
+      marginTop: 32,
       gap: 16,
     },
     seoSectionCard: {
@@ -779,7 +848,7 @@ const createStyles = (width: number, height: number) => {
       shadowRadius: 15,
       elevation: 10,
     },
-    cardWide: { maxWidth: 700 },
+    cardWide: { maxWidth: 780 },
 
     cardHeader: {
       flexDirection: 'row',
