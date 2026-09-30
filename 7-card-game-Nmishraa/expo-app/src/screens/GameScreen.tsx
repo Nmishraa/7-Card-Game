@@ -177,7 +177,243 @@ const getPerimeterCoords = (index: number, n: number) => {
 };
 
 // Feature Flag: Toggle to true to re-enable physical card-throw motion & bounce animations
-const ENABLE_CARD_THROW_ANIMATION = false;
+const ENABLE_CARD_THROW_ANIMATION = true;
+
+const AnimatedRevealedHandOnTable: React.FC<{
+  player: Player;
+  seatIndex: number;
+  totalSeats: number;
+  isCaller: boolean;
+  currentPlayerId: string;
+  jokerRank?: string;
+  renderCard: (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => React.ReactNode;
+  styles: any;
+  isMobile: boolean;
+}> = React.memo(({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles, isMobile }) => {
+  const coords = getPerimeterCoords(seatIndex, totalSeats);
+
+  let startX = 0;
+  let startY = 0;
+  let initialRotate = (seatIndex % 2 === 0 ? 1 : -1) * (10 + (seatIndex * 7) % 12);
+
+  // Directional throwing vectors: Cards launch from the player's actual side towards table felt
+  if (coords.y === 100) {
+    // Bottom side: throw UPWARDS towards center
+    startY = 140;
+    startX = (coords.x - 50) * 1.5;
+  } else if (coords.y === 0) {
+    // Top side: throw DOWNWARDS towards center
+    startY = -140;
+    startX = (coords.x - 50) * 1.5;
+  } else if (coords.x >= 80) {
+    // Right side: throw LEFTWARDS towards center
+    startX = 150;
+    startY = 0;
+  } else if (coords.x <= 20) {
+    // Left side: throw RIGHTWARDS towards center
+    startX = -150;
+    startY = 0;
+  }
+
+  // Target landing spot on green felt forming an exact non-overlapping ring by seat
+  let targetTop = '50%';
+  let targetLeft = `${coords.x}%`;
+
+  if (coords.y === 100) {
+    // Bottom seats
+    targetTop = totalSeats >= 6 ? '64%' : '67%';
+    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
+    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
+    else targetLeft = '50%';
+  } else if (coords.y === 0) {
+    // Top seats
+    targetTop = totalSeats >= 6 ? '16%' : '15%';
+    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
+    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
+    else targetLeft = '50%';
+  } else {
+    // Side seats (Far Left / Far Right)
+    targetTop = '46%';
+    if (coords.x >= 75) targetLeft = '84%';
+    else if (coords.x <= 25) targetLeft = '16%';
+  }
+
+  const [hasLanded, setHasLanded] = useState(false);
+
+  const animPos = useRef(new Animated.ValueXY({ x: startX, y: startY })).current;
+  const animScale = useRef(new Animated.Value(1.15)).current;
+  const animOpacity = useRef(new Animated.Value(0.15)).current;
+  const animRotate = useRef(new Animated.Value(initialRotate)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(animPos, {
+        toValue: { x: 0, y: 0 },
+        duration: 1000,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }),
+      Animated.sequence([
+        Animated.timing(animScale, {
+          toValue: 1.2,
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animScale, {
+          toValue: 0.95,
+          duration: 500,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animScale, {
+          toValue: 1.0,
+          duration: 200,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+      ]),
+      Animated.timing(animOpacity, {
+        toValue: 1,
+        duration: 350,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(animRotate, {
+        toValue: 0,
+        duration: 1000,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      setHasLanded(true);
+    });
+  }, []);
+
+  const hand = player.hand || [];
+
+  // Dynamic responsive card sizing based on player count (n), hand size, and viewport
+  const getResponsiveRevealCardStyle = (n: number, handCount: number, isMob: boolean) => {
+    let baseScale = 0.48;
+    let baseMargin = -10;
+
+    if (n <= 2) {
+      baseScale = 0.56;
+      baseMargin = -7;
+    } else if (n === 3) {
+      baseScale = 0.48;
+      baseMargin = -9;
+    } else if (n === 4) {
+      baseScale = 0.42;
+      baseMargin = -11;
+    } else if (n === 5) {
+      baseScale = 0.38;
+      baseMargin = -13;
+    } else if (n === 6) {
+      baseScale = 0.34;
+      baseMargin = -14;
+    } else if (n === 7) {
+      baseScale = 0.31;
+      baseMargin = -15;
+    } else {
+      // 8 players
+      baseScale = 0.28;
+      baseMargin = -16;
+    }
+
+    if (handCount > 5) {
+      baseScale *= 0.88;
+      baseMargin -= 1;
+    }
+
+    if (isMob) {
+      baseScale *= 0.80;
+      baseMargin = Math.round(baseMargin * 1.1);
+    }
+
+    return {
+      transform: [{ scale: baseScale }],
+      marginHorizontal: baseMargin,
+    };
+  };
+
+  const responsiveCardStyle = getResponsiveRevealCardStyle(totalSeats, hand.length, isMobile);
+
+  const handContent = (
+    <View style={styles.pureHandContainer}>
+      <View style={styles.floatingPlayerLabel}>
+        <Text style={styles.floatingPlayerNameText} numberOfLines={1}>
+          {player.name} {player.id === currentPlayerId ? '(You)' : ''}
+        </Text>
+        <Text style={styles.floatingScoreText}>
+          • {player.roundScore} pts
+        </Text>
+        {isCaller && (
+          <View style={styles.floatingCallerBadge}>
+            <Text style={styles.floatingCallerBadgeText}>⚡ LEAST</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.pureCardsFanRow}>
+        {hand.map((c: CardType, cIdx: number) => {
+          const isJoker = Boolean(jokerRank && c.rank === jokerRank);
+          return (
+            <View key={c.id || cIdx} style={[styles.pureCardWrapper, responsiveCardStyle]}>
+              {renderCard(c, false, undefined, isJoker)}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+
+  const containerStyle: any = {
+    position: 'absolute',
+    top: targetTop,
+    left: targetLeft,
+    transform: [
+      { translateX: isMobile ? -38 : -48 },
+      { translateY: isMobile ? -16 : -22 }
+    ],
+    zIndex: 220,
+    alignItems: 'center',
+  };
+
+  if (!ENABLE_CARD_THROW_ANIMATION || hasLanded) {
+    return (
+      <View style={containerStyle}>
+        {handContent}
+      </View>
+    );
+  }
+
+  return (
+    <Animated.View
+      style={[
+        containerStyle,
+        {
+          opacity: animOpacity,
+          zIndex: 220,
+          transform: [
+            { translateX: isMobile ? -45 : -55 },
+            { translateY: isMobile ? -18 : -25 },
+            { translateX: animPos.x },
+            { translateY: animPos.y },
+            { scale: animScale },
+            {
+              rotate: animRotate.interpolate({
+                inputRange: [-360, 360],
+                outputRange: ['-360deg', '360deg'],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      {handContent}
+    </Animated.View>
+  );
+});
 
 export const GameScreen: React.FC<Props> = ({ 
   room, currentPlayerId, onStartGame, onDiscardAndDraw, onDrawCard, onCallLeast, onNextRound, onSendMessage, onLeaveRoom, onEditName, onSortHand, onTimeoutTurn, currentFeltColor, onRequestRematch, onAcceptRematch, onDeclineRematch 
@@ -236,12 +472,14 @@ export const GameScreen: React.FC<Props> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  // Card Reveal Animation state (when Least is called before scoreboard)
+  // Card Reveal Animation state (sequential spotlight -> combined final reveal)
   const [isRevealingCards, setIsRevealingCards] = useState<boolean>(false);
   const [revealCompleted, setRevealCompleted] = useState<boolean>(false);
-  const [revealedPlayerCount, setRevealedPlayerCount] = useState<number>(0);
+  const [revealStage, setRevealStage] = useState<'spotlight' | 'combined'>('spotlight');
+  const [spotlightIndex, setSpotlightIndex] = useState<number>(0);
   const [revealCountdown, setRevealCountdown] = useState<number>(45);
   const lastRevealKeyRef = useRef<string | null>(null);
+  const capturedPlayersRef = useRef<Record<string, Player> | null>(null);
   
   const seenMsgIdsRef = useRef<Set<string>>(new Set());
   const isInitialMsgLoadRef = useRef<boolean>(true);
@@ -491,55 +729,72 @@ export const GameScreen: React.FC<Props> = ({
       const revealKey = `${room.id}_R${room.currentRound}_${room.status}`;
       if (lastRevealKeyRef.current !== revealKey) {
         lastRevealKeyRef.current = revealKey;
-        const totalPlayers = (room.turnOrder || Object.keys(room.players || {})).length;
+        capturedPlayersRef.current = room.players ? JSON.parse(JSON.stringify(room.players)) : null;
         setIsRevealingCards(true);
         setRevealCompleted(false);
-        setRevealedPlayerCount(ENABLE_CARD_THROW_ANIMATION ? 1 : totalPlayers);
+        setRevealStage('spotlight');
+        setSpotlightIndex(0);
         setRevealCountdown(45);
         playCallLeast();
       }
     } else if (room.status === 'playing') {
       setIsRevealingCards(false);
       setRevealCompleted(false);
-      setRevealedPlayerCount(0);
+      setRevealStage('spotlight');
+      setSpotlightIndex(0);
       setRevealCountdown(45);
       lastRevealKeyRef.current = null;
+      capturedPlayersRef.current = null;
     }
   }, [room?.status, room?.currentRound, room?.id]);
 
-  // Staggered Player Throw & 45-Second Viewing Countdown Timer
+  // Phase 1: Sequential Spotlight Reveal (1200ms spotlight per player)
   useEffect(() => {
-    if (!isRevealingCards || !room) return;
+    if (!isRevealingCards || !room || revealStage !== 'spotlight') return;
 
-    const totalPlayers = (room.turnOrder || Object.keys(room.players || {})).length;
+    const playersMap = capturedPlayersRef.current || room.players || {};
+    const turnOrderList = (room.turnOrder && room.turnOrder.length > 0) ? room.turnOrder : Object.keys(playersMap);
+    const totalPlayers = turnOrderList.length;
 
-    if (ENABLE_CARD_THROW_ANIMATION && revealedPlayerCount < totalPlayers) {
+    if (spotlightIndex < totalPlayers) {
+      const delay = spotlightIndex === 0 ? 500 : 1200;
       const timer = setTimeout(() => {
         playDiscard();
-        setRevealedPlayerCount(prev => prev + 1);
-      }, 400);
+        setSpotlightIndex(prev => {
+          const next = prev + 1;
+          if (next >= totalPlayers) {
+            setRevealStage('combined');
+          }
+          return next;
+        });
+      }, delay);
       return () => clearTimeout(timer);
     } else {
-      // All player hands revealed — run 45-second countdown timer
-      if (revealCountdown > 0) {
-        const cdTimer = setInterval(() => {
-          setRevealCountdown(prev => {
-            if (prev <= 1) {
-              clearInterval(cdTimer);
-              setIsRevealingCards(false);
-              setRevealCompleted(true);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-        return () => clearInterval(cdTimer);
-      } else {
-        setIsRevealingCards(false);
-        setRevealCompleted(true);
-      }
+      setRevealStage('combined');
     }
-  }, [isRevealingCards, revealedPlayerCount, revealCountdown, room?.turnOrder, room?.players]);
+  }, [isRevealingCards, revealStage, spotlightIndex]);
+
+  // Phase 2: 45-Second Stationary Viewing Countdown Timer (Runs when all players finish spotlight)
+  useEffect(() => {
+    if (!isRevealingCards || !room || revealStage !== 'combined') return;
+
+    if (revealCountdown > 0) {
+      const timer = setTimeout(() => {
+        setRevealCountdown(prev => {
+          if (prev <= 1) {
+            setIsRevealingCards(false);
+            setRevealCompleted(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsRevealingCards(false);
+      setRevealCompleted(true);
+    }
+  }, [isRevealingCards, revealStage, revealCountdown]);
 
   useEffect(() => {
     const rawMsgs: ChatMessage[] = room?.messages 
@@ -634,6 +889,7 @@ export const GameScreen: React.FC<Props> = ({
   const turnOrder = room.turnOrder || [];
   const currentTurnId = turnOrder[room.turnIndex];
   const isMyTurn = currentTurnId === currentPlayerId && room.status === 'playing';
+  const isRevealingMode = (room.status === 'round-end' || room.status === 'game-over') && !revealCompleted;
 
   // Rotate players so logged-in player is always at index 0 (Bottom Center)
   const myIndex = turnOrder.indexOf(currentPlayerId);
@@ -966,215 +1222,7 @@ export const GameScreen: React.FC<Props> = ({
     );
   };
 
-  const AnimatedPlayerRow: React.FC<{
-    player: Player;
-    seatIndex: number;
-    totalSeats: number;
-    isCaller: boolean;
-    currentPlayerId: string;
-    jokerRank?: string;
-    renderCard: (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => React.ReactNode;
-    styles: any;
-  }> = ({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles }) => {
-    const coords = getPerimeterCoords(seatIndex, totalSeats);
-
-    let startX = 0;
-    let startY = 0;
-    let initialRotate = (seatIndex % 2 === 0 ? 1 : -1) * (5 + (seatIndex * 4) % 10);
-
-    if (coords.y === 100) startY = 85;
-    else if (coords.y === 0) startY = -85;
-    else startY = 0;
-
-    if (coords.x === 100 || coords.x > 75) startX = 110;
-    else if (coords.x === 0 || coords.x < 25) startX = -110;
-    else startX = 0;
-
-    const [hasLanded, setHasLanded] = useState(false);
-
-    const animPos = useRef(new Animated.ValueXY({ x: startX, y: startY })).current;
-    const animScale = useRef(new Animated.Value(1.15)).current;
-    const animOpacity = useRef(new Animated.Value(0.15)).current;
-    const animRotate = useRef(new Animated.Value(initialRotate)).current;
-
-    useEffect(() => {
-      Animated.parallel([
-        Animated.spring(animPos, {
-          toValue: { x: 0, y: 0 },
-          friction: 6,
-          tension: 55,
-          useNativeDriver: false,
-        }),
-        Animated.spring(animScale, {
-          toValue: 1,
-          friction: 5,
-          tension: 70,
-          useNativeDriver: false,
-        }),
-        Animated.timing(animOpacity, {
-          toValue: 1,
-          duration: 200,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: false,
-        }),
-        Animated.spring(animRotate, {
-          toValue: 0,
-          friction: 6,
-          tension: 45,
-          useNativeDriver: false,
-        }),
-      ]).start(() => {
-        // Stop animating completely once landed
-        setHasLanded(true);
-      });
-    }, []);
-
-    const hand = player.hand || [];
-
-    const rowContent = (
-      <>
-        <View style={styles.cardRevealPlayerInfo}>
-          <View style={styles.playerAvatarBox}>
-            {player.photoURL ? (
-              <Image source={{ uri: player.photoURL }} style={styles.playerAvatarImage} resizeMode="cover" />
-            ) : (
-              <View style={styles.playerAvatarFallback}>
-                <Text style={styles.playerAvatarText}>{(player.name || '?').charAt(0).toUpperCase()}</Text>
-              </View>
-            )}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.cardRevealPlayerName}>
-              {player.name} {player.id === currentPlayerId ? '(You)' : ''} {player.isBot ? '🤖' : ''}
-            </Text>
-            <Text style={styles.cardRevealScoreText}>
-              Hand Score: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{player.roundScore} pts</Text>
-            </Text>
-          </View>
-          {isCaller && (
-            <View style={styles.callerBadge}>
-              <Text style={styles.callerBadgeText}>⚡ CALLED LEAST</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Cards horizontal row */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRevealCardsRow}>
-          {hand.map((c: CardType, cIdx: number) => {
-            const isJoker = Boolean(jokerRank && c.rank === jokerRank);
-            return (
-              <View key={c.id || cIdx} style={styles.cardRevealCardItem}>
-                {renderCard(c, false, undefined, isJoker)}
-              </View>
-            );
-          })}
-        </ScrollView>
-      </>
-    );
-
-    if (!ENABLE_CARD_THROW_ANIMATION || hasLanded) {
-      return (
-        <View style={[styles.cardRevealPlayerRow, isCaller && styles.cardRevealCallerRow]}>
-          {rowContent}
-        </View>
-      );
-    }
-
-    return (
-      <Animated.View
-        style={[
-          styles.cardRevealPlayerRow,
-          isCaller && styles.cardRevealCallerRow,
-          {
-            opacity: animOpacity,
-            transform: [
-              { translateX: animPos.x },
-              { translateY: animPos.y },
-              { scale: animScale },
-              {
-                rotate: animRotate.interpolate({
-                  inputRange: [-360, 360],
-                  outputRange: ['-360deg', '360deg'],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        {rowContent}
-      </Animated.View>
-    );
-  };
-
-  const renderCardRevealModal = () => {
-    if (!room || (room.status !== 'round-end' && room.status !== 'game-over') || revealCompleted) return null;
-
-    const turnOrderList = room.turnOrder || Object.keys(room.players || {});
-    const playersList = turnOrderList.map(id => room.players[id]).filter(Boolean);
-    const caller = playersList.find(p => p.hasCalledLeast);
-    const jokerRank = room.jokerCard?.rank;
-
-    return (
-      <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && !revealCompleted} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.cardRevealContainer}>
-            {/* Reveal Header */}
-            <View style={styles.cardRevealHeader}>
-              <Text style={styles.cardRevealTitle}>🎴 LEAST CALLED! REVEALING HANDS...</Text>
-              {caller ? (
-                <Text style={styles.cardRevealSubtitle}>
-                  📣 <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{caller.name}</Text> called LEAST with hand score {caller.roundScore} pts!
-                </Text>
-              ) : (
-                <Text style={styles.cardRevealSubtitle}>Revealing all player hands for end of round!</Text>
-              )}
-            </View>
-
-            {/* Players Hands List with Physical Table Throw & Spring Bounce Animation */}
-            <ScrollView style={styles.cardRevealScroll} showsVerticalScrollIndicator={false}>
-              {playersList.slice(0, revealedPlayerCount).map((p, idx) => {
-                const isCaller = p.hasCalledLeast;
-                const seatIndex = rotatedPlayers.indexOf(p.id);
-                const actualSeatIndex = seatIndex >= 0 ? seatIndex : idx;
-
-                return (
-                  <AnimatedPlayerRow
-                    key={p.id || idx}
-                    player={p}
-                    seatIndex={actualSeatIndex}
-                    totalSeats={rotatedPlayers.length}
-                    isCaller={isCaller}
-                    currentPlayerId={currentPlayerId}
-                    jokerRank={jokerRank}
-                    renderCard={renderCard}
-                    styles={styles}
-                  />
-                );
-              })}
-            </ScrollView>
-
-            <View style={styles.cardRevealFooter}>
-              <View style={styles.revealTimerBox}>
-                <Text style={styles.revealTimerText}>
-                  ⏱️ Cards Revealed • Scoreboard appearing in <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{revealCountdown}s</Text>
-                </Text>
-              </View>
-              <TouchableOpacity 
-                style={styles.skipToScoreboardBtn} 
-                onPress={() => {
-                  setIsRevealingCards(false);
-                  setRevealCompleted(true);
-                }}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.skipToScoreboardBtnText}>⚡ View Scoreboard Now ➔</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
-  };
+  const renderCardRevealModal = () => null;
 
   const renderChatModal = () => (
     <Modal visible={showChat} transparent animationType="slide">
@@ -1417,6 +1465,7 @@ export const GameScreen: React.FC<Props> = ({
               <View style={styles.table}>
                 <View style={styles.feltSeam} pointerEvents="none" />
 
+                {/* Normal Seat Avatars & Opponent Cards */}
                 {rotatedPlayers.map((id, index) => {
                   const player = players[id];
                   if (!player) return null;
@@ -1431,14 +1480,15 @@ export const GameScreen: React.FC<Props> = ({
                   const pos: any = { 
                     top: `${y}%`, 
                     left: `${x}%`, 
-                    transform: [{ translateX: -half }, { translateY: -half }] 
+                    transform: [{ translateX: -half }, { translateY: -half }],
+                    zIndex: 120,
                   };
                   return (
                     <View key={id} style={[styles.opponentArea, pos]} pointerEvents="box-none">
                       <View style={{ alignItems: 'center', justifyContent: 'center', position: 'relative' }} pointerEvents="box-none">
                         
                         {/* Avatar */}
-                        <View style={[styles.avatarBox, isCurrentTurn && styles.activeAvatar]}>
+                        <View style={[styles.avatarBox, isCurrentTurn && !isRevealingMode && styles.activeAvatar]}>
                           {player.photoURL ? (
                             <Image 
                               source={{ uri: player.photoURL }} 
@@ -1448,7 +1498,7 @@ export const GameScreen: React.FC<Props> = ({
                           ) : (
                             <Text style={styles.avatarText}>{player.name ? player.name.charAt(0).toUpperCase() : '?'}</Text>
                           )}
-                          {isCurrentTurn ? <ActivePlayerGlow size={avatarSize} /> : null}
+                          {isCurrentTurn && !isRevealingMode ? <ActivePlayerGlow size={avatarSize} /> : null}
                           {isHost && <View style={styles.hostBadge}><Text style={styles.hostBadgeText}>HOST</Text></View>}
                           {!isOut && <View style={styles.cardCountBadge}><Text style={styles.cardCountText}>{(player.hand && player.hand.length) || 0}</Text></View>}
                           {isOut && <View style={styles.outOverlay}><Text style={styles.outOverlayText}>OUT</Text></View>}
@@ -1481,7 +1531,7 @@ export const GameScreen: React.FC<Props> = ({
 
                           return (
                             <View style={infoStyle} pointerEvents="none">
-                              {showCardsAbove && !isMe && !isOut && (
+                              {showCardsAbove && !isMe && !isOut && !isRevealingMode && (
                                 <View style={[styles.opponentHand, cardStyle]}>
                                   {Array.from({ length: Math.min((player.hand && player.hand.length) || 0, 5) }).map((_, i) => (
                                     <View key={i} style={[styles.cardBackSmall, { marginLeft: i === 0 ? 0 : -8 }]} />
@@ -1496,7 +1546,7 @@ export const GameScreen: React.FC<Props> = ({
                                 )}
                               </View>
 
-                              {!showCardsAbove && !isMe && !isOut && (
+                              {!showCardsAbove && !isMe && !isOut && !isRevealingMode && (
                                 <View style={[styles.opponentHand, cardStyle, { marginTop: 5 }]}>
                                   {Array.from({ length: Math.min((player.hand && player.hand.length) || 0, 5) }).map((_, i) => (
                                     <View key={i} style={[styles.cardBackSmall, { marginLeft: i === 0 ? 0 : -8 }]} />
@@ -1511,122 +1561,207 @@ export const GameScreen: React.FC<Props> = ({
                   );
                 })}
 
-                <View style={styles.boardCenter} pointerEvents="box-none">
+                {/* Board Center */}
+                <View style={[styles.boardCenter, isRevealingMode && { zIndex: 400 }]} pointerEvents="box-none">
                   <View style={{ alignItems: 'center' }} pointerEvents="box-none">
-                    <View style={styles.centerPilesRow} pointerEvents="box-none">
-                      {room.jokerCard && (
+                    {/* Hide Deck & Discard Piles during LEAST reveal */}
+                    {!isRevealingMode && (
+                      <View style={styles.centerPilesRow} pointerEvents="box-none">
+                        {room.jokerCard && (
+                          <View style={styles.pileContainer} pointerEvents="box-none">
+                            <Text style={styles.pileLabel}>JOKER</Text>
+                            <View style={styles.jokerCardWrapper} pointerEvents="none">{renderCard(room.jokerCard, false)}</View>
+                          </View>
+                        )}
                         <View style={styles.pileContainer} pointerEvents="box-none">
-                          <Text style={styles.pileLabel}>JOKER</Text>
-                          <View style={styles.jokerCardWrapper} pointerEvents="none">{renderCard(room.jokerCard, false)}</View>
-                        </View>
-                      )}
-                      <View style={styles.pileContainer} pointerEvents="box-none">
-                        <Text style={styles.pileLabel}>DECK</Text>
-                        <TouchableOpacity 
-                          ref={deckRef}
-                          style={[styles.cardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
-                          onPress={() => animateDrawCard('deck')} 
-                          disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
-                          activeOpacity={0.7}
-                        >
-                          <View style={styles.cardPattern} />
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.pileContainer} pointerEvents="box-none">
-                        <Text style={styles.pileLabel}>{room.pendingDiscard && room.pendingDiscard.length > 0 ? "PREV DISCARD" : "DISCARD"}</Text>
-                        {room.discardPile.length > 0 ? (
+                          <Text style={styles.pileLabel}>DECK</Text>
                           <TouchableOpacity 
-                            ref={discardRef}
-                            style={styles.cardCluster}
-                            onPress={(isMyTurn && room.turnPhase === 'picking' && !isAnimatingCard) ? () => animateDrawCard('discard') : undefined}
+                            ref={deckRef}
+                            style={[styles.cardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
+                            onPress={() => animateDrawCard('deck')} 
                             disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
                             activeOpacity={0.7}
                           >
-                            {room.discardPile.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
-                              <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }} pointerEvents="none">
-                                {renderCard(card, false)}
-                              </View>
-                            ))}
+                            <View style={styles.cardPattern} />
                           </TouchableOpacity>
-                        ) : (
-                          <View ref={discardRef} style={[styles.card, styles.emptyPile]} />
-                        )}
-                      </View>
-
-                      {room.pendingDiscard && room.pendingDiscard.length > 0 && (
-                        <View style={styles.pileContainer} pointerEvents="box-none">
-                          <Text style={styles.pileLabel}>NEW DISCARD</Text>
-                          <View style={styles.cardCluster} pointerEvents="none">
-                            {room.pendingDiscard.map((card, idx) => (
-                              <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }}>
-                                {renderCard(card, false)}
-                              </View>
-                            ))}
-                          </View>
                         </View>
-                      )}
-                    </View>
+                        <View style={styles.pileContainer} pointerEvents="box-none">
+                          <Text style={styles.pileLabel}>{room.pendingDiscard && room.pendingDiscard.length > 0 ? "PREV DISCARD" : "DISCARD"}</Text>
+                          {room.discardPile.length > 0 ? (
+                            <TouchableOpacity 
+                              ref={discardRef}
+                              style={styles.cardCluster}
+                              onPress={(isMyTurn && room.turnPhase === 'picking' && !isAnimatingCard) ? () => animateDrawCard('discard') : undefined}
+                              disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
+                              activeOpacity={0.7}
+                            >
+                              {room.discardPile.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
+                                <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }} pointerEvents="none">
+                                  {renderCard(card, false)}
+                                </View>
+                              ))}
+                            </TouchableOpacity>
+                          ) : (
+                            <View ref={discardRef} style={[styles.card, styles.emptyPile]} />
+                          )}
+                        </View>
 
-                    <View style={styles.centerBoardInfoBox}>
-                      <View style={styles.centerMetaRow}>
-                        <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
-                        {room.status === 'playing' && (
-                          <View style={[styles.timerBadge, isTimedMode && remainingSec <= 10 && styles.timerBadgeWarning]}>
-                            <Text style={[styles.timerText, isTimedMode && remainingSec <= 10 && styles.timerTextWarning]}>
-                              {isTimedMode ? `⏱️ ${formatTime(remainingSec)}` : '∞ No Timer'}
-                            </Text>
+                        {room.pendingDiscard && room.pendingDiscard.length > 0 && (
+                          <View style={styles.pileContainer} pointerEvents="box-none">
+                            <Text style={styles.pileLabel}>NEW DISCARD</Text>
+                            <View style={styles.cardCluster} pointerEvents="none">
+                              {room.pendingDiscard.map((card, idx) => (
+                                <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }}>
+                                  {renderCard(card, false)}
+                                </View>
+                              ))}
+                            </View>
                           </View>
                         )}
                       </View>
+                    )}
 
-                      {/* Mobile Non-Blocking Live Scoreboard Bar */}
-                      {width < 768 && (
-                        <TouchableOpacity 
-                          style={styles.mobileLiveScoreBar} 
-                          onPress={() => setShowScoresModal(true)}
-                          activeOpacity={0.85}
-                        >
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mobileLiveScoreScroll}>
-                            {turnOrder.map(id => {
-                              const p = players[id];
-                              if (!p) return null;
-                              const isTurn = currentTurnId === id;
-                              const isMe = id === currentPlayerId;
+                    {/* Center Info / Reveal Banner Box */}
+                    {isRevealingMode ? (
+                      <View style={styles.centerRevealBannerBox}>
+                        {revealStage === 'spotlight' ? (
+                          <>
+                            <Text style={styles.centerRevealTitleText}>
+                              🔍 REVEALING {(() => {
+                                const playersMap = capturedPlayersRef.current || room.players || {};
+                                const turnOrderList = rotatedPlayers.length > 0 ? rotatedPlayers : Object.keys(playersMap);
+                                const playersList = turnOrderList.map(id => playersMap[id]).filter(Boolean);
+                                const currP = playersList[spotlightIndex];
+                                return currP ? currP.name.toUpperCase() : 'PLAYER';
+                              })()}...
+                            </Text>
+                            <Text style={styles.centerRevealSubtitleText}>
+                              Player {spotlightIndex + 1} of {(() => {
+                                const playersMap = capturedPlayersRef.current || room.players || {};
+                                const turnOrderList = rotatedPlayers.length > 0 ? rotatedPlayers : Object.keys(playersMap);
+                                return turnOrderList.length;
+                              })()}
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <Text style={styles.centerRevealTitleText}>
+                              ⚡ LEAST CALLED BY {(() => {
+                                const caller = Object.values(capturedPlayersRef.current || room.players || {}).find(p => p.hasCalledLeast);
+                                return caller ? caller.name.toUpperCase() : 'PLAYER';
+                              })()}!
+                            </Text>
+                            <Text style={styles.centerRevealSubtitleText}>
+                              ⏱️ Scoreboard appearing in <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{revealCountdown}s</Text>
+                            </Text>
+                            <TouchableOpacity 
+                              style={styles.skipToScoreboardBtn} 
+                              onPress={() => {
+                                setIsRevealingCards(false);
+                                setRevealCompleted(true);
+                              }}
+                              activeOpacity={0.85}
+                            >
+                              <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard Now ➔</Text>
+                            </TouchableOpacity>
+                          </>
+                        )}
+                      </View>
+                    ) : (
+                      <View style={styles.centerBoardInfoBox}>
+                        <View style={styles.centerMetaRow}>
+                          <Text style={styles.centerRoundBadge}>ROUND {room.currentRound || 1} OF {room.maxRounds || 5}</Text>
+                          {room.status === 'playing' && (
+                            <View style={[styles.timerBadge, isTimedMode && remainingSec <= 10 && styles.timerBadgeWarning]}>
+                              <Text style={[styles.timerText, isTimedMode && remainingSec <= 10 && styles.timerTextWarning]}>
+                                {isTimedMode ? `⏱️ ${formatTime(remainingSec)}` : '∞ No Timer'}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
 
-                              return (
-                                <View key={id} style={[styles.mobileScorePill, isTurn && styles.mobileScorePillActive]}>
-                                  <Text style={[styles.mobileScoreName, isTurn && styles.mobileScoreNameActive]} numberOfLines={1}>
-                                    {isTurn ? '▶ ' : ''}{p.name}{isMe ? ' (You)' : ''}:
-                                  </Text>
-                                  <Text style={[styles.mobileScoreVal, isTurn && styles.mobileScoreValActive]}>
-                                    {p.totalScore}
-                                  </Text>
-                                </View>
-                              );
-                            })}
-                          </ScrollView>
-                        </TouchableOpacity>
-                      )}
+                        {/* Mobile Non-Blocking Live Scoreboard Bar */}
+                        {width < 768 && (
+                          <TouchableOpacity 
+                            style={styles.mobileLiveScoreBar} 
+                            onPress={() => setShowScoresModal(true)}
+                            activeOpacity={0.85}
+                          >
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mobileLiveScoreScroll}>
+                              {turnOrder.map(id => {
+                                const p = players[id];
+                                if (!p) return null;
+                                const isTurn = currentTurnId === id;
+                                const isMe = id === currentPlayerId;
 
-                      <Text style={styles.onTableTurnText}>
-                        {(me && me.isOut) 
-                          ? 'YOU ARE OUT' 
-                          : (isMyTurn 
-                              ? (room.turnPhase === 'discarding' ? '⚡ YOUR TURN: DISCARD!' : '🎴 YOUR TURN: PICK!') 
-                              : `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'}'s Turn`
-                            )
-                        }
-                      </Text>
-                    </View>
+                                return (
+                                  <View key={id} style={[styles.mobileScorePill, isTurn && styles.mobileScorePillActive]}>
+                                    <Text style={[styles.mobileScoreName, isTurn && styles.mobileScoreNameActive]} numberOfLines={1}>
+                                      {isTurn ? '▶ ' : ''}{p.name}{isMe ? ' (You)' : ''}:
+                                    </Text>
+                                    <Text style={[styles.mobileScoreVal, isTurn && styles.mobileScoreValActive]}>
+                                      {p.totalScore}
+                                    </Text>
+                                  </View>
+                                );
+                              })}
+                            </ScrollView>
+                          </TouchableOpacity>
+                        )}
+
+                        <Text style={styles.onTableTurnText}>
+                          {(me && me.isOut) 
+                            ? 'YOU ARE OUT' 
+                            : (isMyTurn 
+                                ? (room.turnPhase === 'discarding' ? '⚡ YOUR TURN: DISCARD!' : '🎴 YOUR TURN: PICK!') 
+                                : `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'}'s Turn`
+                              )
+                          }
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </View>
+
+                {/* On-Table Card Reveal Hands */}
+                {(room.status === 'round-end' || room.status === 'game-over') && !revealCompleted && (() => {
+                  const playersMap = capturedPlayersRef.current || room.players || {};
+                  const turnOrderList = rotatedPlayers.length > 0 ? rotatedPlayers : Object.keys(playersMap);
+                  const playersList = turnOrderList.map(id => playersMap[id]).filter(Boolean);
+                  const jokerRank = room.jokerCard?.rank;
+
+                  const visiblePlayers = revealStage === 'spotlight'
+                    ? playersList.slice(0, spotlightIndex + 1)
+                    : playersList;
+
+                  return visiblePlayers.map((p, idx) => {
+                    const isCaller = p.hasCalledLeast;
+                    const seatIndex = rotatedPlayers.indexOf(p.id);
+                    const actualSeatIndex = seatIndex >= 0 ? seatIndex : idx;
+
+                    return (
+                      <AnimatedRevealedHandOnTable
+                        key={p.id || idx}
+                        player={p}
+                        seatIndex={actualSeatIndex}
+                        totalSeats={rotatedPlayers.length}
+                        isCaller={isCaller}
+                        currentPlayerId={currentPlayerId}
+                        jokerRank={jokerRank}
+                        renderCard={renderCard}
+                        styles={styles}
+                        isMobile={width < 768}
+                      />
+                    );
+                  });
+                })()}
               </View>
             </View>
           </View>
         </View>
 
         {/* ── PLAYER BOTTOM DOCK (Cards & Action Buttons) ── */}
-        {me && !me.isOut && (
+        {me && !me.isOut && !(room.status === 'round-end' || room.status === 'game-over') && (
           <View style={styles.playerDockContainer} pointerEvents="box-none">
             <View style={styles.dockTopBarContainer} pointerEvents="box-none">
               {onSortHand && (
@@ -1752,16 +1887,17 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: isSmall ? 8 : 16,
-      paddingVertical: isSmall ? 6 : 10,
+      paddingVertical: isSmall ? 4 : 6,
       backgroundColor: 'rgba(0,0,0,0.4)',
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(255,255,255,0.05)',
-      zIndex: 100,
+      zIndex: 2000,
+      elevation: 50,
     },
     headerLeft: { flexDirection: 'row', alignItems: 'center', gap: isSmall ? 6 : 10 },
     logoSmall: { 
-      width: isSmall ? 90 : 160, 
-      height: isSmall ? 36 : 55 
+      width: isSmall ? 90 : 130, 
+      height: isSmall ? 28 : 38 
     },
     roundInfo: { color: '#facc15', fontSize: isSmall ? 11 : 16, fontWeight: '900', letterSpacing: 0.5 },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: isSmall ? 4 : 8 },
@@ -2476,38 +2612,173 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       textAlign: 'center',
       marginBottom: 6,
     },
+    /* Pure Hand Fan Presentation (NO CONTAINER BOX, NO BACKGROUND PANEL) */
+    pureHandContainer: {
+      alignItems: 'center',
+    },
+    floatingPlayerLabel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      marginBottom: 5,
+      backgroundColor: 'rgba(6, 30, 15, 0.95)',
+      paddingHorizontal: isMobile ? 10 : 12,
+      paddingVertical: isMobile ? 3 : 4,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: '#fbbf24',
+      shadowColor: '#fbbf24',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.4,
+      shadowRadius: 6,
+      elevation: 6,
+    },
+    floatingPlayerNameText: {
+      color: '#ffffff',
+      fontSize: isMobile ? 10 : 11,
+      fontWeight: 'bold',
+    },
+    floatingScoreText: {
+      color: '#fbbf24',
+      fontSize: isMobile ? 10 : 11,
+      fontWeight: 'bold',
+    },
+    floatingCallerBadge: {
+      backgroundColor: '#fbbf24',
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      borderRadius: 4,
+      marginLeft: 2,
+    },
+    floatingCallerBadgeText: {
+      color: '#0f172a',
+      fontWeight: '900',
+      fontSize: 9,
+    },
+    pureCardsFanRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: isMobile ? -16 : -24,
+    },
+    pureCardWrapper: {
+      transform: [{ scale: isMobile ? 0.44 : 0.52 }],
+      marginHorizontal: isMobile ? -15 : -11,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.4,
+      shadowRadius: 5,
+      elevation: 6,
+    },
+    topFloatingRevealBanner: {
+      position: 'absolute',
+      top: 8,
+      left: 12,
+      right: 12,
+      zIndex: 250,
+      alignItems: 'center',
+    },
+    topRevealInnerBox: {
+      backgroundColor: 'rgba(6, 30, 15, 0.95)',
+      paddingHorizontal: isSmall ? 12 : 18,
+      paddingVertical: isSmall ? 6 : 8,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: '#fbbf24',
+      alignItems: 'center',
+      maxWidth: 480,
+      width: '100%',
+      shadowColor: '#fbbf24',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    topRevealTitleText: {
+      color: '#fbbf24',
+      fontSize: isSmall ? 12 : 14,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+    topRevealSubtitleText: {
+      color: '#e2e8f0',
+      fontSize: isSmall ? 10 : 12,
+      marginTop: 1,
+    },
+    skipToScoreboardBtnTop: {
+      backgroundColor: '#fbbf24',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 8,
+    },
+    centerRevealBannerBox: {
+      backgroundColor: 'rgba(6, 30, 15, 0.96)',
+      paddingHorizontal: isSmall ? 6 : 10,
+      paddingVertical: isSmall ? 2 : 4,
+      borderRadius: 10,
+      borderWidth: 1.5,
+      borderColor: '#fbbf24',
+      alignItems: 'center',
+      maxWidth: isSmall ? 180 : 210,
+      marginTop: -10,
+      shadowColor: '#fbbf24',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.5,
+      shadowRadius: 6,
+      elevation: 8,
+      zIndex: 300,
+    },
+    centerRevealTitleText: {
+      color: '#fbbf24',
+      fontSize: isSmall ? 9 : 11,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+      textAlign: 'center',
+      marginBottom: 1,
+    },
+    centerRevealSubtitleText: {
+      color: '#e2e8f0',
+      fontSize: isSmall ? 8 : 9,
+      textAlign: 'center',
+      marginBottom: 2,
+    },
     /* Card Reveal Animation Modal Overlay */
     cardRevealContainer: {
       width: '100%',
-      maxWidth: 650,
-      maxHeight: '90%',
-      backgroundColor: '#0f172a',
-      borderRadius: 24,
-      padding: isSmall ? 18 : 26,
-      borderWidth: 2,
-      borderColor: '#fbbf24',
+      maxWidth: 720,
+      maxHeight: '92%',
+      backgroundColor: feltColor || '#076324',
+      borderRadius: 28,
+      padding: isSmall ? 18 : 24,
+      borderWidth: 5,
+      borderColor: '#78350f',
       shadowColor: '#fbbf24',
       shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.6,
-      shadowRadius: 20,
-      elevation: 15,
+      shadowOpacity: 0.8,
+      shadowRadius: 24,
+      elevation: 20,
       alignItems: 'center',
     },
     cardRevealHeader: {
       alignItems: 'center',
-      marginBottom: 16,
+      marginBottom: 14,
       width: '100%',
+      backgroundColor: 'rgba(6, 45, 18, 0.75)',
+      padding: 12,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: 'rgba(251, 191, 36, 0.3)',
     },
     cardRevealTitle: {
       color: '#fbbf24',
-      fontSize: isSmall ? 18 : 22,
+      fontSize: isSmall ? 17 : 21,
       fontWeight: 'bold',
       letterSpacing: 1,
       textAlign: 'center',
       marginBottom: 4,
     },
     cardRevealSubtitle: {
-      color: '#cbd5e1',
+      color: '#fef08a',
       fontSize: isSmall ? 13 : 15,
       textAlign: 'center',
       lineHeight: 20,
@@ -2515,20 +2786,23 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     cardRevealScroll: {
       width: '100%',
       flexGrow: 0,
-      marginVertical: 10,
+      marginVertical: 8,
     },
     cardRevealPlayerRow: {
-      backgroundColor: '#1e293b',
-      borderRadius: 16,
+      backgroundColor: 'rgba(6, 45, 18, 0.85)',
+      borderRadius: 20,
       padding: 14,
       marginBottom: 12,
-      borderWidth: 1,
-      borderColor: '#334155',
+      borderWidth: 2,
+      borderColor: 'rgba(52, 211, 153, 0.35)',
     },
     cardRevealCallerRow: {
-      backgroundColor: 'rgba(251, 191, 36, 0.12)',
+      backgroundColor: 'rgba(251, 191, 36, 0.22)',
       borderColor: '#fbbf24',
-      borderWidth: 2,
+      borderWidth: 2.5,
+      shadowColor: '#fbbf24',
+      shadowOpacity: 0.5,
+      shadowRadius: 10,
     },
     cardRevealPlayerInfo: {
       flexDirection: 'row',
@@ -2594,14 +2868,30 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     skipToScoreboardBtn: {
       backgroundColor: '#0284c7',
-      paddingHorizontal: 18,
-      paddingVertical: 10,
-      borderRadius: 10,
+      paddingHorizontal: isSmall ? 10 : 14,
+      paddingVertical: isSmall ? 5 : 7,
+      borderRadius: 8,
       borderWidth: 1,
       borderColor: '#38bdf8',
+      marginTop: 2,
     },
     skipToScoreboardBtnText: {
       color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: isSmall ? 11 : 12,
+    },
+    exitRevealBtn: {
+      backgroundColor: 'rgba(239, 68, 68, 0.2)',
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#ef4444',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    exitRevealBtnText: {
+      color: '#ef4444',
       fontWeight: 'bold',
       fontSize: 14,
     },
