@@ -477,7 +477,7 @@ export const GameScreen: React.FC<Props> = ({
   const [revealCompleted, setRevealCompleted] = useState<boolean>(false);
   const [revealStage, setRevealStage] = useState<'spotlight' | 'combined'>('spotlight');
   const [spotlightIndex, setSpotlightIndex] = useState<number>(0);
-  const [revealCountdown, setRevealCountdown] = useState<number>(45);
+  const [revealCountdown, setRevealCountdown] = useState<number>(20);
   const lastRevealKeyRef = useRef<string | null>(null);
   const capturedPlayersRef = useRef<Record<string, Player> | null>(null);
   
@@ -734,7 +734,7 @@ export const GameScreen: React.FC<Props> = ({
         setRevealCompleted(false);
         setRevealStage('spotlight');
         setSpotlightIndex(0);
-        setRevealCountdown(45);
+        setRevealCountdown(20);
         playCallLeast();
       }
     } else if (room.status === 'playing') {
@@ -742,7 +742,7 @@ export const GameScreen: React.FC<Props> = ({
       setRevealCompleted(false);
       setRevealStage('spotlight');
       setSpotlightIndex(0);
-      setRevealCountdown(45);
+      setRevealCountdown(20);
       lastRevealKeyRef.current = null;
       capturedPlayersRef.current = null;
     }
