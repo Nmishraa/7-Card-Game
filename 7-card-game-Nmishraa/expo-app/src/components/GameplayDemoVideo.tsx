@@ -640,9 +640,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 780,
     alignSelf: 'center',
-    marginVertical: 24,
+    marginVertical: width < 600 ? 12 : 24,
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: width < 600 ? 0 : 12,
   },
   headerRow: {
     width: '100%',
