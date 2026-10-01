@@ -270,22 +270,38 @@ export const HomeScreen: React.FC<Props> = ({
             </Text>
           </View>
 
-          {/* ─── TOP SHOWCASE: PREVIEW TOP, DEMO VIDEO UNDERNEATH ─── */}
+          {/* ─── TOP SHOWCASE: DEMO VIDEO TOP, GAME PREVIEW UNDERNEATH ─── */}
           <View style={styles.topShowcaseContainer}>
-            <GamePreviewSection style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
             <GameplayDemoVideo style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
+            <GamePreviewSection style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
 
-            {/* 🤖 PROMINENT HERO PRIMARY PLAY VS 1 BOT BUTTON 🤖 */}
-            <TouchableOpacity
-              style={styles.heroPrimaryPlayBtn}
-              onPress={handleHeroPlayPress}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Play 7 Cards vs 1 Bot"
-            >
-              <Text style={styles.heroPrimaryPlayBtnIcon}>🤖</Text>
-              <Text style={styles.heroPrimaryPlayBtnText}>PLAY VS 1 BOT</Text>
-            </TouchableOpacity>
+            {/* 🤖 HERO PRIMARY ACTION BUTTONS (PLAY VS BOT + PLAY WITH FRIENDS) 🎮 */}
+            <View style={styles.heroCtaRow}>
+              <TouchableOpacity
+                style={styles.heroPrimaryPlayBtn}
+                onPress={handleHeroPlayPress}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Play 7 Cards vs 1 Bot"
+              >
+                <Text style={styles.heroPrimaryPlayBtnIcon}>🤖</Text>
+                <Text style={styles.heroPrimaryPlayBtnText}>PLAY VS 1 BOT</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.heroFriendsPlayBtn}
+                onPress={() => {
+                  const playerName = (name && name.trim().length > 0) ? name.trim() : (userName || 'Player');
+                  onCreateRoom(playerName, selectedRounds, selectedTurnTime);
+                }}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Play with Friends & Family"
+              >
+                <Text style={styles.heroFriendsPlayBtnIcon}>🎮</Text>
+                <Text style={styles.heroFriendsPlayBtnText}>Play with Friends &amp; Family</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Game Setup Card */}
@@ -480,7 +496,83 @@ export const HomeScreen: React.FC<Props> = ({
             </View>
           </View>
 
-          {/* ─── GAME IN ACTION SCREENSHOTS GALLERY (AT BOTTOM OF PAGE) ─── */}
+          {/* ─── LOWER PLAY WITH FRIENDS CTA & PRIVATE ROOM INFO SECTION ─── */}
+          <View style={styles.playWithFriendsSection}>
+            <TouchableOpacity 
+              style={styles.prominentPlayWithFriendsBtn}
+              onPress={() => {
+                const playerName = (name && name.trim().length > 0) ? name.trim() : (userName || 'Player');
+                onCreateRoom(playerName, selectedRounds, selectedTurnTime);
+              }}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Play with Friends & Family"
+            >
+              <Text style={styles.prominentPlayWithFriendsIcon}>🎮</Text>
+              <Text style={styles.prominentPlayWithFriendsText}>Play with Friends &amp; Family</Text>
+            </TouchableOpacity>
+
+            <View style={styles.privateRoomInfoCard}>
+              <Text style={styles.privateRoomHeading}>Play With Friends &amp; Family</Text>
+              <Text style={styles.privateRoomSubheading}>
+                Create a private room, share the link or 4-digit code, and play 7 Cards Least together.
+              </Text>
+
+              {/* 3 Simple Steps */}
+              <View style={styles.stepsContainer}>
+                <View style={styles.stepItemCard}>
+                  <View style={styles.stepBadge}>
+                    <Text style={styles.stepBadgeText}>1</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.stepItemTitle}>Create a Room</Text>
+                    <Text style={styles.stepItemText}>
+                      Click <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>Play with Friends</Text> to create your private game room.
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.stepItemCard}>
+                  <View style={styles.stepBadge}>
+                    <Text style={styles.stepBadgeText}>2</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.stepItemTitle}>Invite Friends</Text>
+                    <Text style={styles.stepItemText}>
+                      Share the <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>4-digit room code</Text> or copy the <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>game link</Text> and send it through WhatsApp, text, or any other messaging app.
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.stepItemCard}>
+                  <View style={styles.stepBadge}>
+                    <Text style={styles.stepBadgeText}>3</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.stepItemTitle}>Play Together</Text>
+                    <Text style={styles.stepItemText}>
+                      Your friends join the room, the host starts the game, and everyone plays together.
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Private Room Details Area */}
+              <View style={styles.roomRulesBox}>
+                <Text style={styles.roomRulesHeading}>ℹ️ How private rooms work</Text>
+                <View style={styles.roomRulesList}>
+                  <Text style={styles.roomRuleBullet}>• Private rooms are for <Text style={{ color: '#fff', fontWeight: 'bold' }}>family and friends</Text>.</Text>
+                  <Text style={styles.roomRuleBullet}>• Friends can join using the <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>room code or shared link</Text>.</Text>
+                  <Text style={styles.roomRuleBullet}>• The waiting room stays active for <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>15 minutes</Text>.</Text>
+                  <Text style={styles.roomRuleBullet}>• Once the game starts, it remains active until the game finishes.</Text>
+                  <Text style={styles.roomRuleBullet}>• After the game ends, players have <Text style={{ color: '#34d399', fontWeight: 'bold' }}>5 minutes to play again</Text>.</Text>
+                  <Text style={styles.roomRuleBullet}>• Empty or inactive rooms are automatically closed.</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* ─── GAME IN ACTION SCREENSHOTS GALLERY ─── */}
           <GameInActionSection />
 
 
@@ -794,37 +886,198 @@ const createStyles = (width: number, height: number) => {
       paddingHorizontal: 16,
       maxWidth: 640,
     },
-    /* Prominent Hero Primary Play Button */
+    /* Hero CTA Row & Buttons */
+    heroCtaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      width: '100%',
+      maxWidth: 780,
+      marginTop: 20,
+      marginBottom: 8,
+      flexWrap: 'wrap',
+    },
     heroPrimaryPlayBtn: {
       backgroundColor: '#16a34a',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 12,
-      paddingHorizontal: isSmall ? 32 : 48,
-      paddingVertical: isSmall ? 16 : 20,
+      gap: 10,
+      paddingHorizontal: isSmall ? 20 : 32,
+      paddingVertical: isSmall ? 14 : 18,
       borderRadius: 16,
-      marginTop: 24,
-      marginBottom: 8,
+      flex: 1,
+      minWidth: isSmall ? 260 : 280,
       borderWidth: 2,
       borderColor: '#4ade80',
       shadowColor: '#22c55e',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.65,
-      shadowRadius: 20,
-      elevation: 12,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.5,
+      shadowRadius: 12,
+      elevation: 8,
       ...(Platform.OS === 'web' ? {
         cursor: 'pointer',
       } : {}),
     },
     heroPrimaryPlayBtnIcon: {
-      fontSize: 24,
+      fontSize: 22,
     },
     heroPrimaryPlayBtnText: {
       color: '#ffffff',
-      fontSize: isSmall ? 18 : 21,
+      fontSize: isSmall ? 16 : 18,
       fontWeight: '900',
-      letterSpacing: 1,
+      letterSpacing: 0.5,
+    },
+    heroFriendsPlayBtn: {
+      backgroundColor: '#2563eb',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+      paddingHorizontal: isSmall ? 20 : 32,
+      paddingVertical: isSmall ? 14 : 18,
+      borderRadius: 16,
+      flex: 1,
+      minWidth: isSmall ? 260 : 280,
+      borderWidth: 2,
+      borderColor: '#60a5fa',
+      shadowColor: '#2563eb',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.5,
+      shadowRadius: 12,
+      elevation: 8,
+      ...(Platform.OS === 'web' ? {
+        cursor: 'pointer',
+      } : {}),
+    },
+    heroFriendsPlayBtnIcon: {
+      fontSize: 22,
+    },
+    heroFriendsPlayBtnText: {
+      color: '#ffffff',
+      fontSize: isSmall ? 16 : 18,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+
+    /* Lower Play With Friends Section Styles */
+    playWithFriendsSection: {
+      width: '100%',
+      maxWidth: 780,
+      alignItems: 'center',
+      marginTop: 24,
+      marginBottom: 24,
+      paddingHorizontal: isSmall ? 8 : 16,
+    },
+    prominentPlayWithFriendsBtn: {
+      backgroundColor: '#2563eb',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 28,
+      borderRadius: 16,
+      gap: 12,
+      width: '100%',
+      maxWidth: 380,
+      marginBottom: 20,
+      elevation: 6,
+      shadowColor: '#2563eb',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      borderWidth: 1.5,
+      borderColor: '#60a5fa',
+    },
+    prominentPlayWithFriendsIcon: { fontSize: 22 },
+    prominentPlayWithFriendsText: {
+      color: '#ffffff',
+      fontSize: isSmall ? 16 : 18,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+    privateRoomInfoCard: {
+      width: '100%',
+      backgroundColor: '#1e293b',
+      borderRadius: 20,
+      padding: isSmall ? 18 : 24,
+      borderWidth: 1,
+      borderColor: '#334155',
+      elevation: 6,
+    },
+    privateRoomHeading: {
+      color: '#ffffff',
+      fontSize: isSmall ? 20 : 24,
+      fontWeight: '900',
+      marginBottom: 6,
+      textAlign: 'center',
+    },
+    privateRoomSubheading: {
+      color: '#cbd5e1',
+      fontSize: isSmall ? 13 : 15,
+      lineHeight: 22,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    stepsContainer: {
+      gap: 12,
+      marginBottom: 20,
+    },
+    stepItemCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: '#0f172a',
+      borderRadius: 12,
+      padding: 14,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: '#334155',
+    },
+    stepBadge: {
+      backgroundColor: '#0284c7',
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepBadgeText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: 14,
+    },
+    stepItemTitle: {
+      color: '#f8fafc',
+      fontSize: 15,
+      fontWeight: 'bold',
+      marginBottom: 2,
+    },
+    stepItemText: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    roomRulesBox: {
+      backgroundColor: 'rgba(15, 23, 42, 0.7)',
+      borderRadius: 12,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: 'rgba(56, 189, 248, 0.3)',
+    },
+    roomRulesHeading: {
+      color: '#38bdf8',
+      fontSize: 14,
+      fontWeight: 'bold',
+      marginBottom: 8,
+    },
+    roomRulesList: {
+      gap: 6,
+    },
+    roomRuleBullet: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      lineHeight: 19,
     },
 
     /* Top Showcase Container: Preview top, Demo video underneath */

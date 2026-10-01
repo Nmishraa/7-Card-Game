@@ -31,7 +31,8 @@ import {
   playCallLeast,
   playChatMessage,
   playTimerWarning,
-  playError
+  playError,
+  playGameOver
 } from '../engine/soundService';
 
 interface Props {
@@ -106,6 +107,151 @@ const ActivePlayerGlow: React.FC<{ size: number }> = ({ size }) => {
       ]}
       pointerEvents="none"
     />
+  );
+};
+
+const CONFETTI_COLORS = ['#fbbf24', '#34d399', '#38bdf8', '#f472b6', '#a78bfa', '#fb923c'];
+
+const WinnerCelebrationOverlay: React.FC<{ size: number }> = ({ size }) => {
+  return (
+    <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+      <View
+        style={[
+          StyleSheet.absoluteFillObject,
+          {
+            borderRadius: size / 2,
+            borderWidth: 4,
+            borderColor: '#facc15',
+            shadowColor: '#facc15',
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.9,
+            shadowRadius: 10,
+          },
+        ]}
+      />
+    </View>
+  );
+};
+
+const GameOverCelebrationBanner: React.FC<{ 
+  winnerName: string; 
+  winnerPhoto?: string; 
+  isYou: boolean; 
+  styles: any;
+  onChallenge: () => void;
+}> = ({ winnerName, winnerPhoto, isYou, styles, onChallenge }) => {
+  return (
+    <View style={styles.gameOverBannerBox}>
+      <View style={styles.bannerWinnerCardRow}>
+        <View style={styles.bannerAvatarFrame}>
+          {winnerPhoto ? (
+            <Image 
+              source={{ uri: winnerPhoto }} 
+              style={styles.bannerAvatarImage} 
+              resizeMode="cover" 
+            />
+          ) : (
+            <Text style={styles.bannerAvatarText}>{winnerName ? winnerName.charAt(0).toUpperCase() : '🏆'}</Text>
+          )}
+          <View style={styles.bannerCrownBadge}>
+            <Text style={{ fontSize: 10 }}>👑</Text>
+          </View>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <Text style={styles.gameOverBannerTitle}>
+            {isYou ? `🏆 ${winnerName} (You) Wins!` : `🏆 ${winnerName} Wins!`}
+          </Text>
+          <Text style={styles.gameOverBannerSub}>
+            {isYou
+              ? 'Match Champion! You finished with the lowest total score.'
+              : `Match Champion! ${winnerName} finished with the lowest total score.`}
+          </Text>
+        </View>
+      </View>
+
+      <TouchableOpacity 
+        style={styles.challengeMainBtn} 
+        onPress={onChallenge}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.challengeMainBtnText}>⚔️ Challenge a Friend!</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const PlayWithAFriendGuide: React.FC<{ 
+  styles: any;
+  roomCode?: string;
+  onGoToPrivateRoom: () => void;
+}> = ({ styles, roomCode, onGoToPrivateRoom }) => {
+  return (
+    <View style={styles.guideContainer}>
+      <Text style={styles.guideMainTitle}>🎮 Play With a Friend</Text>
+
+      {/* Step 1 */}
+      <View style={styles.guideStepBox}>
+        <View style={styles.guideStepHeader}>
+          <Text style={styles.guideStepNum}>1</Text>
+          <Text style={styles.guideStepTitle}>
+            Create a <Text style={styles.badgeBlue}>Private Room</Text>
+          </Text>
+        </View>
+        <Text style={styles.guideStepText}>
+          • Go to <Text style={styles.badgeBlue}>Private Room</Text>.{'\n'}
+          • Create a private game for you and your friends/family.
+        </Text>
+      </View>
+
+      {/* Step 2 */}
+      <View style={styles.guideStepBox}>
+        <View style={styles.guideStepHeader}>
+          <Text style={styles.guideStepNum}>2</Text>
+          <Text style={styles.guideStepTitle}>Invite Your Friend</Text>
+        </View>
+        <Text style={styles.guideStepSubhead}>Give your friend either:</Text>
+        <View style={styles.guideBulletList}>
+          <Text style={styles.guideBulletItem}>
+            • <Text style={styles.badgeGold}>Room Code:</Text> Send them the 4-digit room code{roomCode ? ` (${roomCode})` : ''}.
+          </Text>
+          <Text style={styles.guideBulletItem}>
+            • <Text style={styles.badgeGreen}>WhatsApp:</Text> Send the invite through WhatsApp.
+          </Text>
+          <Text style={styles.guideBulletItem}>
+            • <Text style={styles.badgeCyan}>Share Link:</Text> Copy/share the private game link directly.
+          </Text>
+        </View>
+      </View>
+
+      {/* Step 3 */}
+      <View style={styles.guideStepBox}>
+        <View style={styles.guideStepHeader}>
+          <Text style={styles.guideStepNum}>3</Text>
+          <Text style={styles.guideStepTitle}>Your Friend Joins</Text>
+        </View>
+        <Text style={styles.guideStepText}>
+          Your friend opens the link or goes to <Text style={styles.badgeBlue}>Private Room</Text> and enters the room code. Once they join, start the game and play together.
+        </Text>
+      </View>
+
+      {/* Example Box */}
+      <View style={styles.guideExampleBox}>
+        <Text style={styles.guideExampleTitle}>💡 Example:</Text>
+        <Text style={styles.guideExampleText}>
+          You create a private room ➔ get code <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{roomCode || '4827'}</Text> ➔ send <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{roomCode || '4827'}</Text> to your friend ➔ your friend enters the code ➔ they join your game.
+        </Text>
+      </View>
+
+      {/* Prominent Direct Action Button */}
+      <TouchableOpacity 
+        style={styles.guideChallengeBtn}
+        onPress={onGoToPrivateRoom}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.guideChallengeBtnText}>🎮 Challenge a Friend</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -321,11 +467,6 @@ const AnimatedRevealedHandOnTable: React.FC<{
       baseMargin = -16;
     }
 
-    if (handCount > 5) {
-      baseScale *= 0.88;
-      baseMargin -= 1;
-    }
-
     if (isMob) {
       baseScale *= 0.80;
       baseMargin = Math.round(baseMargin * 1.1);
@@ -427,6 +568,7 @@ export const GameScreen: React.FC<Props> = ({
   const styles = createStyles(width, height, n, avatarSize, currentFeltColor || '#076324');
   
   const [selected, setSelected] = useState<string[]>([]);
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
   console.log('[GameScreen Render] selected state is:', selected);
   const [showChat, setShowChat] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -707,8 +849,10 @@ export const GameScreen: React.FC<Props> = ({
     if (prevTurnKeyRef.current !== currentKey) {
       prevTurnKeyRef.current = currentKey;
       if (turnId === currentPlayerId) {
+        setSelected([]);
         playYourTurn();
       } else {
+        setSelected([]);
         playTurnEnd();
       }
     }
@@ -853,6 +997,17 @@ export const GameScreen: React.FC<Props> = ({
       }
     }
   }, [room?.messages, currentPlayerId, showChat]);
+
+  const gameOverSoundPlayedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (room?.status === 'game-over' && revealCompleted) {
+      const key = `${room.id}_R${room.currentRound}_gameover`;
+      if (gameOverSoundPlayedRef.current !== key) {
+        gameOverSoundPlayedRef.current = key;
+        playGameOver();
+      }
+    }
+  }, [room?.status, revealCompleted, room?.id, room?.currentRound]);
 
   useEffect(() => {
     if (chatToast) {
@@ -1091,88 +1246,271 @@ export const GameScreen: React.FC<Props> = ({
   const renderRoundSummary = () => {
     const isGameOver = room.status === 'game-over';
     const playersList = Object.values(players).sort((a, b) => a.totalScore - b.totalScore);
+    const overallWinner = players[room.winnerId || room.roundWinnerId || ''] || playersList[0];
     const caller = Object.values(players).find(p => p.hasCalledLeast);
     const jokerRank = room.jokerCard?.rank;
 
     return (
       <Modal visible={(room.status === 'round-end' || room.status === 'game-over') && revealCompleted} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.summaryContainer}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 6 }}>
-              <Text style={styles.summaryTitle}>{isGameOver ? 'GAME OVER' : 'ROUND OVER'}</Text>
+          {showChallengeModal ? (
+            <ScrollView contentContainerStyle={{ alignItems: 'center', paddingVertical: 20 }} style={{ width: '100%', maxHeight: '95%' }} showsVerticalScrollIndicator={false}>
+              <View style={styles.challengeModalContainer}>
+                <Text style={styles.challengeModalTitle}>⚔️ Challenge a Friend!</Text>
+                <Text style={styles.challengeModalSub}>
+                  Invite your friends to play 7 Cards Least! Share the 4-digit room code or send a direct link to start playing.
+                </Text>
+
+                <View style={styles.roomCodeBox}>
+                  <Text style={styles.roomCodeLabel}>ROOM CODE:</Text>
+                  <Text style={styles.roomCodeText}>{room.id}</Text>
+                  <TouchableOpacity 
+                    style={styles.copyCodeBtn}
+                    onPress={async () => {
+                      const copied = await copyToClipboard(room.id);
+                      showShareToastMsg(copied ? '📋 Room code copied!' : `Code: ${room.id}`);
+                    }}
+                  >
+                    <Text style={styles.copyCodeBtnText}>Copy Code</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {shareToast && (
+                  <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, width: '100%', alignItems: 'center' }}>
+                    <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
+                  </View>
+                )}
+
+                <View style={{ width: '100%', gap: 10, marginTop: 14 }}>
+                  <TouchableOpacity 
+                    style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
+                    onPress={async () => {
+                      const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                      const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
+                      await copyToClipboard(shareText);
+                      if (typeof window !== 'undefined') {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                      }
+                      showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', width: '100%' }]}
+                    onPress={async () => {
+                      const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                      const shareText = `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
+                      const copied = await copyToClipboard(shareText);
+                      showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Room Code: ${room.id}`);
+                      Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.summaryBtnText}>📋 Copy Game Link</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* 🎮 Play With a Friend Instructions */}
+                <PlayWithAFriendGuide 
+                  styles={styles} 
+                  roomCode={room.id} 
+                  onGoToPrivateRoom={onLeaveRoom}
+                />
+
+                <TouchableOpacity 
+                  style={[styles.modalCloseActionBtn, { marginTop: 12 }]} 
+                  onPress={() => setShowChallengeModal(false)}
+                >
+                  <Text style={styles.modalCloseActionBtnText}>📊 Back to Scoreboard</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          ) : (
+            <View style={styles.summaryContainer}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 6 }}>
+                <Text style={styles.summaryTitle}>{isGameOver ? 'GAME OVER' : 'ROUND OVER'}</Text>
+                <TouchableOpacity 
+                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#ef4444' }} 
+                  onPress={onLeaveRoom}
+                >
+                  <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>Exit Game ✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              {isGameOver && overallWinner && (
+                <GameOverCelebrationBanner 
+                  winnerName={overallWinner.name} 
+                  winnerPhoto={overallWinner.photoURL}
+                  isYou={overallWinner.id === currentPlayerId} 
+                  styles={styles}
+                  onChallenge={() => setShowChallengeModal(true)}
+                />
+              )}
+
+              {caller && <Text style={styles.callerText}>{caller.name} called LEAST!</Text>}
+              
+              <ScrollView style={styles.summaryCardsScroll} showsVerticalScrollIndicator={false}>
+                {playersList.map(p => {
+                  const isWinner = isGameOver ? p.id === room.winnerId : p.id === room.roundWinnerId;
+                  const finalCards = p.hand || [];
+
+                  return (
+                    <View key={p.id} style={[styles.summaryPlayerCard, isWinner && styles.winnerPlayerCard]}>
+                      <View style={styles.summaryPlayerHeader}>
+                        <Text style={styles.summaryPlayerName}>
+                          {p.name} {p.id === currentPlayerId ? '(You)' : ''} {isWinner ? '[WINNER]' : ''} {p.isOut ? '[OUT]' : ''}
+                        </Text>
+                        <Text style={styles.summaryTotalText}>{p.totalScore} pts total</Text>
+                      </View>
+
+                      {/* Step/Card UI for Round Scores */}
+                      <View style={styles.stepRoundsBox}>
+                        <Text style={styles.stepRoundsTitle}>Round Breakdown:</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stepRoundsScroll}>
+                          {(p.roundScores && p.roundScores.length > 0 ? p.roundScores : [p.roundScore]).map((score, idx) => (
+                            <View key={idx} style={[styles.stepRoundCard, idx === (room.currentRound || 1) - 1 && styles.stepRoundCardCurrent]}>
+                              <Text style={styles.stepRoundNum}>R{idx + 1}</Text>
+                              <Text style={[styles.stepRoundScore, score === 80 && { color: '#ef4444' }]}>{score}</Text>
+                            </View>
+                          ))}
+                        </ScrollView>
+                      </View>
+
+                      {/* Final Cards Display */}
+                      <View style={styles.finalCardsBox}>
+                        <Text style={styles.finalCardsTitle}>Final Hand (Score: {p.roundScore} pts):</Text>
+                        {finalCards.length > 0 ? (
+                          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.finalCardsScroll}>
+                            {finalCards.map((c, i) => {
+                              const isJoker = jokerRank && c.rank === jokerRank;
+                              return (
+                                <View key={c.id || i} style={{ marginRight: 6 }}>
+                                  {renderCard(c, false, undefined, isJoker)}
+                                </View>
+                              );
+                            })}
+                          </ScrollView>
+                        ) : (
+                          <Text style={styles.noCardsText}>No cards in hand</Text>
+                        )}
+                      </View>
+                    </View>
+                  );
+                })}
+
+                {/* 🎮 Play With a Friend Instructions Section on Game Over */}
+                {isGameOver && (
+                  <PlayWithAFriendGuide 
+                    styles={styles} 
+                    roomCode={room.id} 
+                    onGoToPrivateRoom={onLeaveRoom}
+                  />
+                )}
+              </ScrollView>
+
+              {/* Viral Social Challenge & Share Row */}
+              {shareToast && (
+                <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, width: '100%', alignItems: 'center' }}>
+                  <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
+                </View>
+              )}
+
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <TouchableOpacity 
+                  style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
+                  onPress={async () => {
+                    const myScore = players[currentPlayerId]?.totalScore ?? 0;
+                    const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                    const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nMy score: ${myScore} pts\nClick to play: ${shareUrl}`;
+                    await copyToClipboard(shareText);
+                    if (typeof window !== 'undefined') {
+                      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                    }
+                    showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 130 }]} 
+                  onPress={async () => {
+                    const myScore = players[currentPlayerId]?.totalScore ?? 0;
+                    const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                    const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nScore: ${myScore} pts\nPlay now: ${shareUrl}`;
+                    const copied = await copyToClipboard(shareText);
+                    showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Link: ${shareUrl}`);
+                    Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.summaryBtnText}>📋 Copy Link</Text>
+                </TouchableOpacity>
+              </View>
+
+              {isGameOver ? (
+                <View style={styles.winnerSection}>
+                  <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
+                  {renderRematchSection()}
+                </View>
+              ) : (
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, width: '100%', justifyContent: 'center' }}>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1.2 }]} onPress={onNextRound} activeOpacity={0.8}>
+                    <Text style={styles.summaryBtnText}>▶️ Next Round {(room.currentRound || 1) + 1}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
+                    <Text style={styles.summaryBtnText}>Exit Game</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      </Modal>
+    );
+  };
+
+  const renderChallengeModal = () => {
+    if (!showChallengeModal) return null;
+    return (
+      <Modal visible={showChallengeModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.challengeModalContainer}>
+            <Text style={styles.challengeModalTitle}>⚔️ Challenge a Friend!</Text>
+            <Text style={styles.challengeModalSub}>
+              Invite your friends to play 7 Cards Least! Share the 4-digit room code or send a direct link to start playing.
+            </Text>
+
+            <View style={styles.roomCodeBox}>
+              <Text style={styles.roomCodeLabel}>ROOM CODE:</Text>
+              <Text style={styles.roomCodeText}>{room.id}</Text>
               <TouchableOpacity 
-                style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#ef4444' }} 
-                onPress={onLeaveRoom}
+                style={styles.copyCodeBtn}
+                onPress={async () => {
+                  const copied = await copyToClipboard(room.id);
+                  showShareToastMsg(copied ? '📋 Room code copied!' : `Code: ${room.id}`);
+                }}
               >
-                <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>Exit Game ✕</Text>
+                <Text style={styles.copyCodeBtnText}>Copy Code</Text>
               </TouchableOpacity>
             </View>
-            {caller && <Text style={styles.callerText}>{caller.name} called LEAST!</Text>}
-            
-            <ScrollView style={styles.summaryCardsScroll} showsVerticalScrollIndicator={false}>
-              {playersList.map(p => {
-                const isWinner = isGameOver ? p.id === room.winnerId : p.id === room.roundWinnerId;
-                const finalCards = p.hand || [];
 
-                return (
-                  <View key={p.id} style={[styles.summaryPlayerCard, isWinner && styles.winnerPlayerCard]}>
-                    <View style={styles.summaryPlayerHeader}>
-                      <Text style={styles.summaryPlayerName}>
-                        {p.name} {p.id === currentPlayerId ? '(You)' : ''} {isWinner ? '[WINNER]' : ''} {p.isOut ? '[OUT]' : ''}
-                      </Text>
-                      <Text style={styles.summaryTotalText}>{p.totalScore} pts total</Text>
-                    </View>
-
-                    {/* Step/Card UI for Round Scores */}
-                    <View style={styles.stepRoundsBox}>
-                      <Text style={styles.stepRoundsTitle}>Round Breakdown:</Text>
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stepRoundsScroll}>
-                        {(p.roundScores && p.roundScores.length > 0 ? p.roundScores : [p.roundScore]).map((score, idx) => (
-                          <View key={idx} style={[styles.stepRoundCard, idx === (room.currentRound || 1) - 1 && styles.stepRoundCardCurrent]}>
-                            <Text style={styles.stepRoundNum}>R{idx + 1}</Text>
-                            <Text style={[styles.stepRoundScore, score === 80 && { color: '#ef4444' }]}>{score}</Text>
-                          </View>
-                        ))}
-                      </ScrollView>
-                    </View>
-
-                    {/* Final Cards Display */}
-                    <View style={styles.finalCardsBox}>
-                      <Text style={styles.finalCardsTitle}>Final Hand (Score: {p.roundScore} pts):</Text>
-                      {finalCards.length > 0 ? (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.finalCardsScroll}>
-                          {finalCards.map((c, i) => {
-                            const isJoker = jokerRank && c.rank === jokerRank;
-                            return (
-                              <View key={c.id || i} style={{ marginRight: 6 }}>
-                                {renderCard(c, false, undefined, isJoker)}
-                              </View>
-                            );
-                          })}
-                        </ScrollView>
-                      ) : (
-                        <Text style={styles.noCardsText}>No cards in hand</Text>
-                      )}
-                    </View>
-                  </View>
-                );
-              })}
-            </ScrollView>
-
-            {/* Viral Social Challenge & Share Row */}
             {shareToast && (
               <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, width: '100%', alignItems: 'center' }}>
                 <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
               </View>
             )}
 
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <View style={{ width: '100%', gap: 10, marginTop: 14 }}>
               <TouchableOpacity 
-                style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
+                style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
                 onPress={async () => {
-                  const myScore = players[currentPlayerId]?.totalScore ?? 0;
                   const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                  const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nMy score: ${myScore} pts\nClick to play: ${shareUrl}`;
+                  const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
                   await copyToClipboard(shareText);
                   if (typeof window !== 'undefined') {
                     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -1181,41 +1519,30 @@ export const GameScreen: React.FC<Props> = ({
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
+                <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 130 }]} 
+                style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', width: '100%' }]}
                 onPress={async () => {
-                  const myScore = players[currentPlayerId]?.totalScore ?? 0;
                   const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                  const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nScore: ${myScore} pts\nPlay now: ${shareUrl}`;
+                  const shareText = `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
                   const copied = await copyToClipboard(shareText);
-                  showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Link: ${shareUrl}`);
+                  showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Room Code: ${room.id}`);
                   Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.summaryBtnText}>📋 Copy Link</Text>
+                <Text style={styles.summaryBtnText}>📋 Copy Game Link</Text>
               </TouchableOpacity>
             </View>
 
-            {isGameOver ? (
-              <View style={styles.winnerSection}>
-                <Text style={styles.winnerTitle}>🏆 Winner: {playersList[0]?.name}!</Text>
-                {renderRematchSection()}
-              </View>
-            ) : (
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, width: '100%', justifyContent: 'center' }}>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#2563eb', flex: 1.2 }]} onPress={onNextRound} activeOpacity={0.8}>
-                  <Text style={styles.summaryBtnText}>▶️ Next Round {(room.currentRound || 1) + 1}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.summaryBtn, { backgroundColor: '#ef4444', flex: 0.8 }]} onPress={onLeaveRoom} activeOpacity={0.8}>
-                  <Text style={styles.summaryBtnText}>Exit Game</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
+            <TouchableOpacity 
+              style={[styles.modalCloseActionBtn, { marginTop: 16 }]} 
+              onPress={() => setShowChallengeModal(false)}
+            >
+              <Text style={styles.modalCloseActionBtnText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1392,6 +1719,7 @@ export const GameScreen: React.FC<Props> = ({
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         {renderRoundSummary()}
+        {renderChallengeModal()}
         {renderChatModal()}
         {renderScoresModal()}
         {renderEditModal()}
@@ -1474,6 +1802,11 @@ export const GameScreen: React.FC<Props> = ({
                   const isHost = id === room.hostId;
                   const isMe = id === currentPlayerId;
 
+                  const winnerIdToHighlight = room.status === 'game-over'
+                    ? (room.winnerId || room.roundWinnerId)
+                    : (room.status === 'round-end' ? room.roundWinnerId : null);
+                  const isWinner = Boolean(winnerIdToHighlight && winnerIdToHighlight === id);
+
                   const { x, y } = getPerimeterCoords(index, n);
                   
                   const half = avatarSize / 2;
@@ -1488,7 +1821,7 @@ export const GameScreen: React.FC<Props> = ({
                       <View style={{ alignItems: 'center', justifyContent: 'center', position: 'relative' }} pointerEvents="box-none">
                         
                         {/* Avatar */}
-                        <View style={[styles.avatarBox, isCurrentTurn && !isRevealingMode && styles.activeAvatar]}>
+                        <View style={[styles.avatarBox, isCurrentTurn && !isRevealingMode && styles.activeAvatar, isWinner && styles.winnerAvatarBox]}>
                           {player.photoURL ? (
                             <Image 
                               source={{ uri: player.photoURL }} 
@@ -1539,8 +1872,15 @@ export const GameScreen: React.FC<Props> = ({
                                 </View>
                               )}
                               
-                              <View style={styles.opponentLabelBox}>
-                                <Text style={styles.opponentName} numberOfLines={1}>{player.name} {isMe ? '(You)' : ''}</Text>
+                              <View style={[styles.opponentLabelBox, isWinner && styles.winnerLabelBox]}>
+                                {isWinner && (
+                                  <View style={styles.winnerBadgePill}>
+                                    <Text style={styles.winnerBadgePillText}>🏆 WINNER!</Text>
+                                  </View>
+                                )}
+                                <Text style={[styles.opponentName, isWinner && styles.winnerNameText]} numberOfLines={1}>
+                                  {player.name} {isMe ? '(You)' : ''}
+                                </Text>
                                 {!isMe && !isHost && (
                                   <Text style={styles.opponentCardCountText}>{player.hand?.length || 0} cards</Text>
                                 )}
@@ -2141,6 +2481,15 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       elevation: 10,
     },
     activeAvatar: { borderColor: '#4ade80', borderWidth: 4, shadowColor: '#4ade80', shadowOpacity: 0.8 },
+    winnerAvatarBox: {
+      borderColor: '#facc15',
+      borderWidth: 4,
+      shadowColor: '#facc15',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.95,
+      shadowRadius: 14,
+      elevation: 12,
+    },
     avatarText: { color: '#0f172a', fontWeight: '900', fontSize: avatarSize * 0.45 },
     hostBadge: { 
       position: 'absolute', 
@@ -2172,6 +2521,31 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       borderWidth: 1,
       borderColor: 'rgba(201,168,76,0.5)',
       minWidth: isSmall ? 55 : 70,
+    },
+    winnerLabelBox: {
+      backgroundColor: '#713f12',
+      borderColor: '#facc15',
+      borderWidth: 1.5,
+      shadowColor: '#facc15',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.7,
+      shadowRadius: 6,
+    },
+    winnerBadgePill: {
+      backgroundColor: '#facc15',
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      borderRadius: 4,
+      marginBottom: 2,
+    },
+    winnerBadgePillText: {
+      color: '#451a03',
+      fontSize: 9,
+      fontWeight: '900',
+    },
+    winnerNameText: {
+      color: '#fef08a',
+      fontWeight: '900',
     },
     opponentName: { color: '#fff', fontSize: isSmall ? 9 : 11, fontWeight: '900' },
     opponentCardCountText: { color: '#facc15', fontSize: isSmall ? 8 : 10, fontWeight: 'bold', marginTop: 1 },
@@ -2335,6 +2709,222 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       flexDirection: 'column',
       justifyContent: 'space-between',
     },
+    gameOverBannerBox: {
+      width: '100%',
+      backgroundColor: '#713f12',
+      borderRadius: 16,
+      padding: 14,
+      marginBottom: 10,
+      borderWidth: 2,
+      borderColor: '#facc15',
+      shadowColor: '#facc15',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.6,
+      shadowRadius: 10,
+      elevation: 8,
+    },
+    bannerWinnerCardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 10,
+    },
+    bannerAvatarFrame: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: '#facc15',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: '#ffffff',
+      position: 'relative',
+    },
+    bannerAvatarImage: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 24,
+    },
+    bannerAvatarText: {
+      color: '#451a03',
+      fontSize: 22,
+      fontWeight: '900',
+    },
+    bannerCrownBadge: {
+      position: 'absolute',
+      top: -8,
+      right: -6,
+      backgroundColor: '#facc15',
+      borderRadius: 10,
+      padding: 2,
+      borderWidth: 1,
+      borderColor: '#854d0e',
+    },
+    gameOverBannerTitle: {
+      color: '#fef08a',
+      fontSize: isSmall ? 16 : 18,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+    gameOverBannerSub: {
+      color: '#fef3c7',
+      fontSize: isSmall ? 11 : 12,
+      fontWeight: '600',
+      marginTop: 2,
+    },
+    challengeMainBtn: {
+      backgroundColor: '#16a34a',
+      paddingVertical: 10,
+      borderRadius: 10,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: '#86efac',
+      width: '100%',
+    },
+    challengeMainBtnText: {
+      color: '#ffffff',
+      fontWeight: '900',
+      fontSize: 14,
+    },
+    challengeModalContainer: {
+      backgroundColor: '#0f172a',
+      width: '94%',
+      maxWidth: 400,
+      borderRadius: 20,
+      padding: 20,
+      borderWidth: 2,
+      borderColor: '#38bdf8',
+    },
+    challengeModalTitle: { color: '#ffffff', fontSize: 20, fontWeight: '900' },
+    challengeModalSub: { color: '#cbd5e1', fontSize: 13, lineHeight: 18, marginTop: 4, marginBottom: 14 },
+    roomCodeBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#1e293b',
+      borderRadius: 12,
+      padding: 12,
+      gap: 10,
+      borderWidth: 1,
+      borderColor: '#334155',
+    },
+    roomCodeLabel: { color: '#94a3b8', fontSize: 13, fontWeight: 'bold' },
+    roomCodeText: { color: '#fbbf24', fontSize: 20, fontWeight: '900', flex: 1, letterSpacing: 1 },
+    copyCodeBtn: { backgroundColor: '#0284c7', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+    copyCodeBtnText: { color: '#ffffff', fontSize: 12, fontWeight: 'bold' },
+    
+    /* Play With A Friend Guide Styles */
+    guideContainer: {
+      backgroundColor: '#0f172a',
+      borderColor: '#3b82f6',
+      borderWidth: 1.5,
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 14,
+      marginBottom: 10,
+      width: '100%',
+    },
+    guideMainTitle: {
+      color: '#ffffff',
+      fontSize: 18,
+      fontWeight: '900',
+      marginBottom: 12,
+      letterSpacing: 0.5,
+    },
+    guideStepBox: {
+      backgroundColor: '#1e293b',
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 10,
+      borderLeftWidth: 4,
+      borderLeftColor: '#38bdf8',
+    },
+    guideStepHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 4,
+    },
+    guideStepNum: {
+      backgroundColor: '#0284c7',
+      color: '#ffffff',
+      fontWeight: 'bold',
+      fontSize: 12,
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      textAlign: 'center',
+      lineHeight: 22,
+      overflow: 'hidden',
+    },
+    guideStepTitle: {
+      color: '#f8fafc',
+      fontSize: 15,
+      fontWeight: 'bold',
+    },
+    guideStepText: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    guideStepSubhead: {
+      color: '#94a3b8',
+      fontSize: 12,
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    guideBulletList: {
+      gap: 4,
+      paddingLeft: 4,
+    },
+    guideBulletItem: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    guideExampleBox: {
+      backgroundColor: 'rgba(251, 191, 36, 0.1)',
+      borderColor: 'rgba(251, 191, 36, 0.4)',
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderRadius: 10,
+      padding: 12,
+      marginTop: 6,
+      marginBottom: 14,
+    },
+    guideExampleTitle: {
+      color: '#fbbf24',
+      fontSize: 13,
+      fontWeight: 'bold',
+      marginBottom: 4,
+    },
+    guideExampleText: {
+      color: '#f1f5f9',
+      fontSize: 12.5,
+      lineHeight: 18,
+    },
+    guideChallengeBtn: {
+      backgroundColor: '#2563eb',
+      borderRadius: 12,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#2563eb',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 4,
+      width: '100%',
+    },
+    guideChallengeBtnText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '900',
+    },
+    badgeBlue: { color: '#60a5fa', fontWeight: 'bold' },
+    badgeGold: { color: '#fbbf24', fontWeight: 'bold' },
+    badgeGreen: { color: '#34d399', fontWeight: 'bold' },
+    badgeCyan: { color: '#38bdf8', fontWeight: 'bold' },
     summaryTitle: { color: '#fff', fontSize: isSmall ? 20 : 26, fontWeight: '900', marginBottom: 6 },
     callerText: { color: '#facc15', fontSize: isSmall ? 14 : 16, fontWeight: 'bold', marginBottom: 10 },
     summaryCardsScroll: { width: '100%', flexGrow: 1, flexShrink: 1, marginVertical: 6 },

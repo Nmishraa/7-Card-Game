@@ -164,6 +164,8 @@ export const startRound = (room: GameRoom): GameRoom => {
     players: newPlayers,
     currentRound: isRematch ? 1 : (room.currentRound || 1),
     status: 'playing',
+    finishedAt: undefined,
+    isExpired: false,
     turnIndex: findFirstPlayerIndex(room),
     turnPhase: 'discarding',
     lastDiscardedCount: 1,
@@ -451,9 +453,63 @@ export const callLeast = (room: GameRoom, callerId: string): GameRoom => {
     ...room,
     players: newPlayers,
     status: isGameOver ? 'game-over' : 'round-end',
+    finishedAt: isGameOver ? (room.finishedAt || Date.now()) : room.finishedAt,
+    gameOverAt: isGameOver ? (room.gameOverAt || Date.now()) : room.gameOverAt,
     roundWinnerId: callerWon ? callerId : lowestPlayerId,
     winnerId,
   };
+};
+
+export const formatCountdown = (ms: number): string => {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+};
+
+export const WAITING_ROOM_TTL_MS = 15 * 60 * 1000; // 15 minutes
+export const POST_GAME_TTL_MS = 5 * 60 * 1000;    // 5 minutes
+export const EMPTY_ROOM_TTL_MS = 5 * 60 * 1000;    // 5 minutes
+
+export const checkRoomExpiration = (room: GameRoom): { isExpired: boolean; expiredReason?: string } => {
+  if (!room) return { isExpired: false };
+  if (room.status === 'expired' || room.isExpired) {
+    return { isExpired: true, expiredReason: 'This private room has expired.' };
+  }
+
+  const now = Date.now();
+
+  // 1. Waiting room expiration (15 minutes) - active only when in 'lobby'
+  if (room.status === 'lobby') {
+    const createdAt = room.createdAt || now;
+    if (now - createdAt >= WAITING_ROOM_TTL_MS) {
+      return { isExpired: true, expiredReason: 'Waiting room expired after 15 minutes.' };
+    }
+
+    // Empty room check (5 minutes of no human players)
+    const humanPlayers = Object.values(room.players || {}).filter(p => !p.isBot);
+    if (humanPlayers.length === 0) {
+      const emptyAt = room.emptyAt || now;
+      if (now - emptyAt >= EMPTY_ROOM_TTL_MS) {
+        return { isExpired: true, expiredReason: 'Room expired due to 5 minutes of inactivity.' };
+      }
+    }
+  }
+
+  // 2. Active game exemption (playing / round-end): DO NOT EXPIRE
+  if (room.status === 'playing' || room.status === 'round-end') {
+    return { isExpired: false };
+  }
+
+  // 3. Post-game expiration (5 minutes after match ends)
+  if (room.status === 'game-over') {
+    const gameOverAt = room.gameOverAt || room.finishedAt || now;
+    if (now - gameOverAt >= POST_GAME_TTL_MS) {
+      return { isExpired: true, expiredReason: 'Post-game room expired after 5 minutes.' };
+    }
+  }
+
+  return { isExpired: false };
 };
 
 export const botPlayTurn = (room: GameRoom, botId: string): GameRoom => {

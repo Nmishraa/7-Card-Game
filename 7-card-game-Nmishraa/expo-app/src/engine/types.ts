@@ -22,7 +22,7 @@ export interface Player {
 }
 
 
-export type GameStatus = 'lobby' | 'playing' | 'round-end' | 'game-over';
+export type GameStatus = 'lobby' | 'playing' | 'round-end' | 'game-over' | 'expired';
 export type TurnPhase = 'discarding' | 'picking';
 
 export interface ChatMessage {
@@ -62,8 +62,13 @@ export interface GameRoom {
   turnStartTime?: number;
   turnTimeLimit?: number; // 60 for 1 minute, 0 for No Timer
   updatedAt?: number;
+  createdAt?: number;
+  gameOverAt?: number;
+  emptyAt?: number;
   version?: number;
   rematchRequest?: RematchRequest | null;
+  finishedAt?: number;
+  isExpired?: boolean;
 }
 
 
