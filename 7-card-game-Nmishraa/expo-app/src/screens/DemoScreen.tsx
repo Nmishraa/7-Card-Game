@@ -216,6 +216,10 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
   else if (isResultScreen) actionBannerText = '🎉 ROUND OVER — Alex Wins 0 Pts! Play 7 Cards Online!';
 
 
+  const isMobile = width < 600;
+  const isVerySmall = width < 400;
+  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 3.4 : 4 / 3.1) : 16 / 9;
+
   // ── Flying Animated Card State (Alex Turn Deck Pickups Only) ──
   let flyingCard: {
     visible: boolean;
@@ -238,7 +242,7 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
       startX: 0,
       startY: 0,
       targetX: 0,
-      targetY: 85,
+      targetY: isMobile ? 95 : 85,
       progress: p,
       rank: 'A',
       suit: '♣',
@@ -253,7 +257,7 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
       startX: 0,
       startY: 0,
       targetX: 0,
-      targetY: 85,
+      targetY: isMobile ? 95 : 85,
       progress: p,
       rank: 'A',
       suit: '♥',
@@ -285,9 +289,9 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* Main 16:9 Video Demo Container */}
+          {/* Main Responsive Video Demo Container */}
           <View style={styles.videoPlayerWrapper}>
-            <View style={styles.videoFrame169}>
+            <View style={[styles.videoFrame169, { aspectRatio: frameAspectRatio }]}>
               
               {/* Top Timeline Scrubber Track */}
               <View style={styles.topProgressTrack}>
