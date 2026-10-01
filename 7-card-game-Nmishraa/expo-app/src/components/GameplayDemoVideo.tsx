@@ -244,10 +244,6 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
 
 
   const isMobile = width < 768;
-  const isVerySmall = width < 400;
-
-  // Responsive Aspect Ratio: Gives generous vertical table height on mobile screens (500px+ tall frame) instead of squishing
-  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 5.6 : 4 / 5.2) : 16 / 9;
 
   return (
     <View style={[styles.container, style]}>
@@ -262,9 +258,9 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Main Responsive Video Demo Container */}
+      {/* Main Responsive Video Demo Container (Matches GamePreviewSection proportions on mobile) */}
       <View style={styles.videoFrame}>
-        <View style={[styles.videoFrame169, { aspectRatio: frameAspectRatio, minHeight: isMobile ? (isVerySmall ? 450 : 500) : undefined }]}>
+        <View style={[styles.videoFrame169, isMobile ? { minHeight: 420 } : { aspectRatio: 16 / 9 }]}>
           
           {/* Top Progress Track */}
           <View style={styles.topProgressTrack}>
@@ -640,9 +636,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 780,
     alignSelf: 'center',
-    marginVertical: width < 600 ? 12 : 24,
+    marginVertical: 24,
     alignItems: 'center',
-    paddingHorizontal: width < 600 ? 0 : 12,
+    paddingHorizontal: 12,
   },
   headerRow: {
     width: '100%',
