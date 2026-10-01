@@ -262,7 +262,7 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
       <View style={styles.gameFrame}>
         <View style={styles.tableRailOuter}>
           <View style={styles.tableRailInner}>
-            <View style={[styles.feltTable, isMobile ? { minHeight: 420 } : { minHeight: 420 }]}>
+            <View style={[styles.feltTable, { height: 420, minHeight: 420 }]}>
               <View style={styles.feltSeam} />
 
               {/* Top Progress Track */}
@@ -730,6 +730,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 12,
     position: 'relative',
+    height: 420,
     minHeight: 420,
     justifyContent: 'space-between',
   },
