@@ -85,7 +85,7 @@ export const HomeScreen: React.FC<Props> = ({
   const [showTerms, setShowTerms] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isWide = width >= 640;
+  const isWide = width >= 900;
   const isDesktop = width >= 900;
 
   const scrollViewRef = useRef<ScrollView>(null);
