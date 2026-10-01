@@ -258,18 +258,17 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Main Responsive Video Demo Container (Matches GamePreviewSection proportions on mobile) */}
-      <View style={styles.videoFrame}>
-        <View style={[styles.videoFrame169, isMobile ? { minHeight: 420 } : { aspectRatio: 16 / 9 }]}>
-          
-          {/* Top Progress Track */}
-          <View style={styles.topProgressTrack}>
-            <View style={[styles.topProgressFill, { width: `${(currentTime / TOTAL_DURATION) * 100}%` }]} />
-          </View>
+      {/* Main Responsive Video Demo Container (Matches GamePreviewSection frame & wood rail 1:1) */}
+      <View style={styles.gameFrame}>
+        <View style={styles.tableRailOuter}>
+          <View style={styles.tableRailInner}>
+            <View style={[styles.feltTable, isMobile ? { minHeight: 420 } : { minHeight: 420 }]}>
+              <View style={styles.feltSeam} />
 
-          {/* ── REAL GAME TABLE FELT ── */}
-          <View style={styles.feltTable}>
-            <View style={styles.feltSeam} />
+              {/* Top Progress Track */}
+              <View style={styles.topProgressTrack}>
+                <View style={[styles.topProgressFill, { width: `${(currentTime / TOTAL_DURATION) * 100}%` }]} />
+              </View>
 
             {/* Table Header Bar */}
             <View style={styles.tableTopHeader}>
@@ -583,44 +582,44 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
               </View>
             )}
 
-          </View>
-
-          {/* ── SCRUBBER CONTROLS BAR ── */}
-          <View style={styles.controlsBar}>
-            <View style={styles.leftControls}>
-              <TouchableOpacity style={styles.playPauseBtn} onPress={handlePlayPause}>
-                <Text style={styles.playPauseText}>{isPlaying ? '⏸ Pause' : '▶ Play'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.replayBtn} onPress={handleReplay}>
-                <Text style={styles.replayText}>🔄 Replay</Text>
-              </TouchableOpacity>
             </View>
+          </View>
+        </View>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scenePillsScroll}>
-              <TouchableOpacity style={[styles.scenePill, isIntro && styles.scenePillActive]} onPress={() => seekTo(0)}>
-                <Text style={styles.scenePillText}>0s Start</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isDealing && styles.scenePillActive]} onPress={() => seekTo(4.0)}>
-                <Text style={styles.scenePillText}>4s Deal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isTurns1to3 && styles.scenePillActive]} onPress={() => seekTo(11.0)}>
-                <Text style={styles.scenePillText}>11s Turns 1-3</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isTurns4to5 && styles.scenePillActive]} onPress={() => seekTo(20.0)}>
-                <Text style={styles.scenePillText}>20s Turns 4-5</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isCallLeast && styles.scenePillActive]} onPress={() => seekTo(27.0)}>
-                <Text style={styles.scenePillText}>27s Call LEAST</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isCardsRevealed && styles.scenePillActive]} onPress={() => seekTo(33.0)}>
-                <Text style={styles.scenePillText}>33s Reveal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.scenePill, isResultScreen && styles.scenePillActive]} onPress={() => seekTo(41.0)}>
-                <Text style={styles.scenePillText}>41s Result</Text>
-              </TouchableOpacity>
-            </ScrollView>
+        {/* ── SCRUBBER CONTROLS BAR ── */}
+        <View style={styles.controlsBar}>
+          <View style={styles.leftControls}>
+            <TouchableOpacity style={styles.playPauseBtn} onPress={handlePlayPause}>
+              <Text style={styles.playPauseText}>{isPlaying ? '⏸ Pause' : '▶ Play'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.replayBtn} onPress={handleReplay}>
+              <Text style={styles.replayText}>🔄 Replay</Text>
+            </TouchableOpacity>
           </View>
 
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scenePillsScroll}>
+            <TouchableOpacity style={[styles.scenePill, isIntro && styles.scenePillActive]} onPress={() => seekTo(0)}>
+              <Text style={styles.scenePillText}>0s Start</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isDealing && styles.scenePillActive]} onPress={() => seekTo(4.0)}>
+              <Text style={styles.scenePillText}>4s Deal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isTurns1to3 && styles.scenePillActive]} onPress={() => seekTo(11.0)}>
+              <Text style={styles.scenePillText}>11s Turns 1-3</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isTurns4to5 && styles.scenePillActive]} onPress={() => seekTo(20.0)}>
+              <Text style={styles.scenePillText}>20s Turns 4-5</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isCallLeast && styles.scenePillActive]} onPress={() => seekTo(27.0)}>
+              <Text style={styles.scenePillText}>27s Call LEAST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isCardsRevealed && styles.scenePillActive]} onPress={() => seekTo(33.0)}>
+              <Text style={styles.scenePillText}>33s Reveal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.scenePill, isResultScreen && styles.scenePillActive]} onPress={() => seekTo(41.0)}>
+              <Text style={styles.scenePillText}>41s Result</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </View>
 
@@ -688,48 +687,51 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  videoFrame: {
+  gameFrame: {
     width: '100%',
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(56, 189, 248, 0.5)',
-    backgroundColor: '#0a1628',
     shadowColor: '#38bdf8',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.35,
     shadowRadius: 28,
     elevation: 20,
-    position: 'relative',
+    backgroundColor: '#0a1628',
   },
-  videoFrame169: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    position: 'relative',
-    justifyContent: 'space-between',
+  tableRailOuter: {
+    backgroundColor: '#351203',
+    padding: 10,
   },
-
+  tableRailInner: {
+    backgroundColor: '#4d1904',
+    padding: 4,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(251, 191, 36, 0.3)',
+  },
   topProgressTrack: {
     width: '100%',
     height: 4,
     backgroundColor: 'rgba(255,255,255,0.15)',
     zIndex: 100,
+    borderRadius: 2,
+    marginBottom: 8,
   },
   topProgressFill: {
     height: '100%',
     backgroundColor: '#38bdf8',
+    borderRadius: 2,
   },
 
   feltTable: {
-    flex: 1,
     backgroundColor: '#065f28',
-    margin: 8,
     borderRadius: 16,
-    borderWidth: 8,
-    borderColor: '#351203',
-    position: 'relative',
-    justifyContent: 'space-between',
     padding: 12,
+    position: 'relative',
+    minHeight: 420,
+    justifyContent: 'space-between',
   },
   feltSeam: {
     ...StyleSheet.absoluteFillObject,
