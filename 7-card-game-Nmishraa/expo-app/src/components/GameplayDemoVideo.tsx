@@ -18,6 +18,7 @@ interface Props {
 
 export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
   const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
   // ── High-Precision 45-Second Timeline State ──
   const TOTAL_DURATION = 45.0;
@@ -240,10 +241,6 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
       isFaceUp: p > 0.4,
     };
   }
-
-
-
-  const isMobile = width < 768;
 
   return (
     <View style={[styles.container, style]}>

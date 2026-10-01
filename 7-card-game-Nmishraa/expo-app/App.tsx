@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, Alert, TouchableOpacity, SafeAreaView } from 'react-native';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { apiService } from './src/apiService';
 import { LoginScreen } from './src/screens/LoginScreen';
@@ -23,7 +23,7 @@ import { NotFoundPage } from './src/screens/NotFoundPage';
 import { DemoScreen } from './src/screens/DemoScreen';
 import { GameRoom, Player } from './src/engine/types';
 import {
-  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout
+  startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout, checkRoomExpiration
 } from './src/engine/gameLogic';
 import { saveCompletedGameToHistory } from './src/history/historyService';
 import { trackUserEvent } from './src/history/analyticsService';
@@ -164,6 +164,10 @@ export default function App() {
     currentRoomRef.current = currentRoom;
   }, [currentRoom]);
 
+  const FIVE_MINUTES_MS = 5 * 60 * 1000;
+
+  const [isExpiredRoom, setIsExpiredRoom] = useState<boolean>(false);
+
   // ── PostgreSQL (Neha_data) Room State Polling Sync ────────────────────────
   useEffect(() => {
     if (!roomId) return;
@@ -174,6 +178,10 @@ export default function App() {
         const data = await apiService.getRoom(roomId);
         if (data && data.success && data.room && isMounted) {
           const roomObj = data.room;
+          if (checkRoomExpiration(roomObj).isExpired) {
+            setIsExpiredRoom(true);
+            return;
+          }
           const formattedRoom: GameRoom = {
             ...roomObj,
             turnOrder: roomObj.turnOrder || [],
@@ -210,7 +218,7 @@ export default function App() {
 
           setCurrentRoom(formattedRoom);
 
-          if (formattedRoom.status === 'playing') {
+          if (formattedRoom.status === 'playing' || formattedRoom.status === 'round-end' || formattedRoom.status === 'game-over') {
             setScreen('game');
           } else if (formattedRoom.status === 'lobby') {
             setScreen('lobby');
@@ -246,6 +254,28 @@ export default function App() {
       console.error('[PostgreSQL Room Sync Error]', e);
     }
   };
+
+  // ── Room Lifecycle Expiration Loop ─────────────────────────────────────────
+  useEffect(() => {
+    if (!currentRoom) return;
+    const interval = setInterval(() => {
+      const roomToTest = currentRoomRef.current || currentRoom;
+      if (!roomToTest || roomToTest.status === 'expired') return;
+      const expRes = checkRoomExpiration(roomToTest);
+      if (expRes.isExpired) {
+        const expiredRoom: GameRoom = {
+          ...roomToTest,
+          status: 'expired',
+          isExpired: true,
+        };
+        currentRoomRef.current = expiredRoom;
+        setCurrentRoom(expiredRoom);
+        updateDbRoom(expiredRoom);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentRoom?.id]);
 
   // ── Bot Automation Loop (Only executed by Room Host) ─────────────────────
   useEffect(() => {
@@ -318,6 +348,7 @@ export default function App() {
       id: newRoomId,
       hostId: user.uid,
       status: 'lobby',
+      createdAt: Date.now(),
       deck: [],
       discardPile: [],
       players: { [user.uid]: player },
@@ -434,6 +465,10 @@ export default function App() {
       }
 
       const existingRoom: GameRoom = res.room;
+      if (checkRoomExpiration(existingRoom)) {
+        setIsExpiredRoom(true);
+        return;
+      }
       const existingPlayers = existingRoom.players || {};
       const updatedPlayers = { ...existingPlayers, [user.uid]: player };
 
@@ -769,6 +804,33 @@ export default function App() {
       '/demo',
       '/preview'
     ];
+    if (isExpiredRoom) {
+      return (
+        <SafeAreaView style={styles.expiredContainer}>
+          <View style={styles.expiredBox}>
+            <Text style={styles.expiredIcon}>⌛</Text>
+            <Text style={styles.expiredTitle}>This game has ended. Start a new game to play!</Text>
+            <TouchableOpacity
+              style={styles.createNewGameBtn}
+              onPress={() => {
+                setIsExpiredRoom(false);
+                setRoomId(null);
+                setCurrentRoom(null);
+                if (user) {
+                  handleCreateRoom(user.displayName);
+                } else {
+                  setScreen('auth');
+                }
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.createNewGameBtnText}>🎮 Create New Game</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    }
+
     if (!validPaths.includes(currentPath)) {
       return <NotFoundPage onNavigate={handleNavigate} />;
     }
@@ -865,6 +927,56 @@ const styles = StyleSheet.create({
     backgroundColor: '#0b5e28',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  expiredContainer: {
+    flex: 1,
+    backgroundColor: '#07160c',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  expiredBox: {
+    backgroundColor: '#0f172a',
+    borderRadius: 20,
+    padding: 28,
+    maxWidth: 440,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#eab308',
+    shadowColor: '#eab308',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  expiredIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  expiredTitle: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 28,
+  },
+  createNewGameBtn: {
+    backgroundColor: '#16a34a',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: '#16a34a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  createNewGameBtnText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '900',
   },
 });
 

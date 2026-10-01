@@ -50,7 +50,48 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
     setTimeout(() => setShareToast(null), 3500);
   };
   
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const createdAt = room.createdAt || now;
+  const WAITING_TTL_MS = 15 * 60 * 1000;
+  const remainingLobbyMs = Math.max(0, WAITING_TTL_MS - (now - createdAt));
+  const isExpired = room.status === 'expired' || room.isExpired || remainingLobbyMs === 0;
+
+  const formatCountdown = (ms: number): string => {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   const players = Object.values(room.players || {});
+
+  if (isExpired) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 16 }]}>
+          <View style={[styles.contentBox, { borderColor: '#ef4444', borderWidth: 2 }]}>
+            <Text style={{ fontSize: 44, marginBottom: 8, textAlign: 'center' }}>⏳</Text>
+            <Text style={[styles.title, { color: '#f87171' }]}>This private room has expired.</Text>
+            <Text style={{ color: '#cbd5e1', fontSize: 14, textAlign: 'center', marginTop: 8, marginBottom: 20, lineHeight: 20 }}>
+              Waiting rooms automatically close after 15 minutes if the game is not started. Click below to create a fresh private room!
+            </Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.startButton, { backgroundColor: '#2563eb' }]}
+              onPress={onLeaveRoom}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.buttonText}>🎮 Create New Room</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -84,35 +125,68 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
             <Text style={styles.roomCodeText}>Room Code: {room.id}</Text>
             <Text style={styles.playerCountText}>Players: {players.length} / 8</Text>
 
-            {/* Invite Friends Action Row */}
-            {shareToast && (
-              <View style={{ backgroundColor: '#064e3b', borderWidth: 1, borderColor: '#34d399', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginBottom: 12, width: '100%', alignItems: 'center' }}>
-                <Text style={{ color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' }}>{shareToast}</Text>
+            {/* Expiration Countdown Badge */}
+            <View style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', borderWidth: 1, borderColor: '#38bdf8', borderRadius: 20, paddingVertical: 6, paddingHorizontal: 14, marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 13 }}>
+                ⏳ Room expires in {formatCountdown(remainingLobbyMs)}
+              </Text>
+            </View>
+
+            {/* ─── SHARE ROOM CODE WITH YOUR FRIENDS WIDGET ─── */}
+            <View style={styles.shareSectionBox}>
+              <Text style={styles.shareSectionTitle}>📲 Share room code with your friends</Text>
+              
+              {/* Room Code Badge with Copy Action */}
+              <TouchableOpacity 
+                style={styles.roomCodeBadge}
+                activeOpacity={0.8}
+                onPress={async () => {
+                  const copied = await copyToClipboard(room.id);
+                  showShareToastMsg(copied ? `🔑 Room Code ${room.id} copied!` : `Room Code: ${room.id}`);
+                }}
+              >
+                <Text style={styles.roomCodeBadgeLabel}>Room Code:</Text>
+                <Text style={styles.roomCodeBadgeValue}>{room.id}</Text>
+                <View style={styles.copyBadgePill}>
+                  <Text style={styles.copyBadgePillText}>Copy</Text>
+                </View>
+              </TouchableOpacity>
+
+              {shareToast && (
+                <View style={styles.shareToastBox}>
+                  <Text style={styles.shareToastText}>{shareToast}</Text>
+                </View>
+              )}
+
+              <View style={styles.shareRow}>
+                <TouchableOpacity 
+                  style={styles.whatsappBtn} 
+                  onPress={async () => {
+                    const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                    const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                    await copyToClipboard(shareText);
+                    if (typeof window !== 'undefined') {
+                      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                    }
+                    showShareToastMsg('💬 Invite link copied! Opening WhatsApp...');
+                  }}
+                >
+                  <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.copyLinkBtn} 
+                  onPress={async () => {
+                    const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                    const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                    const copied = await copyToClipboard(shareText);
+                    showShareToastMsg(copied ? '📋 Room link copied to clipboard!' : `Room Link: ${inviteUrl}`);
+                    Alert.alert('Room Link Copied', `Copied to clipboard!\n\n${inviteUrl}`);
+                  }}
+                >
+                  <Text style={styles.copyLinkBtnText}>📋 Copy Link</Text>
+                </TouchableOpacity>
               </View>
-            )}
-
-            <View style={styles.shareRow}>
-              <TouchableOpacity style={styles.whatsappBtn} onPress={async () => {
-                const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
-                await copyToClipboard(shareText);
-                if (typeof window !== 'undefined') {
-                  window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                }
-                showShareToastMsg('💬 Invite link copied! Opening WhatsApp...');
-              }}>
-                <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.copyLinkBtn} onPress={async () => {
-                const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
-                const copied = await copyToClipboard(shareText);
-                showShareToastMsg(copied ? '📋 Room link copied to clipboard!' : `Room Link: ${inviteUrl}`);
-                Alert.alert('Room Link Copied', `Copied to clipboard!\n\n${inviteUrl}`);
-              }}>
-                <Text style={styles.copyLinkBtnText}>📋 Copy Link</Text>
-              </TouchableOpacity>
             </View>
 
             <View style={styles.playerListContainer}>
@@ -465,10 +539,57 @@ const createStyles = (width: number, height: number) => {
     lobbyTimeToggleText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
     lobbyHostTag: { color: '#cbd5e1', fontSize: 14, fontWeight: '600', fontStyle: 'italic' },
     soloNoticeText: { color: '#38bdf8', fontSize: 13, textAlign: 'center', marginBottom: 6, fontStyle: 'italic', fontWeight: '500' },
-    shareRow: { flexDirection: 'row', gap: 10, width: '100%', marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' },
-    whatsappBtn: { backgroundColor: '#25D366', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, flex: 1, minWidth: 150, alignItems: 'center' },
-    whatsappBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14 },
-    copyLinkBtn: { backgroundColor: '#0ea5e9', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, flex: 1, minWidth: 150, alignItems: 'center' },
-    copyLinkBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14 },
+    shareSectionBox: {
+      width: '100%',
+      backgroundColor: '#0f172a',
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: 'rgba(56, 189, 248, 0.3)',
+      marginBottom: 16,
+      alignItems: 'center',
+    },
+    shareSectionTitle: {
+      color: '#38bdf8',
+      fontSize: 15,
+      fontWeight: 'bold',
+      marginBottom: 10,
+      textAlign: 'center',
+    },
+    roomCodeBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#1e293b',
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#fbbf24',
+      marginBottom: 12,
+      gap: 8,
+    },
+    roomCodeBadgeLabel: { color: '#cbd5e1', fontSize: 13, fontWeight: '600' },
+    roomCodeBadgeValue: { color: '#fbbf24', fontSize: 18, fontWeight: '900', letterSpacing: 2 },
+    copyBadgePill: { backgroundColor: '#38bdf8', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+    copyBadgePillText: { color: '#0f172a', fontSize: 11, fontWeight: 'bold' },
+    shareToastBox: {
+      backgroundColor: '#064e3b',
+      borderWidth: 1,
+      borderColor: '#34d399',
+      borderRadius: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      marginBottom: 10,
+      width: '100%',
+      alignItems: 'center',
+    },
+    shareToastText: { color: '#a7f3d0', fontSize: 13, fontWeight: 'bold', textAlign: 'center' },
+    shareRow: { flexDirection: 'row', gap: 8, width: '100%', flexWrap: 'wrap', justifyContent: 'center' },
+    whatsappBtn: { backgroundColor: '#25D366', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, flex: 1, minWidth: 120, alignItems: 'center' },
+    whatsappBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
+    copyLinkBtn: { backgroundColor: '#0ea5e9', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, flex: 1, minWidth: 120, alignItems: 'center' },
+    copyLinkBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
+    copyCodeBtn: { backgroundColor: '#7c3aed', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, flex: 1, minWidth: 120, alignItems: 'center' },
+    copyCodeBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
   });
 };
