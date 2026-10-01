@@ -128,6 +128,9 @@ export const HomeScreen: React.FC<Props> = ({
             <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
               <Text style={styles.siteNavText}>FAQ</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/demo')} accessibilityRole="button">
+              <Text style={styles.siteNavText}>🎬 Demo</Text>
+            </TouchableOpacity>
 
             <View style={styles.navDivider} />
 

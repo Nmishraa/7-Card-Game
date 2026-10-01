@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform, ScrollView } from 'react-native';
 import {
   playCardSelect,
   playDiscard,
@@ -7,264 +7,241 @@ import {
   playYourTurn,
   playCallLeast,
   playRoundEnd,
+  playGameOver,
   unlockMobileAudio
 } from '../engine/soundService';
 
 interface Props {
   style?: any;
+  onNavigate?: (route: string) => void;
 }
 
-export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
+export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
   const { width } = useWindowDimensions();
-  const isSmall = width < 480;
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [progress, setProgress] = useState(0);
+  // ── High-Precision 45-Second Timeline State ──
+  const TOTAL_DURATION = 45.0;
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
 
-  const timerRef = useRef<any>(null);
-  const pendingAudioTimersRef = useRef<NodeJS.Timeout[]>([]);
-  const lastPlayedStepKeyRef = useRef<string | null>(null);
+  const currentTimeRef = useRef<number>(0);
+  currentTimeRef.current = currentTime;
+
+  const isPlayingRef = useRef<boolean>(isPlaying);
+  isPlayingRef.current = isPlaying;
 
   const isMutedRef = useRef<boolean>(isMuted);
   isMutedRef.current = isMuted;
 
-  const STEPS = [
-    {
-      title: "Step 1: Select Cards & Discard",
-      desc: "Select valid sets (same rank) or runs (same suit sequence). Click Discard.",
-      voiceText: "Step 1: Select cards to discard. Drop heavy points like 5, 6, and 7 of hearts to cut your hand score fast.",
-      activePlayer: "You (Turn)",
-      banner: "⚡ YOUR TURN: Select cards to Discard",
-      hand: [
-        { rank: '5', suit: '♥', isRed: true, selected: true, rot: '-6deg' },
-        { rank: '6', suit: '♥', isRed: true, selected: true, rot: '-3deg' },
-        { rank: '7', suit: '♥', isRed: true, selected: true, rot: '0deg' },
-        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '3deg' },
-        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '6deg' },
-      ],
-      discardTop: { rank: 'K', suit: '♠', isRed: false },
-      discardUnder: { rank: '9', suit: '♦', isRed: true },
-      actionText: "Discarding 5♥ 6♥ 7♥ (Suited Run)...",
-      scores: { you: 12, bot: 29, beta: 24 }
-    },
-    {
-      title: "Step 2: Draw a Card",
-      desc: "After discarding, draw 1 card from the face-down Deck or top Discard card.",
-      voiceText: "Step 2: Draw a card. Pick 1 replacement card from the secret deck or face-up discard pile.",
-      activePlayer: "You (Turn)",
-      banner: "🎴 DRAW PHASE: Pick from Secret Deck or Open Discard",
-      hand: [
-        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '-3deg' },
-        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '3deg' },
-      ],
-      discardTop: { rank: '7', suit: '♥', isRed: true },
-      discardUnder: { rank: '6', suit: '♥', isRed: true },
-      actionText: "Drawing 1 card from Secret Deck...",
-      scores: { you: 12, bot: 29, beta: 24 }
-    },
-    {
-      title: "Step 3: Turn Switches to Opponent",
-      desc: "Turn changes automatically in real time. Opponent plays their turn.",
-      voiceText: "Step 3: Turn switches to opponent. AlphaBot discards a card and draws.",
-      activePlayer: "AlphaBot 🤖 (Turn)",
-      banner: "⏳ AlphaBot 🤖 is thinking & taking turn...",
-      hand: [
-        { rank: '2', suit: '♦', isRed: true, selected: false, rot: '-4deg' },
-        { rank: '9', suit: '♣', isRed: false, selected: false, rot: '0deg' },
-        { rank: 'J', suit: '♠', isRed: false, selected: false, rot: '4deg' },
-      ],
-      discardTop: { rank: 'Q', suit: '♦', isRed: true },
-      discardUnder: { rank: '7', suit: '♥', isRed: true },
-      actionText: "AlphaBot discarded Q♦ and drew 1 card",
-      scores: { you: 12, bot: 29, beta: 24 }
-    },
-    {
-      title: "Step 4: Call LEAST! when points ≤ 10",
-      desc: "When your card total is 10 points or less, click LEAST! to claim victory.",
-      voiceText: "Step 4: Call LEAST when your points are 10 or less to win the round!",
-      activePlayer: "You (Turn)",
-      banner: "🏆 YOUR TURN: Hand total is 2 pts! Click LEAST!",
-      hand: [
-        { rank: 'A', suit: '♠', isRed: false, selected: false, rot: '-3deg' },
-        { rank: 'A', suit: '♥', isRed: true, selected: false, rot: '3deg' },
-      ],
-      discardTop: { rank: '4', suit: '♣', isRed: false },
-      discardUnder: { rank: 'Q', suit: '♦', isRed: true },
-      actionText: "CALLING LEAST! (Total Hand Score: 2 pts)",
-      scores: { you: 2, bot: 29, beta: 24 }
-    },
-    {
-      title: "Step 5: Round Over & Victory",
-      desc: "Lowest score wins 0 points. Caller with lowest score wins round!",
-      voiceText: "Step 5: Round over! Lowest score wins 0 points and takes the round!",
-      activePlayer: "Round Complete",
-      banner: "🎉 YOU WON THE ROUND! (0 pts awarded to Winner)",
-      hand: [
-        { rank: 'A', suit: '♠', isRed: false, selected: false, rot: '-3deg' },
-        { rank: 'A', suit: '♥', isRed: true, selected: false, rot: '3deg' },
-      ],
-      discardTop: { rank: '4', suit: '♣', isRed: false },
-      discardUnder: { rank: 'Q', suit: '♦', isRed: true },
-      actionText: "🏆 ROUND WINNER: You (0 pts) | AlphaBot: 29 pts",
-      scores: { you: 0, bot: 29, beta: 24 }
-    }
-  ];
+  const lastSoundTriggeredRef = useRef<Record<string, boolean>>({});
+  const animationFrameRef = useRef<number | null>(null);
+  const lastTimestampRef = useRef<number | null>(null);
 
-  const stopStepAudio = () => {
-    pendingAudioTimersRef.current.forEach(t => clearTimeout(t));
-    pendingAudioTimersRef.current = [];
-
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch {
-        // Safe fallback
-      }
-    }
-  };
-
+  // Unlock Audio
   useEffect(() => {
-    return () => {
-      stopStepAudio();
-    };
+    unlockMobileAudio();
   }, []);
 
-  const triggerStepAudio = (stepIndex: number) => {
-    stopStepAudio();
-    if (isMutedRef.current) return;
-
-    unlockMobileAudio();
-
-    try {
-      if (stepIndex === 0) {
-        playYourTurn();
-        const t = setTimeout(() => playDiscard(), 350);
-        pendingAudioTimersRef.current.push(t);
-      } else if (stepIndex === 1) {
-        playDraw();
-      } else if (stepIndex === 2) {
-        playCardSelect();
-        const t = setTimeout(() => playDiscard(), 350);
-        pendingAudioTimersRef.current.push(t);
-      } else if (stepIndex === 3) {
-        playCallLeast();
-      } else if (stepIndex === 4) {
-        playRoundEnd();
-      }
-    } catch {
-      // Audio safe fallback
+  // ── Main Timer Loop ──
+  useEffect(() => {
+    if (!isPlaying) {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      lastTimestampRef.current = null;
+      return;
     }
 
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.resume();
+    const step = (timestamp: number) => {
+      if (lastTimestampRef.current === null) {
+        lastTimestampRef.current = timestamp;
+      }
+      const deltaSec = (timestamp - lastTimestampRef.current) / 1000;
+      lastTimestampRef.current = timestamp;
 
-        const utterance = new SpeechSynthesisUtterance(STEPS[stepIndex].voiceText);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        const voices = window.speechSynthesis.getVoices();
-        if (voices && voices.length > 0) {
-          const engVoice = voices.find(v => v.lang.startsWith('en'));
-          if (engVoice) utterance.voice = engVoice;
+      setCurrentTime(prev => {
+        const next = prev + deltaSec;
+        if (next >= TOTAL_DURATION) {
+          setIsPlaying(false);
+          return TOTAL_DURATION;
         }
+        return next;
+      });
 
-        window.speechSynthesis.speak(utterance);
-      } catch {
-        // Speech safe fallback
+      if (isPlayingRef.current) {
+        animationFrameRef.current = requestAnimationFrame(step);
       }
-    }
-  };
+    };
 
-  useEffect(() => {
-    const playKey = `${currentStep}_${isPlaying}_${isMuted}`;
-    if (isPlaying && !isMuted) {
-      if (lastPlayedStepKeyRef.current !== playKey) {
-        lastPlayedStepKeyRef.current = playKey;
-        triggerStepAudio(currentStep);
-      }
-    } else {
-      stopStepAudio();
-      lastPlayedStepKeyRef.current = null;
-    }
-  }, [currentStep, isPlaying, isMuted]);
-
-  useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            setCurrentStep(s => {
-              if (s >= STEPS.length - 1) {
-                stopStepAudio();
-                setIsPlaying(false);
-                return 0;
-              }
-              return s + 1;
-            });
-            return 0;
-          }
-          return prev + 4;
-        });
-      }, 350);
-    } else {
-      stopStepAudio();
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
+    animationFrameRef.current = requestAnimationFrame(step);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      lastTimestampRef.current = null;
     };
   }, [isPlaying]);
 
-  const handlePlayDemo = () => {
-    unlockMobileAudio();
-    setIsPlaying(true);
-    setProgress(0);
-    setCurrentStep(0);
-    lastPlayedStepKeyRef.current = null;
-    if (!isMutedRef.current) {
-      triggerStepAudio(0);
-    }
-  };
+  // ── Synchronized Sound Effects ──
+  useEffect(() => {
+    if (isMutedRef.current) return;
+    const t = currentTime;
 
-  const handlePause = () => {
-    stopStepAudio();
-    setIsPlaying(false);
-  };
-
-  const handleStepSelect = (idx: number) => {
-    unlockMobileAudio();
-    stopStepAudio();
-    lastPlayedStepKeyRef.current = null;
-    setCurrentStep(idx);
-    setProgress(0);
-    if (isPlaying && !isMutedRef.current) {
-      triggerStepAudio(idx);
-    }
-  };
-
-  const toggleSound = () => {
-    unlockMobileAudio();
-    const next = !isMuted;
-    setIsMuted(next);
-    isMutedRef.current = next;
-    if (next) {
-      stopStepAudio();
-      lastPlayedStepKeyRef.current = null;
-    } else {
-      lastPlayedStepKeyRef.current = null;
-      if (isPlaying) {
-        triggerStepAudio(currentStep);
+    const checkSound = (key: string, targetTime: number, soundFn: () => void) => {
+      if (t >= targetTime && !lastSoundTriggeredRef.current[key]) {
+        lastSoundTriggeredRef.current[key] = true;
+        try {
+          soundFn();
+        } catch {
+          // safe audio fallback
+        }
       }
+    };
+
+    // Dealing Audio Clicks (4s - 11s)
+    checkSound('deal_1', 4.2, playDraw);
+    checkSound('deal_2', 5.5, playDraw);
+    checkSound('deal_3', 7.0, playDraw);
+    checkSound('deal_4', 8.5, playDraw);
+    checkSound('deal_5', 10.0, playDraw);
+
+    // Turns 1-3 (11s - 20s)
+    checkSound('turn_1_alert', 11.2, playYourTurn);
+    checkSound('turn_1_select', 12.2, playCardSelect);
+    checkSound('turn_1_discard', 12.8, playDiscard);
+    checkSound('turn_1_draw', 13.5, playDraw);
+
+    checkSound('turn_2_discard', 15.2, playDiscard);
+    checkSound('turn_2_draw', 16.0, playDraw);
+
+    checkSound('turn_3_discard', 18.2, playDiscard);
+    checkSound('turn_3_draw', 19.0, playDraw);
+
+    // Turns 4-5 (20s - 27s)
+    checkSound('turn_4_discard', 21.2, playDiscard);
+    checkSound('turn_4_draw', 22.0, playDraw);
+
+    checkSound('turn_5_alert', 24.0, playYourTurn);
+    checkSound('turn_5_select', 25.0, playCardSelect);
+
+    // Call LEAST (27s - 33s)
+    checkSound('call_least', 27.2, playCallLeast);
+
+    // Card Reveal (33s - 41s)
+    checkSound('reveal_start', 33.2, playRoundEnd);
+
+    // Victory Result (41s - 45s)
+    checkSound('result_game_over', 41.2, playGameOver);
+  }, [currentTime]);
+
+  const seekTo = (timeSec: number) => {
+    unlockMobileAudio();
+    lastSoundTriggeredRef.current = {};
+    setCurrentTime(timeSec);
+    lastTimestampRef.current = null;
+  };
+
+  const handlePlayPause = () => {
+    unlockMobileAudio();
+    if (currentTime >= TOTAL_DURATION) {
+      seekTo(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(!isPlaying);
     }
   };
 
-  const activeStepData = STEPS[currentStep];
+  const handleReplay = () => {
+    seekTo(0);
+    setIsPlaying(true);
+  };
+
+  const toggleMute = () => {
+    unlockMobileAudio();
+    setIsMuted(!isMuted);
+  };
+
+  // Timeline Sequence Flags
+  const isIntro = currentTime < 4.0;
+  const isDealing = currentTime >= 4.0 && currentTime < 11.0;
+  const isTurns1to3 = currentTime >= 11.0 && currentTime < 20.0;
+  const isTurns4to5 = currentTime >= 20.0 && currentTime < 27.0;
+  const isCallLeast = currentTime >= 27.0 && currentTime < 33.0;
+  const isCardsRevealed = currentTime >= 33.0 && currentTime < 41.0;
+  const isResultScreen = currentTime >= 41.0;
+
+  const dealProgress = Math.min(1, Math.max(0, (currentTime - 4.0) / 6.5));
+  const dealtCardsCount = Math.floor(dealProgress * 7);
+
+  let activePlayerId = '';
+  if (currentTime >= 11.0 && currentTime < 14.0) activePlayerId = 'p1';
+  else if (currentTime >= 14.0 && currentTime < 17.0) activePlayerId = 'p2';
+  else if (currentTime >= 17.0 && currentTime < 20.0) activePlayerId = 'p3';
+  else if (currentTime >= 20.0 && currentTime < 23.5) activePlayerId = 'p4';
+  else if (currentTime >= 23.5 && currentTime < 33.0) activePlayerId = 'p1';
+
+  let actionBannerText = '🎴 Welcome to 7 Cards — 45s Game Preview';
+  if (isDealing) actionBannerText = `🎴 Dealing 7 cards to each player (${dealtCardsCount * 4}/28 dealt)...`;
+  else if (currentTime >= 11.0 && currentTime < 14.0) actionBannerText = '⚡ Alex (You): Discarding Suited Run 5♥ 6♥ 7♥ & Drawing 1 card';
+  else if (currentTime >= 14.0 && currentTime < 17.0) actionBannerText = '⏳ AlphaBot 🤖: Discarding K♠ & Drawing 1 card';
+  else if (currentTime >= 17.0 && currentTime < 20.0) actionBannerText = '⏳ BetaBot 🤖: Discarding Run Q♦ J♦ 10♦ & Drawing 1 card';
+  else if (currentTime >= 20.0 && currentTime < 23.5) actionBannerText = '⏳ OmegaBot 🤖: Discarding Pair 8♣ 8♠ & Drawing from Discard';
+  else if (currentTime >= 23.5 && currentTime < 27.0) actionBannerText = '🔥 Alex (You): Discarding Pair 6♠ 6♦ — Hand Score is 4 PTS!';
+  else if (isCallLeast) actionBannerText = '⚡ LEAST CALLED BY ALEX! Hand Score: 4 Points';
+  else if (isCardsRevealed) actionBannerText = '🃏 CARDS REVEALED ON TABLE FELT — Alex wins with 4 pts!';
+  else if (isResultScreen) actionBannerText = '🎉 ROUND OVER — Alex Wins 0 Pts! Play 7 Cards Online!';
+
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  // ── Flying Animated Card State (Alex Turn Deck Pickups Only) ──
+  let flyingCard: {
+    visible: boolean;
+    startX: number;
+    startY: number;
+    targetX: number;
+    targetY: number;
+    progress: number;
+    rank: string;
+    suit: string;
+    isRed: boolean;
+    isFaceUp: boolean;
+  } | null = null;
+
+  if (currentTime >= 12.8 && currentTime < 14.0) {
+    // Alex Turn 1: Picking up card A♣ from Deck
+    const p = Math.min(1, (currentTime - 12.8) / 1.1);
+    flyingCard = {
+      visible: p < 0.95,
+      startX: 0,
+      startY: 0,
+      targetX: 0,
+      targetY: 85,
+      progress: p,
+      rank: 'A',
+      suit: '♣',
+      isRed: false,
+      isFaceUp: p > 0.4,
+    };
+  } else if (currentTime >= 25.0 && currentTime < 26.3) {
+    // Alex Turn 2: Picking up card A♥ from Deck
+    const p = Math.min(1, (currentTime - 25.0) / 1.1);
+    flyingCard = {
+      visible: p < 0.95,
+      startX: 0,
+      startY: 0,
+      targetX: 0,
+      targetY: 85,
+      progress: p,
+      rank: 'A',
+      suit: '♥',
+      isRed: true,
+      isFaceUp: p > 0.4,
+    };
+  }
+
+
 
   return (
     <View style={[styles.container, style]}>
@@ -274,298 +251,379 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style }) => {
           <Text style={styles.previewTitle}>🎬 Gameplay Demo</Text>
           <Text style={styles.previewSubtitle}>Watch How 7 Cards Least Works</Text>
         </View>
-        <View style={styles.demoBadge}>
-          <Text style={styles.demoBadgeText}>⏱️ 45-Sec Interactive Demo</Text>
-        </View>
+        <TouchableOpacity style={styles.demoBadge} onPress={toggleMute} activeOpacity={0.8}>
+          <Text style={styles.demoBadgeText}>{isMuted ? '🔇 Audio: Muted' : '🔊 Game Audio: ON'}</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Main Video Frame */}
+      {/* Main 16:9 Video Demo Container */}
       <View style={styles.videoFrame}>
+        <View style={styles.videoFrame169}>
+          
+          {/* Top Progress Track */}
+          <View style={styles.topProgressTrack}>
+            <View style={[styles.topProgressFill, { width: `${(currentTime / TOTAL_DURATION) * 100}%` }]} />
+          </View>
 
-        {/* Step Progress Bar Header */}
-        <View style={styles.progressBarTrack}>
-          <View style={[styles.progressBarFill, { width: `${isPlaying ? progress : ((currentStep + 1) / STEPS.length) * 100}%` }]} />
-        </View>
+          {/* ── REAL GAME TABLE FELT ── */}
+          <View style={styles.feltTable}>
+            <View style={styles.feltSeam} />
 
-        {!isPlaying && currentStep === 0 && progress === 0 ? (
-          /* Thumbnail Poster Mode with Play Button */
-          <View style={styles.thumbnailContainer}>
-            {/* Background Simulated Table */}
-            <View style={styles.tableRailOuter}>
-              <View style={styles.tableRailInner}>
-                <View style={styles.feltTable}>
-                  <View style={styles.feltSeam} />
+            {/* Table Header Bar */}
+            <View style={styles.tableTopHeader}>
+              <View style={styles.roundBadge}>
+                <Text style={styles.roundBadgeText}>ROUND 1/5</Text>
+              </View>
+              <View style={styles.actionBannerBox}>
+                <Text style={styles.actionBannerText} numberOfLines={1}>{actionBannerText}</Text>
+              </View>
+              <View style={styles.timeBadge}>
+                <Text style={styles.timeBadgeText}>⏱️ {formatTime(currentTime)} / 0:45</Text>
+              </View>
+            </View>
 
-                  {/* Header Bar */}
-                  <View style={styles.gameHeaderBar}>
-                    <View style={styles.gameRoundBadge}>
-                      <Text style={styles.gameRoundBadgeText}>ROUND 1/5</Text>
+            {/* Center Table Piles */}
+            <View style={styles.centerPilesArea}>
+              
+              {/* Joker Card */}
+              <View style={styles.pileCol}>
+                <Text style={styles.pileLabel}>JOKER (0 pts)</Text>
+                <View style={styles.jokerCard}>
+                  <Text style={styles.jokerStarText}>★ JOKER</Text>
+                  <Text style={[styles.cardRankText, { color: '#e11d48' }]}>7</Text>
+                  <Text style={[styles.cardSuitText, { color: '#e11d48' }]}>♥</Text>
+                </View>
+              </View>
+
+              {/* Deck Stack */}
+              <View style={styles.pileCol}>
+                <Text style={styles.pileLabel}>DECK</Text>
+                <View style={styles.deckStack}>
+                  <View style={[styles.deckLayer, { top: -4, left: -4 }]} />
+                  <View style={[styles.deckLayer, { top: -2, left: -2 }]} />
+                  <View style={styles.deckCardTop}>
+                    <View style={styles.cardPattern} />
+                  </View>
+                </View>
+              </View>
+
+              {/* Discard Pile */}
+              <View style={styles.pileCol}>
+                <Text style={styles.pileLabel}>DISCARD</Text>
+                <View style={styles.discardStack}>
+                  {currentTime >= 12.8 && (
+                    <View style={styles.cardTopDiscard}>
+                      <Text style={[styles.cardRankText, { color: currentTime >= 17.0 && currentTime < 20.0 ? '#e11d48' : '#0f172a' }]}>
+                        {currentTime >= 23.5 ? '6' : currentTime >= 20.0 ? '8' : currentTime >= 17.0 ? 'Q' : currentTime >= 14.0 ? 'K' : '7'}
+                      </Text>
+                      <Text style={[styles.cardSuitText, { color: currentTime >= 17.0 && currentTime < 20.0 ? '#e11d48' : '#0f172a' }]}>
+                        {currentTime >= 23.5 ? '♠' : currentTime >= 20.0 ? '♣' : currentTime >= 17.0 ? '♦' : currentTime >= 14.0 ? '♠' : '♥'}
+                      </Text>
                     </View>
-                    <View style={styles.gameTimerBadge}>
-                      <Text style={styles.gameTimerText}>⏱️ 0:59</Text>
+                  )}
+                </View>
+              </View>
+
+            </View>
+
+            {/* ── ANIMATED FLYING CARD (ALEX PICKING UP FROM DECK) ── */}
+            {flyingCard && flyingCard.visible && (
+              <View
+                style={[
+                  styles.flyingCard,
+                  {
+                    transform: [
+                      { translateX: flyingCard.startX + (flyingCard.targetX - flyingCard.startX) * flyingCard.progress },
+                      { translateY: flyingCard.startY + (flyingCard.targetY - flyingCard.startY) * flyingCard.progress },
+                      { scale: 1.0 + Math.sin(flyingCard.progress * Math.PI) * 0.25 },
+                    ],
+                    opacity: flyingCard.progress < 0.1 ? flyingCard.progress * 10 : flyingCard.progress > 0.9 ? (1 - flyingCard.progress) * 20 : 1,
+                  },
+                ]}
+              >
+                {flyingCard.isFaceUp ? (
+                  <View style={styles.flyingCardFace}>
+                    <Text style={[styles.cardRankText, { color: flyingCard.isRed ? '#e11d48' : '#0f172a' }]}>{flyingCard.rank}</Text>
+                    <Text style={[styles.cardSuitText, { color: flyingCard.isRed ? '#e11d48' : '#0f172a' }]}>{flyingCard.suit}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.flyingCardBack}>
+                    <View style={styles.cardPattern} />
+                  </View>
+                )}
+              </View>
+            )}
+
+
+            {/* ── 4 PLAYER SEATS AROUND TABLE ── */}
+            <View style={[styles.seatBox, styles.seatTop, activePlayerId === 'p3' && styles.seatActiveGlow]}>
+              <Text style={styles.avatarText}>🤖</Text>
+              <View>
+                <Text style={styles.playerNameText}>BetaBot 🤖</Text>
+                <Text style={styles.playerScoreText}>Score: 19 pts</Text>
+              </View>
+            </View>
+
+            <View style={[styles.seatBox, styles.seatRight, activePlayerId === 'p2' && styles.seatActiveGlow]}>
+              <Text style={styles.avatarText}>🤖</Text>
+              <View>
+                <Text style={styles.playerNameText}>AlphaBot 🤖</Text>
+                <Text style={styles.playerScoreText}>Score: 28 pts</Text>
+              </View>
+            </View>
+
+            <View style={[styles.seatBox, styles.seatLeft, activePlayerId === 'p4' && styles.seatActiveGlow]}>
+              <Text style={styles.avatarText}>🤖</Text>
+              <View>
+                <Text style={styles.playerNameText}>OmegaBot 🤖</Text>
+                <Text style={styles.playerScoreText}>Score: 32 pts</Text>
+              </View>
+            </View>
+
+            <View style={[styles.seatBox, styles.seatBottom, activePlayerId === 'p1' && styles.seatActiveGlow]}>
+              <Text style={styles.avatarText}>👤</Text>
+              <View>
+                <Text style={styles.playerNameText}>Alex (You)</Text>
+                <Text style={styles.playerScoreText}>
+                  Hand Total: {currentTime >= 23.5 ? '4 pts' : currentTime >= 12.8 ? '16 pts' : '33 pts'}
+                </Text>
+              </View>
+
+              {currentTime >= 23.5 && currentTime < 33.0 && (
+                <TouchableOpacity
+                  style={[styles.leastBtnActive, currentTime >= 27.0 && styles.leastBtnClicked]}
+                  onPress={() => seekTo(27.0)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.leastBtnText}>
+                    {currentTime >= 27.0 ? '🏆 LEAST CALLED!' : '🔥 CALL LEAST!'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* ── PLAYER CARDS HAND ── */}
+            {!isCardsRevealed && !isResultScreen && (
+              <View style={styles.handRowBottom}>
+                {isDealing ? (
+                  Array.from({ length: dealtCardsCount }).map((_, i) => (
+                    <View key={i} style={[styles.handCardMini, { marginLeft: i === 0 ? 0 : -14 }]}>
+                      <Text style={styles.handCardRank}>?</Text>
+                    </View>
+                  ))
+                ) : currentTime >= 23.5 ? (
+                  /* Alex's Final Hand: A♠ A♣ 2♦ (4 pts total - LEAST CALLED) */
+                  [
+                    { rank: 'A', suit: '♠', isRed: false, sel: currentTime >= 25.0 && currentTime < 27.0 },
+                    { rank: 'A', suit: '♣', isRed: false, sel: currentTime >= 25.0 && currentTime < 27.0 },
+                    { rank: '2', suit: '♦', isRed: true, sel: currentTime >= 25.0 && currentTime < 27.0 },
+                  ].map((c, i) => (
+                    <View key={i} style={[styles.handCard, c.sel && styles.handCardSelected, { marginLeft: i === 0 ? 0 : -10 }]}>
+                      <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
+                      <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                    </View>
+                  ))
+                ) : currentTime >= 12.8 ? (
+                  /* Mid Game Hand after Discarding Suited Run 5♥ 6♥ 7♥ & Drawing A♣ (5 cards, 16 pts) */
+                  [
+                    { rank: '6', suit: '♠', isRed: false, sel: currentTime >= 22.0 && currentTime < 23.5 },
+                    { rank: '6', suit: '♦', isRed: true, sel: currentTime >= 22.0 && currentTime < 23.5 },
+                    { rank: 'A', suit: '♠', isRed: false },
+                    { rank: '2', suit: '♦', isRed: true },
+                    { rank: 'A', suit: '♣', isRed: false },
+                  ].map((c, i) => (
+                    <View key={i} style={[styles.handCard, c.sel && styles.handCardSelected, { marginLeft: i === 0 ? 0 : -10 }]}>
+                      <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
+                      <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                    </View>
+                  ))
+                ) : (
+                  /* Initial Dealt Hand: 7 Cards (33 pts total) */
+                  [
+                    { rank: '5', suit: '♥', isRed: true, sel: currentTime >= 11.5 && currentTime < 12.8 },
+                    { rank: '6', suit: '♥', isRed: true, sel: currentTime >= 11.5 && currentTime < 12.8 },
+                    { rank: '7', suit: '♥', isRed: true, sel: currentTime >= 11.5 && currentTime < 12.8 },
+                    { rank: '6', suit: '♠', isRed: false },
+                    { rank: '6', suit: '♦', isRed: true },
+                    { rank: 'A', suit: '♠', isRed: false },
+                    { rank: '2', suit: '♦', isRed: true },
+                  ].map((c, i) => (
+                    <View key={i} style={[styles.handCard, c.sel && styles.handCardSelected, { marginLeft: i === 0 ? 0 : -12 }]}>
+                      <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
+                      <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
+                    </View>
+                  ))
+                )}
+              </View>
+            )}
+
+            {/* ── LEAST CALL ANNOUNCEMENT OVERLAY ── */}
+            {isCallLeast && (
+              <View style={styles.leastCallOverlay}>
+                <View style={styles.leastCallCard}>
+                  <Text style={styles.leastCallTitle}>⚡ LEAST CALLED BY ALEX! ⚡</Text>
+                  <Text style={styles.leastCallSubtitle}>Total Hand Score: 4 Points</Text>
+                  <Text style={styles.leastCallDesc}>All player hands will now be revealed on the table felt!</Text>
+                </View>
+              </View>
+            )}
+
+            {/* ── ALL CARDS REVEALED ON TABLE OVERLAY (8 FULL SECONDS VISIBILITY) ── */}
+            {isCardsRevealed && (
+              <View style={styles.revealedTableContainer}>
+                <View style={styles.revealHeaderBanner}>
+                  <Text style={styles.revealHeaderTitle}>🃏 REVEALED HANDS ON TABLE FELT</Text>
+                  <Text style={styles.revealHeaderSubtitle}>Alex wins the round with the LEAST score (4 pts)!</Text>
+                </View>
+
+                <View style={styles.revealedGrid}>
+                  <View style={[styles.revealedSeatCard, styles.revealedWinnerCard]}>
+                    <View style={styles.revealedTagRow}>
+                      <Text style={styles.revealedPlayerName}>Alex (You)</Text>
+                      <Text style={styles.winnerBadgeText}>🏆 WINNER: 4 PTS</Text>
+                    </View>
+                    <View style={styles.revealedCardsRow}>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>A♥</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>A♠</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>2♦</Text></View>
                     </View>
                   </View>
 
-                  {/* Piles Row */}
-                  <View style={styles.pilesRow}>
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>JOKER</Text>
-                      <View style={[styles.miniCard, styles.jokerGlow]}>
-                        <Text style={styles.jokerBadge}>★ JOKER</Text>
-                        <Text style={[styles.cardRank, { color: '#e11d48' }]}>7</Text>
-                        <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♥</Text>
-                        <View style={styles.cardCornerBottom}>
-                          <Text style={[styles.cardRankSmall, { color: '#e11d48' }]}>7♥</Text>
-                        </View>
-                      </View>
+                  <View style={styles.revealedSeatCard}>
+                    <View style={styles.revealedTagRow}>
+                      <Text style={styles.revealedPlayerName}>BetaBot 🤖</Text>
+                      <Text style={styles.scoreBadgeText}>19 PTS</Text>
                     </View>
-
-                    {/* Stacked 3D Deck */}
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>DECK</Text>
-                      <View style={styles.deckStackWrapper}>
-                        <View style={[styles.deckCardBack, styles.deckLayer2]} />
-                        <View style={[styles.deckCardBack, styles.deckLayer1]} />
-                        <View style={styles.deckCardBack}>
-                          <View style={styles.cardPattern} />
-                        </View>
-                      </View>
-                    </View>
-
-                    {/* Discard Pile with Under Layer */}
-                    <View style={styles.pileCol}>
-                      <Text style={styles.pileLabel}>DISCARD</Text>
-                      <View style={styles.discardStackWrapper}>
-                        <View style={[styles.miniCard, styles.discardUnderCard]}>
-                          <Text style={[styles.cardRank, { color: '#e11d48' }]}>9</Text>
-                          <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♦</Text>
-                        </View>
-                        <View style={styles.miniCard}>
-                          <Text style={[styles.cardRank, { color: '#0f172a' }]}>10</Text>
-                          <Text style={[styles.cardSuit, { color: '#0f172a' }]}>♠</Text>
-                          <View style={styles.cardCornerBottom}>
-                            <Text style={[styles.cardRankSmall, { color: '#0f172a' }]}>10♠</Text>
-                          </View>
-                        </View>
-                      </View>
+                    <View style={styles.revealedCardsRow}>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>9♠</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>7♣</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>3♥</Text></View>
                     </View>
                   </View>
 
-                  {/* Fanned Cards */}
-                  <View style={styles.handRow}>
-                    {STEPS[0].hand.map((c, i) => (
-                      <View 
-                        key={i} 
-                        style={[
-                          styles.handCard, 
-                          c.selected && styles.handCardSelected,
-                          { marginLeft: i === 0 ? 0 : -10, transform: [{ rotate: c.rot }, { translateY: c.selected ? -12 : 0 }] }
-                        ]}
+                  <View style={styles.revealedSeatCard}>
+                    <View style={styles.revealedTagRow}>
+                      <Text style={styles.revealedPlayerName}>AlphaBot 🤖</Text>
+                      <Text style={styles.scoreBadgeText}>28 PTS</Text>
+                    </View>
+                    <View style={styles.revealedCardsRow}>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>K♣</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>Q♥</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>8♦</Text></View>
+                    </View>
+                  </View>
+
+                  <View style={styles.revealedSeatCard}>
+                    <View style={styles.revealedTagRow}>
+                      <Text style={styles.revealedPlayerName}>OmegaBot 🤖</Text>
+                      <Text style={styles.scoreBadgeText}>32 PTS</Text>
+                    </View>
+                    <View style={styles.revealedCardsRow}>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>J♠</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>10♥</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>7♦</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>5♣</Text></View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* ── FINAL RESULT & CTA OVERLAY ── */}
+            {isResultScreen && (
+              <View style={styles.resultOverlay}>
+                <View style={styles.resultModalCard}>
+                  <Text style={styles.resultTitle}>🎉 ROUND VICTORY!</Text>
+                  <Text style={styles.resultWinnerName}>Winner: Alex (0 Pts awarded)</Text>
+
+                  <View style={styles.resultScoreTable}>
+                    <View style={styles.resultScoreRow}>
+                      <Text style={styles.resultPosText}>🥇 1st Place</Text>
+                      <Text style={styles.resultPlayerText}>Alex (Caller)</Text>
+                      <Text style={styles.resultPtsText}>0 pts</Text>
+                    </View>
+                    <View style={styles.resultScoreRow}>
+                      <Text style={styles.resultPosText}>🥈 2nd Place</Text>
+                      <Text style={styles.resultPlayerText}>BetaBot 🤖</Text>
+                      <Text style={styles.resultPtsText}>+15 pts</Text>
+                    </View>
+                    <View style={styles.resultScoreRow}>
+                      <Text style={styles.resultPosText}>🥉 3rd Place</Text>
+                      <Text style={styles.resultPlayerText}>AlphaBot 🤖</Text>
+                      <Text style={styles.resultPtsText}>+24 pts</Text>
+                    </View>
+                    <View style={styles.resultScoreRow}>
+                      <Text style={styles.resultPosText}>4th Place</Text>
+                      <Text style={styles.resultPlayerText}>OmegaBot 🤖</Text>
+                      <Text style={styles.resultPtsText}>+28 pts</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.ctaBox}>
+                    <Text style={styles.ctaTitle}>Play 7 Cards Online</Text>
+                    <Text style={styles.ctaSubtitle}>Challenge Friends in Real-Time or Practice vs AI</Text>
+                    
+                    <View style={styles.ctaBtnRow}>
+                      <TouchableOpacity style={styles.ctaReplayBtn} onPress={handleReplay} activeOpacity={0.8}>
+                        <Text style={styles.ctaReplayText}>🔄 Replay Demo</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={styles.ctaPlayBtn}
+                        onPress={() => onNavigate && onNavigate('/')}
+                        activeOpacity={0.85}
                       >
-                        <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
-                        <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
-                        <View style={styles.cardCornerBottom}>
-                          <Text style={[styles.handCardRankSmall, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}{c.suit}</Text>
-                        </View>
-                      </View>
-                    ))}
+                        <Text style={styles.ctaPlayText}>🎮 PLAY GAME NOW</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
+            )}
 
-            {/* Play Button Overlay */}
-            <View style={styles.playOverlay}>
-              <TouchableOpacity style={styles.playBtn} onPress={handlePlayDemo} activeOpacity={0.85}>
-                <Text style={styles.playBtnIcon}>▶</Text>
-                <Text style={styles.playBtnText}>Play Interactive Demo</Text>
+          </View>
+
+          {/* ── SCRUBBER CONTROLS BAR ── */}
+          <View style={styles.controlsBar}>
+            <View style={styles.leftControls}>
+              <TouchableOpacity style={styles.playPauseBtn} onPress={handlePlayPause}>
+                <Text style={styles.playPauseText}>{isPlaying ? '⏸ Pause' : '▶ Play'}</Text>
               </TouchableOpacity>
-              <View style={styles.badgeRow}>
-                <Text style={styles.badgeText}>⏱️ Step-by-Step Simulator</Text>
-                <TouchableOpacity onPress={toggleSound} activeOpacity={0.8} style={styles.audioBadgeBtn}>
-                  <Text style={styles.badgeText}>{isMuted ? '🔇 Sound Off' : '🔊 Sound On'}</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.replayBtn} onPress={handleReplay}>
+                <Text style={styles.replayText}>🔄 Replay</Text>
+              </TouchableOpacity>
             </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scenePillsScroll}>
+              <TouchableOpacity style={[styles.scenePill, isIntro && styles.scenePillActive]} onPress={() => seekTo(0)}>
+                <Text style={styles.scenePillText}>0s Start</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isDealing && styles.scenePillActive]} onPress={() => seekTo(4.0)}>
+                <Text style={styles.scenePillText}>4s Deal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isTurns1to3 && styles.scenePillActive]} onPress={() => seekTo(11.0)}>
+                <Text style={styles.scenePillText}>11s Turns 1-3</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isTurns4to5 && styles.scenePillActive]} onPress={() => seekTo(20.0)}>
+                <Text style={styles.scenePillText}>20s Turns 4-5</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isCallLeast && styles.scenePillActive]} onPress={() => seekTo(27.0)}>
+                <Text style={styles.scenePillText}>27s Call LEAST</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isCardsRevealed && styles.scenePillActive]} onPress={() => seekTo(33.0)}>
+                <Text style={styles.scenePillText}>33s Reveal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.scenePill, isResultScreen && styles.scenePillActive]} onPress={() => seekTo(41.0)}>
+                <Text style={styles.scenePillText}>41s Result</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        ) : (
-          /* Active Playing Demo View */
-          <View style={styles.activeDemoContainer}>
-            {/* Top Step Header */}
-            <View style={styles.demoTopBar}>
-              <View style={styles.headerTitleRow}>
-                <View style={styles.stepBadge}>
-                  <Text style={styles.stepBadgeText}>{activeStepData.title}</Text>
-                </View>
-                <TouchableOpacity onPress={toggleSound} activeOpacity={0.8} style={[styles.topAudioBtn, !isMuted && styles.topAudioBtnActive]}>
-                  <Text style={styles.topAudioBtnText}>{isMuted ? '🔇 Sound: Off' : '🔊 Sound: ON'}</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.stepDescText}>{activeStepData.desc}</Text>
-            </View>
 
-            {/* Active Table Screen */}
-            <View style={styles.tableRailOuter}>
-              <View style={styles.tableRailInner}>
-                <View style={styles.feltTable}>
-                  <View style={styles.feltSeam} />
-
-                  {/* Header Bar inside Table */}
-                  <View style={styles.gameHeaderBar}>
-                    <View style={styles.gameRoundBadge}>
-                      <Text style={styles.gameRoundBadgeText}>ROUND 1/5</Text>
-                    </View>
-                    <View style={styles.opponentRow}>
-                      <View style={[styles.avatarBox, activeStepData.activePlayer.includes('AlphaBot') && styles.activeAvatar]}>
-                        <Text style={styles.avatarText}>🤖</Text>
-                      </View>
-                      <View>
-                        <Text style={styles.opponentNameText}>{activeStepData.activePlayer}</Text>
-                        <Text style={styles.opponentScoreText}>Score: {activeStepData.scores.bot} pts</Text>
-                      </View>
-                    </View>
-                    <View style={styles.gameTimerBadge}>
-                      <Text style={styles.gameTimerText}>⏱️ 0:59</Text>
-                    </View>
-                  </View>
-
-                  {/* Table Middle Area with Scoreboard Card */}
-                  <View style={styles.tableMiddleRow}>
-                    {/* Center Piles */}
-                    <View style={styles.centerSection}>
-                      <View style={styles.pilesRow}>
-                        <View style={styles.pileCol}>
-                          <Text style={styles.pileLabel}>JOKER (0 pts)</Text>
-                          <View style={[styles.miniCard, styles.jokerGlow]}>
-                            <Text style={styles.jokerBadge}>★ JOKER</Text>
-                            <Text style={[styles.cardRank, { color: '#e11d48' }]}>7</Text>
-                            <Text style={[styles.cardSuit, { color: '#e11d48' }]}>♥</Text>
-                            <View style={styles.cardCornerBottom}>
-                              <Text style={[styles.cardRankSmall, { color: '#e11d48' }]}>7♥</Text>
-                            </View>
-                          </View>
-                        </View>
-
-                        {/* Stacked 3D Deck */}
-                        <View style={styles.pileCol}>
-                          <Text style={styles.pileLabel}>DECK</Text>
-                          <View style={styles.deckStackWrapper}>
-                            <View style={[styles.deckCardBack, styles.deckLayer2]} />
-                            <View style={[styles.deckCardBack, styles.deckLayer1]} />
-                            <View style={styles.deckCardBack}>
-                              <View style={styles.cardPattern} />
-                            </View>
-                          </View>
-                        </View>
-
-                        {/* Discard Pile */}
-                        <View style={styles.pileCol}>
-                          <Text style={styles.pileLabel}>DISCARD</Text>
-                          <View style={styles.discardStackWrapper}>
-                            {activeStepData.discardUnder && (
-                              <View style={[styles.miniCard, styles.discardUnderCard]}>
-                                <Text style={[styles.cardRank, { color: activeStepData.discardUnder.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardUnder.rank}</Text>
-                                <Text style={[styles.cardSuit, { color: activeStepData.discardUnder.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardUnder.suit}</Text>
-                              </View>
-                            )}
-                            <View style={styles.miniCard}>
-                              <Text style={[styles.cardRank, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.rank}</Text>
-                              <Text style={[styles.cardSuit, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.suit}</Text>
-                              <View style={styles.cardCornerBottom}>
-                                <Text style={[styles.cardRankSmall, { color: activeStepData.discardTop.isRed ? '#e11d48' : '#0f172a' }]}>{activeStepData.discardTop.rank}{activeStepData.discardTop.suit}</Text>
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-
-                      {/* Action Banner */}
-                      <View style={styles.actionBanner}>
-                        <Text style={styles.actionBannerText}>⚡ {activeStepData.actionText}</Text>
-                      </View>
-                    </View>
-
-                    {/* Live Scoreboard Side Card */}
-                    {!isSmall && (
-                      <View style={styles.scoreCardMini}>
-                        <View style={styles.scoreHeader}>
-                          <Text style={styles.scoreColPlayer}>PLAYER</Text>
-                          <Text style={styles.scoreColVal}>PTS</Text>
-                        </View>
-                        <View style={[styles.scoreRow, activeStepData.activePlayer.includes('You') && styles.scoreRowActive]}>
-                          <Text style={activeStepData.activePlayer.includes('You') ? styles.scoreNameActive : styles.scoreName} numberOfLines={1}>You</Text>
-                          <Text style={activeStepData.activePlayer.includes('You') ? styles.scoreValActive : styles.scoreVal}>{activeStepData.scores.you}</Text>
-                        </View>
-                        <View style={[styles.scoreRow, activeStepData.activePlayer.includes('AlphaBot') && styles.scoreRowActive]}>
-                          <Text style={activeStepData.activePlayer.includes('AlphaBot') ? styles.scoreNameActive : styles.scoreName} numberOfLines={1}>AlphaBot</Text>
-                          <Text style={activeStepData.activePlayer.includes('AlphaBot') ? styles.scoreValActive : styles.scoreVal}>{activeStepData.scores.bot}</Text>
-                        </View>
-                        <View style={styles.scoreRow}>
-                          <Text style={styles.scoreName} numberOfLines={1}>BetaBot</Text>
-                          <Text style={styles.scoreVal}>{activeStepData.scores.beta}</Text>
-                        </View>
-                      </View>
-                    )}
-                  </View>
-
-                  {/* Player Hand */}
-                  <View style={styles.playerDock}>
-                    <Text style={styles.handTitle}>Your Hand (Score: {activeStepData.scores.you} pts):</Text>
-                    <View style={styles.handRow}>
-                      {activeStepData.hand.map((c: any, i: number) => (
-                        <View 
-                          key={i} 
-                          style={[
-                            styles.handCard, 
-                            c.selected && styles.handCardSelected, 
-                            { marginLeft: i === 0 ? 0 : -10, transform: [{ rotate: c.rot || '0deg' }, { translateY: c.selected ? -14 : 0 }] }
-                          ]}
-                        >
-                          <Text style={[styles.handCardRank, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}</Text>
-                          <Text style={[styles.handCardSuit, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.suit}</Text>
-                          <View style={styles.cardCornerBottom}>
-                            <Text style={[styles.handCardRankSmall, { color: c.isRed ? '#e11d48' : '#0f172a' }]}>{c.rank}{c.suit}</Text>
-                          </View>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {/* Bottom Controls & Step Navigation Bar */}
-            <View style={styles.controlsBar}>
-              <View style={styles.leftControlsGroup}>
-                <TouchableOpacity style={styles.controlBtn} onPress={isPlaying ? handlePause : handlePlayDemo}>
-                  <Text style={styles.controlBtnText}>{isPlaying ? '⏸ Pause' : '▶ Play'}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.soundControlBtn, !isMuted && styles.soundControlBtnActive]} onPress={toggleSound}>
-                  <Text style={styles.soundControlBtnText}>{isMuted ? '🔇 Sound: Off' : '🔊 Sound: ON'}</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Step Navigation Pills */}
-              <View style={styles.stepsNavRow}>
-                {STEPS.map((_, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    style={[styles.stepPill, currentStep === idx && styles.stepPillActive]}
-                    onPress={() => handleStepSelect(idx)}
-                  >
-                    <Text style={[styles.stepPillText, currentStep === idx && styles.stepPillTextActive]}>Step {idx + 1}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          </View>
-        )}
+        </View>
       </View>
 
-      {/* Caption under demo */}
       <Text style={styles.captionText}>
-        Watch step-by-step game rules, card discards, and victory calls.
+        🎙️ Live voice narration powered by browser speech synthesis for dealing, turns, LEAST calls & table reveals.
       </Text>
     </View>
   );
@@ -620,7 +678,7 @@ const styles = StyleSheet.create({
   },
   captionText: {
     color: '#94a3b8',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 14,
@@ -628,7 +686,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  /* Video Outer Frame */
   videoFrame: {
     width: '100%',
     borderRadius: 24,
@@ -643,571 +700,414 @@ const styles = StyleSheet.create({
     elevation: 20,
     position: 'relative',
   },
+  videoFrame169: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    position: 'relative',
+    justifyContent: 'space-between',
+  },
 
-  /* Top Progress Bar Track */
-  progressBarTrack: {
+  topProgressTrack: {
     width: '100%',
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    zIndex: 100,
   },
-  progressBarFill: {
+  topProgressFill: {
     height: '100%',
     backgroundColor: '#38bdf8',
   },
 
-  thumbnailContainer: {
-    position: 'relative',
-    width: '100%',
-  },
-  playOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.78)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  playBtn: {
-    backgroundColor: '#0284c7',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 999,
-    borderWidth: 2,
-    borderColor: '#38bdf8',
-    shadowColor: '#0284c7',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.6,
-    shadowRadius: 14,
-    elevation: 10,
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
-  },
-  playBtnIcon: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  playBtnText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 14,
-  },
-  badgeText: {
-    color: '#cbd5e1',
-    fontSize: 12,
-    fontWeight: 'bold',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-
-  /* Active Demo Layout */
-  activeDemoContainer: {
-    padding: 12,
-    backgroundColor: '#0f172a',
-  },
-  demoTopBar: {
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  stepBadge: {
-    backgroundColor: '#0284c7',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  stepBadgeText: {
-    color: '#ffffff',
-    fontWeight: '900',
-    fontSize: 13,
-  },
-  stepDescText: {
-    color: '#cbd5e1',
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-
-  /* Felt Table & Wood Rails */
-  tableRailOuter: {
-    backgroundColor: '#351203',
-    padding: 10,
-  },
-  tableRailInner: {
-    backgroundColor: '#4d1904',
-    padding: 4,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(251, 191, 36, 0.3)',
-  },
   feltTable: {
+    flex: 1,
     backgroundColor: '#065f28',
+    margin: 8,
     borderRadius: 16,
-    padding: 14,
+    borderWidth: 8,
+    borderColor: '#351203',
     position: 'relative',
-    minHeight: 420,
     justifyContent: 'space-between',
+    padding: 12,
   },
   feltSeam: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 16,
-    borderWidth: 8,
-    borderColor: 'rgba(0,0,0,0.22)',
+    borderRadius: 12,
+    borderWidth: 4,
+    borderColor: 'rgba(0,0,0,0.25)',
   },
 
-  /* Table Header Bar inside Felt Table */
-  gameHeaderBar: {
+  tableTopHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    zIndex: 10,
-    marginBottom: 8,
+    zIndex: 30,
   },
-  gameRoundBadge: {
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1.5,
+  roundBadge: {
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
     borderColor: '#facc15',
   },
-  gameRoundBadgeText: {
-    color: '#facc15',
-    fontWeight: '900',
-    fontSize: 11,
-    letterSpacing: 0.5,
-  },
-  gameTimerBadge: {
+  roundBadgeText: { color: '#facc15', fontWeight: 'bold', fontSize: 11 },
+  actionBannerBox: {
     backgroundColor: 'rgba(15, 23, 42, 0.9)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#38bdf8',
-  },
-  gameTimerText: {
-    color: '#38bdf8',
-    fontWeight: '900',
-    fontSize: 12,
-  },
-
-  opponentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: '#38bdf8',
+    maxWidth: '60%',
   },
-  avatarBox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  actionBannerText: { color: '#ffffff', fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
+  timeBadge: {
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#38bdf8',
+  },
+  timeBadgeText: { color: '#38bdf8', fontWeight: 'bold', fontSize: 11 },
+
+  centerPilesArea: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 24,
+    marginVertical: 'auto',
+    zIndex: 10,
+  },
+  pileCol: { alignItems: 'center' },
+  pileLabel: { color: '#cbd5e1', fontSize: 9, fontWeight: 'bold', marginBottom: 2 },
+  
+  jokerCard: {
+    width: 38,
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#e11d48',
+  },
+  jokerStarText: { fontSize: 7, fontWeight: 'bold', color: '#e11d48' },
+  cardRankText: { fontSize: 14, fontWeight: 'bold' },
+  cardSuitText: { fontSize: 12 },
+
+  deckStack: { width: 38, height: 52, position: 'relative' },
+  deckLayer: {
+    position: 'absolute',
+    width: 38,
+    height: 52,
     backgroundColor: '#1e293b',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: '#94a3b8',
   },
-  activeAvatar: {
-    borderColor: '#4ade80',
-    borderWidth: 2,
-    backgroundColor: '#16a34a',
-  },
-  avatarText: {
-    fontSize: 13,
-  },
-  opponentNameText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 11,
-  },
-  opponentScoreText: {
-    color: '#fbbf24',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-
-  /* Table Middle Layout */
-  tableMiddleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    flex: 1,
-    paddingVertical: 6,
-  },
-  centerSection: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Center Piles */
-  pilesRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginVertical: 8,
-  },
-  pileCol: {
-    alignItems: 'center',
-  },
-  pileLabel: {
-    color: '#facc15',
-    fontSize: 9,
-    fontWeight: '900',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  miniCard: {
-    width: 48,
-    height: 66,
-    backgroundColor: '#ffffff',
-    borderRadius: 7,
-    padding: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  jokerGlow: {
-    borderColor: '#fbbf24',
-    borderWidth: 2,
-    shadowColor: '#fbbf24',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
-  jokerBadge: {
-    fontSize: 6,
-    color: '#d97706',
-    fontWeight: '900',
-    marginBottom: 1,
-  },
-  cardRank: {
-    fontSize: 17,
-    fontWeight: '900',
-    lineHeight: 19,
-  },
-  cardSuit: {
-    fontSize: 15,
-    lineHeight: 17,
-  },
-  cardCornerBottom: {
-    position: 'absolute',
-    right: 3,
-    bottom: 2,
-  },
-  cardRankSmall: {
-    fontSize: 8,
-    fontWeight: 'bold',
-  },
-
-  /* Stacked 3D Deck */
-  deckStackWrapper: {
-    position: 'relative',
-    width: 48,
-    height: 66,
-  },
-  deckCardBack: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 48,
-    height: 66,
-    backgroundColor: '#1e3a8a',
-    borderRadius: 7,
+  deckCardTop: {
+    width: 38,
+    height: 52,
+    backgroundColor: '#0f172a',
+    borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: '#ffffff',
+    borderColor: '#38bdf8',
     padding: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 5,
-  },
-  deckLayer1: {
-    top: -2.5,
-    left: -2.5,
-  },
-  deckLayer2: {
-    top: -5,
-    left: -5,
   },
   cardPattern: {
     flex: 1,
-    backgroundColor: '#2563eb',
-    borderRadius: 4,
+    backgroundColor: '#0284c7',
+    borderRadius: 3,
+  },
+
+  discardStack: {
+    width: 38,
+    height: 52,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-
-  /* Discard Stack */
-  discardStackWrapper: {
-    position: 'relative',
-    width: 48,
-    height: 66,
-  },
-  discardUnderCard: {
-    position: 'absolute',
-    top: 3,
-    left: -10,
-    transform: [{ rotate: '-12deg' }],
-  },
-
-  actionBanner: {
-    backgroundColor: 'rgba(15, 23, 42, 0.9)',
-    paddingVertical: 5,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#facc15',
-    alignSelf: 'center',
-    marginVertical: 6,
-    shadowColor: '#facc15',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-  actionBannerText: {
-    color: '#facc15',
-    fontSize: 11,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
-
-  /* Scoreboard mini card */
-  scoreCardMini: {
-    width: 110,
-    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 6,
-  },
-  scoreHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.2)',
-    paddingBottom: 3,
-    marginBottom: 3,
-  },
-  scoreColPlayer: {
-    color: '#94a3b8',
-    fontSize: 9,
-    fontWeight: '800',
-    flex: 1,
-  },
-  scoreColVal: {
-    color: '#94a3b8',
-    fontSize: 9,
-    fontWeight: '800',
-    textAlign: 'right',
-  },
-  scoreRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 2,
-    paddingHorizontal: 3,
-    borderRadius: 4,
-  },
-  scoreRowActive: {
-    backgroundColor: 'rgba(250, 204, 21, 0.2)',
-    borderLeftWidth: 2,
-    borderLeftColor: '#facc15',
-  },
-  scoreName: {
-    color: '#cbd5e1',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  scoreNameActive: {
-    color: '#facc15',
-    fontWeight: '900',
-    fontSize: 10,
-  },
-  scoreVal: {
-    color: '#ffffff',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  scoreValActive: {
-    color: '#facc15',
-    fontWeight: '900',
-    fontSize: 10,
-  },
-
-  /* Player Dock & Hand */
-  playerDock: {
-    alignItems: 'center',
-    marginTop: 6,
-  },
-  handTitle: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  handRow: {
-    flexDirection: 'row',
+    borderColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
-    paddingHorizontal: 8,
+    alignItems: 'center',
+  },
+
+  cardTopDiscard: {
+    width: 38,
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Seats */
+  seatBox: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.88)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.2)',
+    zIndex: 20,
+  },
+  seatActiveGlow: {
+    borderColor: '#fbbf24',
+    shadowColor: '#fbbf24',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  avatarText: { fontSize: 16 },
+  playerNameText: { color: '#ffffff', fontWeight: 'bold', fontSize: 11 },
+  playerScoreText: { color: '#fbbf24', fontSize: 10, fontWeight: 'bold' },
+
+  seatTop: { top: 40, alignSelf: 'center' },
+  seatBottom: { bottom: 44, alignSelf: 'center' },
+  seatLeft: { left: 16, top: '45%' },
+  seatRight: { right: 16, top: '45%' },
+
+  leastBtnActive: {
+    backgroundColor: '#16a34a',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+    borderWidth: 1.5,
+    borderColor: '#4ade80',
+  },
+  leastBtnClicked: { backgroundColor: '#dc2626', borderColor: '#f87171' },
+  leastBtnText: { color: '#fff', fontWeight: '900', fontSize: 10 },
+
+  handRowBottom: {
+    position: 'absolute',
+    bottom: 4,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    zIndex: 25,
   },
   handCard: {
-    width: 48,
-    height: 66,
+    width: 34,
+    height: 48,
     backgroundColor: '#ffffff',
-    borderRadius: 7,
-    padding: 4,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#cbd5e1',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 8,
-    position: 'relative',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   handCardSelected: {
-    borderColor: '#facc15',
-    borderWidth: 2.5,
-    shadowColor: '#facc15',
-    shadowOpacity: 0.85,
-    shadowRadius: 10,
+    transform: [{ translateY: -10 }],
+    borderColor: '#38bdf8',
+    borderWidth: 2,
   },
-  handCardRank: {
-    fontSize: 16,
-    fontWeight: '900',
-    lineHeight: 18,
+  handCardMini: {
+    width: 24,
+    height: 36,
+    backgroundColor: '#1e293b',
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#38bdf8',
   },
-  handCardSuit: {
-    fontSize: 14,
-    lineHeight: 16,
+  handCardRank: { fontSize: 12, fontWeight: '900' },
+  handCardSuit: { fontSize: 10 },
+
+  /* Overlays */
+  leastCallOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 50,
   },
-  handCardRankSmall: {
-    fontSize: 8,
-    fontWeight: 'bold',
+  leastCallCard: {
+    backgroundColor: '#0f172a',
+    paddingHorizontal: 28,
+    paddingVertical: 18,
+    borderRadius: 18,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fbbf24',
+  },
+  leastCallTitle: { color: '#fbbf24', fontSize: 20, fontWeight: '900' },
+  leastCallSubtitle: { color: '#ffffff', fontSize: 14, fontWeight: 'bold', marginTop: 4 },
+  leastCallDesc: { color: '#cbd5e1', fontSize: 12, marginTop: 6 },
+
+  flyingCard: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -26,
+    marginLeft: -19,
+    width: 38,
+    height: 52,
+    zIndex: 100,
+    shadowColor: '#38bdf8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  flyingCardFace: {
+    width: 38,
+    height: 52,
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#38bdf8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flyingCardBack: {
+    width: 38,
+    height: 52,
+    backgroundColor: '#0f172a',
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#38bdf8',
+    padding: 3,
   },
 
-  /* Controls Bar */
+  revealedTableContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(6, 95, 40, 0.95)',
+    padding: 12,
+    justifyContent: 'space-between',
+    zIndex: 60,
+  },
+  revealHeaderBanner: { alignItems: 'center' },
+  revealHeaderTitle: { color: '#fbbf24', fontSize: 16, fontWeight: '900' },
+  revealHeaderSubtitle: { color: '#ffffff', fontSize: 12, fontWeight: 'bold', marginTop: 2 },
+  
+  revealedGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    gap: 8,
+    marginVertical: 'auto',
+  },
+  revealedSeatCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    padding: 8,
+    borderRadius: 10,
+    width: '46%',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  revealedWinnerCard: { borderColor: '#fbbf24', borderWidth: 2, backgroundColor: 'rgba(15, 23, 42, 0.98)' },
+  revealedTagRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  revealedPlayerName: { color: '#fff', fontWeight: 'bold', fontSize: 11 },
+  winnerBadgeText: { color: '#fbbf24', fontWeight: '900', fontSize: 11 },
+  scoreBadgeText: { color: '#cbd5e1', fontSize: 10, fontWeight: 'bold' },
+  revealedCardsRow: { flexDirection: 'row', gap: 6 },
+  miniRevealCard: {
+    width: 26,
+    height: 36,
+    backgroundColor: '#fff',
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniRank: { fontSize: 10, fontWeight: 'bold' },
+
+  resultOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 70,
+    padding: 16,
+  },
+  resultModalCard: {
+    backgroundColor: '#0f172a',
+    padding: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    width: '90%',
+    maxWidth: 480,
+    borderWidth: 2,
+    borderColor: '#38bdf8',
+  },
+  resultTitle: { color: '#fbbf24', fontSize: 22, fontWeight: '900' },
+  resultWinnerName: { color: '#ffffff', fontSize: 14, fontWeight: 'bold', marginTop: 4, marginBottom: 12 },
+  
+  resultScoreTable: { width: '100%', gap: 6, marginBottom: 16 },
+  resultScoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  resultPosText: { color: '#fbbf24', fontWeight: 'bold', fontSize: 12 },
+  resultPlayerText: { color: '#fff', fontSize: 12 },
+  resultPtsText: { color: '#38bdf8', fontWeight: 'bold', fontSize: 12 },
+
+  ctaBox: { width: '100%', alignItems: 'center', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', paddingTop: 12 },
+  ctaTitle: { color: '#38bdf8', fontSize: 18, fontWeight: '900' },
+  ctaSubtitle: { color: '#cbd5e1', fontSize: 11, marginTop: 2, marginBottom: 12 },
+  ctaBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
+  ctaReplayBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  ctaReplayText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  ctaPlayBtn: {
+    flex: 1.5,
+    backgroundColor: '#16a34a',
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#4ade80',
+  },
+  ctaPlayText: { color: '#fff', fontWeight: '900', fontSize: 13, letterSpacing: 0.5 },
+
   controlsBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 10,
-    gap: 8,
-    flexWrap: 'wrap',
+    backgroundColor: '#0f172a',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  controlBtn: {
-    backgroundColor: '#0ea5e9',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 8,
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
-  },
-  controlBtnText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  stepsNavRow: {
-    flexDirection: 'row',
-    gap: 6,
-    flexWrap: 'wrap',
-  },
-  stepPill: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#334155',
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
-  },
-  stepPillActive: {
-    backgroundColor: '#facc15',
-    borderColor: '#facc15',
-  },
-  stepPillText: {
-    color: '#cbd5e1',
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-  stepPillTextActive: {
-    color: '#0f172a',
-    fontWeight: '900',
-  },
-
-  /* Sound speaker toggle styles */
-  audioBadgeBtn: {
-    marginLeft: 6,
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 4,
-  },
-  topAudioBtn: {
-    backgroundColor: 'rgba(30, 41, 59, 0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
-  },
-  topAudioBtnActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.25)',
-    borderColor: '#22c55e',
-  },
-  topAudioBtnText: {
-    color: '#38bdf8',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  leftControlsGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  soundControlBtn: {
-    backgroundColor: '#1e293b',
+  leftControls: { flexDirection: 'row', gap: 8 },
+  playPauseBtn: {
+    backgroundColor: '#0284c7',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#475569',
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
   },
-  soundControlBtnActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.25)',
-    borderColor: '#22c55e',
+  playPauseText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  replayBtn: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  soundControlBtnText: {
-    color: '#38bdf8',
-    fontSize: 12,
-    fontWeight: 'bold',
+  replayText: { color: '#cbd5e1', fontWeight: 'bold', fontSize: 12 },
+  scenePillsScroll: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  scenePill: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
+  scenePillActive: { backgroundColor: '#0284c7' },
+  scenePillText: { color: '#cbd5e1', fontSize: 10, fontWeight: 'bold' },
 });

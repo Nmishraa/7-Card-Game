@@ -20,6 +20,7 @@ import { SevenCardsLeastHowToPlayPage } from './src/screens/SevenCardsLeastHowTo
 import { SevenCardsLeastStrategyPage } from './src/screens/SevenCardsLeastStrategyPage';
 import { SevenCardsLeastFaqPage } from './src/screens/SevenCardsLeastFaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
+import { DemoScreen } from './src/screens/DemoScreen';
 import { GameRoom, Player } from './src/engine/types';
 import {
   startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout
@@ -746,6 +747,10 @@ export default function App() {
       return <PlayAgainstAiPage onNavigate={handleNavigate} />;
     }
 
+    if (currentPath === '/demo' || currentPath === '/preview') {
+      return <DemoScreen onNavigate={handleNavigate} />;
+    }
+
     const validPaths = [
       '/',
       '/7-cards-least',
@@ -760,7 +765,9 @@ export default function App() {
       '/multiplayer',
       '/play-against-ai',
       '/solo',
-      '/faq'
+      '/faq',
+      '/demo',
+      '/preview'
     ];
     if (!validPaths.includes(currentPath)) {
       return <NotFoundPage onNavigate={handleNavigate} />;
