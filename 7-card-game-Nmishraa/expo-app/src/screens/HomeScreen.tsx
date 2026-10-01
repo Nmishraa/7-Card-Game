@@ -84,6 +84,7 @@ export const HomeScreen: React.FC<Props> = ({
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isWide = width >= 640;
   const isDesktop = width >= 900;
 
@@ -98,6 +99,7 @@ export const HomeScreen: React.FC<Props> = ({
   };
 
   const handleNav = (route: string) => {
+    setMobileMenuOpen(false);
     if (onNavigate) onNavigate(route);
   };
 
@@ -106,62 +108,141 @@ export const HomeScreen: React.FC<Props> = ({
       <SafeAreaView style={styles.safeArea}>
         {/* ─── TOP HEADER & SITE NAVIGATION BAR ─── */}
         <View style={styles.header}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
-            <TouchableOpacity style={styles.siteNavBtnActive} onPress={() => handleNav('/')} accessibilityRole="button">
-              <Text style={styles.siteNavTextActive}>Play</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>Rules</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>How to Play</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/strategy')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>Strategy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>Multiplayer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/play-against-ai')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>Play Against AI</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>FAQ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/demo')} accessibilityRole="button">
-              <Text style={styles.siteNavText}>🎬 Demo</Text>
-            </TouchableOpacity>
+          {!isWide ? (
+            /* 📱 MOBILE HEADER BAR 📱 */
+            <View style={styles.mobileHeaderBar}>
+              <TouchableOpacity
+                style={styles.mobileMenuToggleBtn}
+                onPress={() => setMobileMenuOpen(prev => !prev)}
+                accessibilityRole="button"
+                accessibilityLabel="Toggle Mobile Menu"
+                activeOpacity={0.7}
+              >
+                <Text style={styles.mobileMenuToggleIcon}>{mobileMenuOpen ? '✕' : '☰'}</Text>
+                <Text style={styles.mobileMenuToggleText}>Menu</Text>
+              </TouchableOpacity>
 
-            <View style={styles.navDivider} />
-
-            <TouchableOpacity style={styles.clubBtn} onPress={() => setShowClub(true)}>
-              <Text style={styles.clubBtnText}>✨ Game Club</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.adminBtn} onPress={() => {
-              if (isAdminLoggedIn) setShowAdminDashboard(true);
-              else setShowAdminLogin(true);
-            }}>
-              <Text style={styles.adminBtnText}>🛡️ Master</Text>
-            </TouchableOpacity>
-          </ScrollView>
-
-          {/* User Profile Badge */}
-          <View style={styles.userHeaderBadge}>
-            {userPhoto ? (
-              <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
-            ) : (
-              <View style={styles.userHeaderAvatarFallback}>
-                <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+              {/* User Profile Badge */}
+              <View style={styles.userHeaderBadge}>
+                {userPhoto ? (
+                  <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
+                ) : (
+                  <View style={styles.userHeaderAvatarFallback}>
+                    <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+                  </View>
+                )}
+                <View style={styles.userHeaderDetails}>
+                  <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+                </View>
+                <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
+                  <Text style={styles.logoutBtnText}>Sign Out</Text>
+                </TouchableOpacity>
               </View>
-            )}
-            <View style={styles.userHeaderDetails}>
-              <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
-              {userEmail && <Text style={styles.userHeaderEmail} numberOfLines={1}>{userEmail}</Text>}
             </View>
-            <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
-              <Text style={styles.logoutBtnText}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
+          ) : (
+            /* 🖥️ DESKTOP UNTOUCHED HORIZONTAL NAVBAR 🖥️ */
+            <>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
+                <TouchableOpacity style={styles.siteNavBtnActive} onPress={() => handleNav('/')} accessibilityRole="button">
+                  <Text style={styles.siteNavTextActive}>Play</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>Rules</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>How to Play</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/strategy')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>Strategy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>Multiplayer</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/play-against-ai')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>Play Against AI</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>FAQ</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/demo')} accessibilityRole="button">
+                  <Text style={styles.siteNavText}>🎬 Demo</Text>
+                </TouchableOpacity>
+
+                <View style={styles.navDivider} />
+
+                <TouchableOpacity style={styles.clubBtn} onPress={() => setShowClub(true)}>
+                  <Text style={styles.clubBtnText}>✨ Game Club</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.adminBtn} onPress={() => {
+                  if (isAdminLoggedIn) setShowAdminDashboard(true);
+                  else setShowAdminLogin(true);
+                }}>
+                  <Text style={styles.adminBtnText}>🛡️ Master</Text>
+                </TouchableOpacity>
+              </ScrollView>
+
+              {/* User Profile Badge */}
+              <View style={styles.userHeaderBadge}>
+                {userPhoto ? (
+                  <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
+                ) : (
+                  <View style={styles.userHeaderAvatarFallback}>
+                    <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+                  </View>
+                )}
+                <View style={styles.userHeaderDetails}>
+                  <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+                  {userEmail && <Text style={styles.userHeaderEmail} numberOfLines={1}>{userEmail}</Text>}
+                </View>
+                <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
+                  <Text style={styles.logoutBtnText}>Sign Out</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {/* 📱 MOBILE HAMBURGER MENU DROPDOWN 📱 */}
+          {!isWide && mobileMenuOpen && (
+            <View style={styles.mobileMenuDropdown}>
+              <TouchableOpacity style={styles.mobileNavItemActive} onPress={() => handleNav('/')}>
+                <Text style={styles.mobileNavTextActive}>🎮 Play Game</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/rules')}>
+                <Text style={styles.mobileNavText}>📜 Rules &amp; Scoring</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/how-to-play')}>
+                <Text style={styles.mobileNavText}>❓ How to Play Guide</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/strategy')}>
+                <Text style={styles.mobileNavText}>💡 Winning Strategy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/multiplayer')}>
+                <Text style={styles.mobileNavText}>👥 Multiplayer Mode</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/play-against-ai')}>
+                <Text style={styles.mobileNavText}>🤖 Play vs Computer AI</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/faq')}>
+                <Text style={styles.mobileNavText}>❓ FAQ &amp; Support</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/demo')}>
+                <Text style={styles.mobileNavText}>🎬 45s Gameplay Demo</Text>
+              </TouchableOpacity>
+
+              <View style={styles.mobileNavDivider} />
+
+              <TouchableOpacity style={styles.mobileClubItem} onPress={() => { setMobileMenuOpen(false); setShowClub(true); }}>
+                <Text style={styles.mobileClubText}>✨ Game Club VIP</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mobileAdminItem} onPress={() => {
+                setMobileMenuOpen(false);
+                if (isAdminLoggedIn) setShowAdminDashboard(true);
+                else setShowAdminLogin(true);
+              }}>
+                <Text style={styles.mobileAdminText}>🛡️ Master Dashboard</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* ─── SCROLLABLE CONTENT ─── */}
@@ -542,20 +623,107 @@ const createStyles = (width: number, height: number) => {
 
     /* Header */
     header: {
-      flexDirection: width >= 640 ? 'row' : 'column',
-      justifyContent: 'space-between',
-      alignItems: width >= 640 ? 'center' : 'stretch',
-      paddingHorizontal: width < 400 ? 8 : 14,
-      paddingVertical: width >= 640 ? 10 : 8,
       width: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      backgroundColor: 'rgba(0,0,0,0.6)',
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(255,255,255,0.1)',
-      gap: width >= 640 ? 12 : 6,
+      zIndex: 100,
+    },
+    mobileHeaderBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      width: '100%',
+    },
+    mobileMenuToggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: 'rgba(56, 189, 248, 0.15)',
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 10,
+      borderWidth: 1.5,
+      borderColor: '#38bdf8',
+    },
+    mobileMenuToggleIcon: {
+      color: '#38bdf8',
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    mobileMenuToggleText: {
+      color: '#ffffff',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    mobileMenuDropdown: {
+      width: '100%',
+      backgroundColor: '#0f172a',
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(255,255,255,0.1)',
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      gap: 4,
+    },
+    mobileNavItem: {
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+      backgroundColor: 'rgba(255,255,255,0.03)',
+    },
+    mobileNavItemActive: {
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+      backgroundColor: '#0284c7',
+    },
+    mobileNavText: {
+      color: '#cbd5e1',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    mobileNavTextActive: {
+      color: '#ffffff',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    mobileNavDivider: {
+      height: 1,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      marginVertical: 6,
+    },
+    mobileClubItem: {
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+      backgroundColor: 'rgba(168, 85, 247, 0.15)',
+      borderWidth: 1,
+      borderColor: '#a855f7',
+    },
+    mobileClubText: {
+      color: '#c084fc',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    mobileAdminItem: {
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+      borderWidth: 1,
+      borderColor: '#ef4444',
+      marginTop: 4,
+    },
+    mobileAdminText: {
+      color: '#f87171',
+      fontSize: 14,
+      fontWeight: 'bold',
     },
     headerNavScroll: {
-      width: '100%',
-      flex: width >= 640 ? 1 : undefined,
+      flex: 1,
+      marginRight: 12,
     },
     headerNav: {
       flexDirection: 'row',
@@ -663,8 +831,8 @@ const createStyles = (width: number, height: number) => {
     topShowcaseContainer: {
       width: '100%',
       maxWidth: 780,
-      marginVertical: 24,
-      gap: 28,
+      marginVertical: width < 640 ? 12 : 24,
+      gap: width < 640 ? 16 : 28,
       alignItems: 'center',
     },
     welcomeTagline: {
@@ -831,7 +999,7 @@ const createStyles = (width: number, height: number) => {
     /* Scroll */
     scrollContent: {
       flexGrow: 1,
-      paddingHorizontal: 16,
+      paddingHorizontal: width < 640 ? 6 : 16,
       paddingBottom: 30,
       paddingTop: 16,
       justifyContent: 'center',
