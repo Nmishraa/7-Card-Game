@@ -218,7 +218,7 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
 
   const isMobile = width < 600;
   const isVerySmall = width < 400;
-  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 3.4 : 4 / 3.1) : 16 / 9;
+  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 4.8 : 4 / 4.2) : 16 / 9;
 
   // ── Flying Animated Card State (Alex Turn Deck Pickups Only) ──
   let flyingCard: {
