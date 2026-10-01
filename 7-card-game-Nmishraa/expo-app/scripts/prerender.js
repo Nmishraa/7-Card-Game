@@ -236,6 +236,16 @@ const routes = [
     h1: '7 Cards Least Against AI',
     h2: 'Practice your card strategies solo against intelligent computer opponents.',
     content: 'Zero waiting time single-player card game against computer AI bots.'
+  },
+  {
+    path: '/demo',
+    dir: path.join(distDir, 'demo'),
+    title: '7 Cards Game Demo – 45-Second Interactive Preview',
+    description: 'Watch the 45-second animated gameplay preview of 7 Cards Least. See card dealing, discard strategy, LEAST calls, and table hand reveals in action.',
+    canonical: 'https://cards.gnanamai.com/demo',
+    h1: '7 Cards 45-Second Game Preview',
+    h2: 'Watch step-by-step game rules, card discards, LEAST calls, and victory reveals.',
+    content: 'Interactive 45-second video preview showing dealing, turns, LEAST call, and card reveals.'
   }
 ];
 

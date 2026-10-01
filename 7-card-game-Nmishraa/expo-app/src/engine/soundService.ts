@@ -46,6 +46,18 @@ export const unlockMobileAudio = () => {
   }
 };
 
+export const stopVoice = () => {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
+  }
+};
+
+export const speakVoice = (text: string) => {
+  // Voice narration no-op fallback
+};
+
 const withAudioContext = (callback: (ctx: AudioContext) => void) => {
   if (typeof window === 'undefined' || _muted) return;
   const ctx = getCtx();
