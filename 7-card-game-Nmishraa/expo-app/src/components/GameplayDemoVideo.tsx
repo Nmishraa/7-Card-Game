@@ -246,8 +246,8 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
   const isMobile = width < 600;
   const isVerySmall = width < 400;
 
-  // Responsive Aspect Ratio: Gives vertical table breathing room on mobile screens (340px+ height) instead of squishing into 200px
-  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 3.4 : 4 / 3.1) : 16 / 9;
+  // Responsive Aspect Ratio: Gives vertical table breathing room on mobile screens (420px+ height) instead of squishing into 200px
+  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 4.8 : 4 / 4.2) : 16 / 9;
 
   return (
     <View style={[styles.container, style]}>
