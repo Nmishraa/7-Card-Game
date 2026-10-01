@@ -217,7 +217,7 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
       startX: 0,
       startY: 0,
       targetX: 0,
-      targetY: 85,
+      targetY: isMobile ? 95 : 85,
       progress: p,
       rank: 'A',
       suit: '♣',
@@ -232,7 +232,7 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
       startX: 0,
       startY: 0,
       targetX: 0,
-      targetY: 85,
+      targetY: isMobile ? 95 : 85,
       progress: p,
       rank: 'A',
       suit: '♥',
@@ -242,6 +242,12 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
   }
 
 
+
+  const isMobile = width < 600;
+  const isVerySmall = width < 400;
+
+  // Responsive Aspect Ratio: Gives vertical table breathing room on mobile screens (340px+ height) instead of squishing into 200px
+  const frameAspectRatio = isMobile ? (isVerySmall ? 4 / 3.4 : 4 / 3.1) : 16 / 9;
 
   return (
     <View style={[styles.container, style]}>
@@ -256,9 +262,9 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Main 16:9 Video Demo Container */}
+      {/* Main Responsive Video Demo Container */}
       <View style={styles.videoFrame}>
-        <View style={styles.videoFrame169}>
+        <View style={[styles.videoFrame169, { aspectRatio: frameAspectRatio }]}>
           
           {/* Top Progress Track */}
           <View style={styles.topProgressTrack}>
