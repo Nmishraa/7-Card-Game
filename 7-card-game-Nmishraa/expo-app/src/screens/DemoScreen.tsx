@@ -291,7 +291,7 @@ export const DemoScreen: React.FC<Props> = ({ onNavigate }) => {
           
           {/* Main Responsive Video Demo Container */}
           <View style={styles.videoPlayerWrapper}>
-            <View style={[styles.videoFrame169, { aspectRatio: frameAspectRatio, minHeight: isMobile ? (isVerySmall ? 450 : 500) : undefined }]}>
+            <View style={[styles.videoFrame169, isMobile ? { minHeight: 420 } : { aspectRatio: 16 / 9 }]}>
               
               {/* Top Timeline Scrubber Track */}
               <View style={styles.topProgressTrack}>
