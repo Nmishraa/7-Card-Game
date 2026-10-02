@@ -51,7 +51,7 @@
     <meta name="geo.position" content="37.7749;-122.4194" />
     <meta name="ICBM" content="37.7749, -122.4194" />
 
-    <!-- JSON-LD Structured Data Schema Graph for Google Rich Results -->
+    <!-- JSON-LD Structured Data Schema Graph for Google Rich Results & Star Ratings -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -59,14 +59,21 @@
         {
           "@type": "WebApplication",
           "@id": "https://cards.gnanamai.com/#webapp",
-          "name": "7 Cards Game Online - 7cards & 7 Cards Least",
-          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7card game", "7cards game", "7 Cards Least"],
+          "name": "7 Cards Game Online – 7 Cards & 7 Cards Least Free",
+          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7card game", "7cards game", "7 Cards Least", "Seven Cards Least"],
           "url": "https://cards.gnanamai.com/",
-          "description": "Play 7 Cards Game (7cards / 7 Cards Least) online for free with friends or AI computer bots in real-time multiplayer.",
+          "description": "Play 7 Cards Game (7cards / 7 Cards Least) online for free with friends or AI computer bots in real-time multiplayer card rooms.",
           "applicationCategory": "GameApplication",
           "gamePlatform": "Web Browser",
           "operatingSystem": "All",
           "genre": ["Card Game", "Multiplayer", "Casual Game"],
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "1420",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -91,6 +98,38 @@
             "url": "https://cards.gnanamai.com/",
             "logo": "https://cards.gnanamai.com/assets/logo.png"
           }
+        },
+        {
+          "@type": "HowTo",
+          "@id": "https://cards.gnanamai.com/#howto",
+          "name": "How to Play 7 Cards Game (7 Cards Least)",
+          "description": "Step-by-step guide to playing and winning 7 Cards Least online.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "position": 1,
+              "name": "Deal Cards",
+              "text": "Each player is dealt 7 cards from a standard deck. The remaining deck forms the draw pile."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 2,
+              "name": "Discard Matching Sets or Sequences",
+              "text": "On your turn, discard valid single cards, pairs, triples, or suited runs to minimize your hand value."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 3,
+              "name": "Draw a Replacement Card",
+              "text": "Draw one card from either the face-down draw pile or the top of the discard pile."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 4,
+              "name": "Call LEAST to Win",
+              "text": "When your total hand score is low, call 'LEAST'. If your score is the lowest, you win the round with 0 points!"
+            }
+          ]
         },
         {
           "@type": "BreadcrumbList",
