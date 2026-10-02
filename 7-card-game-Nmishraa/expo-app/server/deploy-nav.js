@@ -53,26 +53,31 @@ async function update() {
 
   await execCommand(
     conn,
+    `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app && npm run build`
+  );
+
+  await execCommand(
+    conn,
     `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && npm run build`
   );
 
   await execCommand(
     conn,
-    `fuser -k 5004/tcp || pkill -f "node start-server.js" || true`
+    `fuser -k 5004/tcp || fuser -k 8081/tcp || pkill -f "node start-server.js" || true`
   );
 
   await execCommand(
     conn,
-    `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && PORT=8081 nohup node start-server.js > server.log 2>&1 &`
+    `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && PORT=5004 nohup node start-server.js > server.log 2>&1 &`
   );
 
-  await new Promise((r) => setTimeout(r, 2000));
+  await new Promise((r) => setTimeout(r, 3000));
 
   console.log('\n[Testing Health Check]');
-  await execCommand(conn, `curl -s http://localhost:8081/health || curl -s http://localhost:5004/health`);
+  await execCommand(conn, `curl -s http://localhost:5004/health`);
 
   conn.end();
-  console.log('\n✅ Deployment to cards.gnanamai.com (localhost 8081 / 5004) Applied Successfully!');
+  console.log('\n✅ Deployment to cards.gnanamai.com (Port 5004) Applied Successfully!');
 }
 
 update().catch(console.error);
