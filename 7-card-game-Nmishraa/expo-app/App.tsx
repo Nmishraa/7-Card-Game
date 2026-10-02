@@ -189,6 +189,7 @@ export default function App() {
             discardPile: roomObj.discardPile || [],
             deck: roomObj.deck || [],
             pendingDiscard: roomObj.pendingDiscard || [],
+            turnStartTime: roomObj.turnStartTime || Date.now(),
             messages: roomObj.messages
               ? (Array.isArray(roomObj.messages) ? roomObj.messages : Object.values(roomObj.messages))
               : [],
@@ -647,6 +648,7 @@ export default function App() {
 
   const handleDiscardAndDraw = async (cardIds: string[]) => {
     if (!currentRoom || !user) return;
+    console.log(`[DEBUG TURN ENGINE] 🃏 Player ${user.displayName} (${user.uid}) discarding cards:`, cardIds);
     const updated = playTurn(currentRoom, user.uid, cardIds);
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
@@ -656,6 +658,7 @@ export default function App() {
 
   const handleDrawCard = async (source: 'deck' | 'discard') => {
     if (!currentRoom || !user) return;
+    console.log(`[DEBUG TURN ENGINE] 📥 Player ${user.displayName} (${user.uid}) picking up card from source: ${source}`);
     const updated = drawCard(currentRoom, user.uid, source);
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
@@ -749,6 +752,7 @@ export default function App() {
     const currentTurnId = currentRoom.turnOrder[currentRoom.turnIndex];
     if (currentTurnId !== playerId) return;
 
+    console.log(`[DEBUG TURN ENGINE] ⚠️ Handling turn timeout for player: ${playerId}, currentPhase: ${currentRoom.turnPhase}`);
     const updated = handleTurnTimeout(currentRoom, playerId);
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);

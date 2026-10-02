@@ -253,6 +253,7 @@ export const playTurn = (
     pendingDiscard,
     turnPhase: 'picking',
     lastDiscardedCount: discardedCardIds.length,
+    turnStartTime: Date.now(),
   };
 };
 
@@ -371,10 +372,16 @@ export const handleTurnTimeout = (room: GameRoom, playerId: string): GameRoom =>
   if (state.turnPhase === 'discarding') {
     const cardToDiscard = player.hand[0];
     state = playTurn(state, playerId, [cardToDiscard.id]);
-  }
-
-  if (state.turnPhase === 'picking') {
+    return {
+      ...state,
+      turnStartTime: Date.now(),
+    };
+  } else if (state.turnPhase === 'picking') {
     state = drawCard(state, playerId, 'deck');
+    return {
+      ...state,
+      turnStartTime: Date.now(),
+    };
   }
 
   return {
