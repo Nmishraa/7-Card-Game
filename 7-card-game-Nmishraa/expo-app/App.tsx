@@ -143,19 +143,20 @@ export default function App() {
     const targetRoom = params.get('room') || params.get('join');
     if (targetRoom && targetRoom.length === 4) {
       const cleanCode = targetRoom.toUpperCase();
-      const pName = user ? user.displayName : 'Guest ' + Math.floor(Math.random() * 900 + 100);
+      let activeUser = user;
+      const pName = activeUser ? activeUser.displayName : 'Guest ' + Math.floor(Math.random() * 900 + 100);
       
       // If user is guest/null, auto login guest
-      if (!user) {
-        const guestUser = {
+      if (!activeUser) {
+        activeUser = {
           uid: 'guest_' + Math.random().toString(36).substring(2, 9),
           displayName: pName,
           isAnonymous: true,
         };
-        setUser(guestUser);
+        setUser(activeUser);
       }
       
-      handleJoinRoom(pName, cleanCode);
+      handleJoinRoom(pName, cleanCode, activeUser);
     }
   }, []);
 
@@ -364,6 +365,7 @@ export default function App() {
       messages: [{ id: 'sys_1', senderId: 'system', senderName: 'System 📢', text: `Room ${newRoomId} created! Share the code to invite friends.`, timestamp: Date.now() }],
     };
 
+    setIsExpiredRoom(false);
     setRoomId(newRoomId);
     setCurrentRoom(room);
     setScreen('lobby');
@@ -400,6 +402,7 @@ export default function App() {
     };
 
     const readyRoom = startRound(room);
+    setIsExpiredRoom(false);
     setRoomId(newRoomId);
     setCurrentRoom(readyRoom);
     setScreen('game');
@@ -444,6 +447,7 @@ export default function App() {
     };
 
     const readyRoom = startRound(room);
+    setIsExpiredRoom(false);
     setRoomId(newRoomId);
     setCurrentRoom(readyRoom);
     setScreen('game');
@@ -451,31 +455,33 @@ export default function App() {
     trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true, numBots: count });
   };
 
-  const handleJoinRoom = async (playerName: string, rid: string) => {
-    if (!user || !rid) return;
+  const handleJoinRoom = async (playerName: string, rid: string, userOverride?: AppUser) => {
+    const activeUser = userOverride || user;
+    if (!activeUser || !rid) return;
     const cleanRid = rid.trim().toUpperCase();
-    const pName = playerName || user.displayName;
-    const player = makePlayer(user.uid, pName, false, user.photoURL);
+    const pName = playerName || activeUser.displayName;
+    const player = makePlayer(activeUser.uid, pName, false, activeUser.photoURL);
 
     try {
       const res = await apiService.getRoom(cleanRid);
       if (!res || !res.success || !res.room) {
-        Alert.alert('Room Not Found', `No room exists with code "${cleanRid}". Check code and try again.`);
+        Alert.alert('Room Not Found', 'Room not found or expired. Please check the code and try again.');
         return;
       }
 
       const existingRoom: GameRoom = res.room;
-      if (checkRoomExpiration(existingRoom)) {
-        setIsExpiredRoom(true);
+      const expRes = checkRoomExpiration(existingRoom);
+      if (expRes.isExpired) {
+        Alert.alert('Room Expired', expRes.expiredReason || 'Room not found or expired. Please check the code and try again.');
         return;
       }
       const existingPlayers = existingRoom.players || {};
-      const updatedPlayers = { ...existingPlayers, [user.uid]: player };
+      const updatedPlayers = { ...existingPlayers, [activeUser.uid]: player };
 
       const turnOrder = existingRoom.turnOrder || [];
-      const updatedTurnOrder = turnOrder.includes(user.uid)
+      const updatedTurnOrder = turnOrder.includes(activeUser.uid)
         ? turnOrder
-        : [...turnOrder, user.uid];
+        : [...turnOrder, activeUser.uid];
 
       const newMsg = { id: 'msg_' + Date.now(), senderId: 'system', senderName: 'System 📢', text: `${pName} joined room ${cleanRid}`, timestamp: Date.now() };
       const rawMsgs = existingRoom.messages
@@ -490,11 +496,12 @@ export default function App() {
         messages: updatedMessages,
       };
 
+      setIsExpiredRoom(false);
       setRoomId(cleanRid);
       setCurrentRoom(updatedRoom);
-      setScreen(updatedRoom.status === 'playing' ? 'game' : 'lobby');
+      setScreen(updatedRoom.status === 'playing' || updatedRoom.status === 'round-end' || updatedRoom.status === 'game-over' ? 'game' : 'lobby');
       await updateDbRoom(updatedRoom);
-      trackUserEvent(user.uid, pName, 'join_room', { roomId: cleanRid });
+      trackUserEvent(activeUser.uid, pName, 'join_room', { roomId: cleanRid });
     } catch (e: any) {
       Alert.alert('Join Error', e.message || 'Could not join room.');
     }
@@ -680,6 +687,7 @@ export default function App() {
   };
 
   const handleLeaveRoom = async () => {
+    setIsExpiredRoom(false);
     setCurrentRoom(null);
     setRoomId(null);
     setScreen('home');
