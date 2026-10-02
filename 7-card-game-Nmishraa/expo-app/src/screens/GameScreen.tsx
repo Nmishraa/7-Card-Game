@@ -806,21 +806,23 @@ export const GameScreen: React.FC<Props> = ({
     }
   }, [remainingSec, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, isTimedMode]);
 
-  // Timeout Auto Action (triggered once per turn in timed mode)
+  // Timeout Auto Action (triggered once per turn phase in timed mode)
   useEffect(() => {
     if (!room || room.status !== 'playing' || !currentTurnIdEarly || !onTimeoutTurn || !isTimedMode) return;
-    const timeoutKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_timeout`;
+    const timeoutKey = `${room.id}_R${room.currentRound}_T${room.turnIndex}_P${currentTurnIdEarly}_PH${room.turnPhase}_timeout`;
     
-    if (elapsedMs >= turnTimeLimit * 1000 && timeoutTriggeredRef.current !== timeoutKey) {
+    // Safety check: require elapsedMs >= turnTimeLimit * 1000 AND elapsedMs > 3000 (3s grace period after phase start)
+    if (elapsedMs >= turnTimeLimit * 1000 && elapsedMs > 3000 && timeoutTriggeredRef.current !== timeoutKey) {
       const isTurnPlayer = currentTurnIdEarly === currentPlayerId;
       const isHost = room.hostId === currentPlayerId;
       // Primary trigger: Turn player. Fallback trigger: Host (only if turn player is remote/AFK)
       if (isTurnPlayer || (!isTurnPlayer && isHost)) {
         timeoutTriggeredRef.current = timeoutKey;
+        console.log(`[DEBUG TIMEOUT] ⏱️ Firing timeout for Player ${currentTurnIdEarly}, Round ${room.currentRound}, TurnIndex ${room.turnIndex}, Phase ${room.turnPhase}, Elapsed: ${elapsedMs}ms`);
         onTimeoutTurn(currentTurnIdEarly);
       }
     }
-  }, [elapsedMs, room?.id, room?.currentRound, room?.turnIndex, currentTurnIdEarly, room?.status, currentPlayerId, room?.hostId, onTimeoutTurn, isTimedMode, turnTimeLimit]);
+  }, [elapsedMs, room?.id, room?.currentRound, room?.turnIndex, room?.turnPhase, currentTurnIdEarly, room?.status, currentPlayerId, room?.hostId, onTimeoutTurn, isTimedMode, turnTimeLimit]);
 
   const toggleSound = () => {
     const next = !soundMuted;
@@ -843,20 +845,36 @@ export const GameScreen: React.FC<Props> = ({
     const turnId = room.turnOrder ? room.turnOrder[room.turnIndex] : undefined;
     if (!turnId) return;
 
-    // Unique turn key combining room, round, active turn player ID, and turn start timestamp
-    const currentKey = `${room.id}_R${room.currentRound}_P${turnId}_ST${room.turnStartTime || 0}`;
+    const p = room.players ? room.players[turnId] : null;
+    const pName = p ? p.name : turnId;
+    console.log(`[DEBUG TURN STATE] Room: ${room.id} | Round: ${room.currentRound} | TurnIndex: ${room.turnIndex} | Active Player: ${turnId} (${pName}) | Phase: ${room.turnPhase} | IsMyTurn: ${turnId === currentPlayerId}`);
+
+    if (turnId === currentPlayerId) {
+      if (room.turnPhase === 'picking') {
+        console.log(`[DEBUG TURN STATE] 📥 Pickup options (Deck / Discard Pile) ARE NOW ACTIVE & VISIBLE for ${pName}`);
+      } else if (room.turnPhase === 'discarding') {
+        console.log(`[DEBUG TURN STATE] 🃏 Discard options ARE NOW ACTIVE for ${pName}`);
+      }
+    }
+
+    // Unique turn key combining room, round, active turn player ID, turn phase, and turn start timestamp
+    const currentKey = `${room.id}_R${room.currentRound}_P${turnId}_PH${room.turnPhase}_ST${room.turnStartTime || 0}`;
 
     if (prevTurnKeyRef.current !== currentKey) {
       prevTurnKeyRef.current = currentKey;
       if (turnId === currentPlayerId) {
-        setSelected([]);
-        playYourTurn();
+        if (room.turnPhase === 'discarding') {
+          setSelected([]);
+          playYourTurn();
+        }
       } else {
-        setSelected([]);
-        playTurnEnd();
+        if (room.turnPhase === 'discarding') {
+          setSelected([]);
+          playTurnEnd();
+        }
       }
     }
-  }, [room?.id, room?.currentRound, room?.turnIndex, room?.turnStartTime, room?.status, currentPlayerId]);
+  }, [room?.id, room?.currentRound, room?.turnIndex, room?.turnPhase, room?.turnStartTime, room?.status, currentPlayerId]);
 
   const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
