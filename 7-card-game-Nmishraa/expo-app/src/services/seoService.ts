@@ -13,10 +13,10 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     h1: "7 Cards Game Online – 7cards & 7 Cards Least",
   },
   "7-cards-least": {
-    title: "7 Cards Game (7cards) – How to Play 7 Cards Least Online",
-    description: "Discover 7 Cards Game (7cards), the popular low-hand card game. Learn how 7 cards are dealt, how discard sets & suited runs work, and start playing online.",
+    title: "7 Cards Least Game Online – Lowest Score Card Game",
+    description: "7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score. This least score card game is easy to learn and can be played online with friends and family.",
     canonical: "https://cards.gnanamai.com/7-cards-least",
-    h1: "7 Cards Game – 7cards Online",
+    h1: "7 Cards Least Game Online",
   },
   "7-cards-least-rules": {
     title: "7 Cards Game Rules (7cards) – Official Scoring & Turn Guide",
