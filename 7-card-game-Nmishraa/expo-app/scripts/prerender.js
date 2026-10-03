@@ -40,19 +40,16 @@ const routes = [
   {
     path: '/7-cards-least',
     dir: path.join(distDir, '7-cards-least'),
-    title: '7 Cards Least Card Game – What Is 7 Cards Least & How It Works',
-    description: 'Discover 7 Cards Least, the popular low-hand card game. Learn how 7 cards are dealt, how discard sets & suited runs work, and start playing online.',
+    title: '7 Cards Least Game Online – Lowest Score Card Game',
+    description: '7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score. This least score card game is easy to learn and can be played online with friends and family.',
     canonical: 'https://cards.gnanamai.com/7-cards-least',
-    h1: '7 Cards Least Card Game',
+    h1: '7 Cards Least Game Online',
     h2: 'The ultimate online portal for 7 Cards Least rules, strategy, and multiplayer gameplay.',
-    content: 'Play 7 Cards Least online, learn how the game works, explore card point scoring, joker wildcards, and compete in free browser matches.',
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "7 Cards Least Card Game",
-      "url": "https://cards.gnanamai.com/7-cards-least",
-      "applicationCategory": "GameApplication"
-    }
+    content: '7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score. This least score card game is easy to learn and can be played online with friends and family.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" }
+    ]
   },
   {
     path: '/7-cards-least/rules',
@@ -273,6 +270,15 @@ routes.forEach(route => {
   routeHtml = routeHtml.replace(/<link rel="canonical" href=".*?" \/>/gi, `<link rel="canonical" href="${route.canonical}" />`);
   routeHtml = routeHtml.replace(/<meta property="og:url" content=".*?" \/>/gi, `<meta property="og:url" content="${route.canonical}" />`);
   routeHtml = routeHtml.replace(/<meta name="twitter:url" content=".*?" \/>/gi, `<meta name="twitter:url" content="${route.canonical}" />`);
+
+  // Inject or update BreadcrumbList inside main schema graph
+  if (route.breadcrumbs) {
+    const breadcrumbJson = JSON.stringify(route.breadcrumbs, null, 12);
+    routeHtml = routeHtml.replace(
+      /"@type": "BreadcrumbList",[\s\S]*?"itemListElement": \[[\s\S]*?\]/,
+      `"@type": "BreadcrumbList",\n          "@id": "${route.canonical}#breadcrumb",\n          "itemListElement": ${breadcrumbJson}`
+    );
+  }
 
   // Inject route-specific Schema
   if (route.schema) {
