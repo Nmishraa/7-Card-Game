@@ -15,10 +15,10 @@ const routes = [
   {
     path: '/',
     dir: distDir,
-    title: '7 Cards Least Game Online – Play Free With Friends & AI',
+    title: '7 Cards Least Online – Play 7 Cards Game & Seven Cards Free',
     description: 'Play 7 Cards Least online for free. Enjoy real-time multiplayer card games with friends or practice solo against computer AI. No download required.',
     canonical: 'https://cards.gnanamai.com/',
-    h1: '7 Cards Least Game Online',
+    h1: '7 Cards Least Online Game',
     h2: 'Play 7 Cards Least online for free with friends or computer AI opponents.',
     content: 'Join real-time multiplayer 7 Cards Least rooms, play solo vs computer AI bots, discard sets and runs, and track scores live on cards.gnanamai.com.',
     schema: {
