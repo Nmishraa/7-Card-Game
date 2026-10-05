@@ -332,7 +332,7 @@ const AnimatedRevealedHandOnTable: React.FC<{
   isCaller: boolean;
   currentPlayerId: string;
   jokerRank?: string;
-  renderCard: (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => React.ReactNode;
+  renderCard: (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean, isCenterCard?: boolean) => React.ReactNode;
   styles: any;
   isMobile: boolean;
 }> = React.memo(({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles, isMobile }) => {
