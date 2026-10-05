@@ -2778,7 +2778,7 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     myHandScroll: {
       alignItems: 'center',
-      gap: isSmall ? 3 : 10,
+      gap: isSmall ? 3 : 4,
       paddingHorizontal: isSmall ? 4 : 12,
     },
     myHandScrollView: {
@@ -3422,7 +3422,7 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     pureCardWrapper: {
       transform: [{ scale: isMobile ? 0.44 : 0.52 }],
-      marginHorizontal: isMobile ? -15 : -11,
+      marginHorizontal: isMobile ? -18 : -16.5,
       shadowColor: '#000000',
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.4,
