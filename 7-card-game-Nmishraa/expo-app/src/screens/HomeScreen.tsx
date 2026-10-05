@@ -997,6 +997,8 @@ const createStyles = (width: number, height: number) => {
     },
     brandContainer: {
       alignItems: 'center',
+      alignSelf: 'center',
+      width: '100%',
       marginTop: 8,
       marginBottom: 24,
       maxWidth: 720,
@@ -1034,6 +1036,7 @@ const createStyles = (width: number, height: number) => {
       gap: 12,
       width: '100%',
       maxWidth: 780,
+      alignSelf: 'center',
       marginTop: 20,
       marginBottom: 8,
       flexWrap: 'wrap',
@@ -1105,6 +1108,7 @@ const createStyles = (width: number, height: number) => {
     playWithFriendsSection: {
       width: '100%',
       maxWidth: 780,
+      alignSelf: 'center',
       alignItems: 'center',
       marginTop: 24,
       marginBottom: 24,
@@ -1224,6 +1228,7 @@ const createStyles = (width: number, height: number) => {
     topShowcaseContainer: {
       width: '100%',
       maxWidth: 780,
+      alignSelf: 'center',
       marginVertical: width < 640 ? 12 : 24,
       gap: width < 640 ? 16 : 28,
       alignItems: 'center',
@@ -1240,6 +1245,7 @@ const createStyles = (width: number, height: number) => {
     seoContentContainer: {
       width: '100%',
       maxWidth: 780,
+      alignSelf: 'center',
       marginTop: 32,
       gap: 16,
     },
@@ -1392,14 +1398,16 @@ const createStyles = (width: number, height: number) => {
     /* Scroll */
     scrollContent: {
       flexGrow: 1,
+      width: '100%',
       paddingHorizontal: width < 640 ? 6 : 16,
       paddingBottom: 30,
       paddingTop: 16,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       alignItems: 'center',
     },
     scrollContentWide: {
       alignItems: 'center',
+      width: '100%',
     },
 
     /* Card */
@@ -1410,13 +1418,14 @@ const createStyles = (width: number, height: number) => {
       borderWidth: 1,
       borderColor: 'rgba(255,255,255,0.15)',
       width: '100%',
+      alignSelf: 'center',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.5,
       shadowRadius: 15,
       elevation: 10,
     },
-    cardWide: { maxWidth: 780 },
+    cardWide: { maxWidth: 780, alignSelf: 'center' },
 
     cardHeader: {
       flexDirection: 'row',
