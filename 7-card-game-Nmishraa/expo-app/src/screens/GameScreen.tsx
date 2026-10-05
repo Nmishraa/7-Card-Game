@@ -2276,22 +2276,20 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
   const csmH = Math.max(14, 30 - n * 1.5);
 
   // Responsive player count scaling factor:
-  // 2-3 players: 1.08 (more room on table)
-  // 4 players: 1.00 (baseline target size)
-  // 5-6 players: 0.94
-  // 7-8 players: 0.88 (prevent excessive crowding)
   const playerCountScale = n <= 3 ? 1.08 : (n === 4 ? 1.00 : (n <= 6 ? 0.94 : 0.88));
 
-  // Base card dimensions (increased ~10-15% for readability)
-  const baseCardW = isTiny ? 52 : (isSmall ? 62 : 76);
-  const baseCardH = isTiny ? 76 : (isSmall ? 90 : 110);
+  // Mobile card width calculation:
+  // Dynamically calculate cardW on mobile so all 7 hand cards fit on screen without horizontal scrolling
+  const mobileCardW = Math.min(58, Math.max(44, Math.floor((width - 32) / 7)));
+  const baseCardW = isTiny ? Math.max(42, Math.floor((width - 24) / 7)) : (isSmall ? mobileCardW : 76);
+  const baseCardH = isSmall ? Math.round(baseCardW * 1.45) : 110;
 
-  const cardW = Math.round(baseCardW * playerCountScale);
-  const cardH = Math.round(baseCardH * playerCountScale);
+  const cardW = Math.round(baseCardW * (isSmall ? 1.00 : playerCountScale));
+  const cardH = Math.round(baseCardH * (isSmall ? 1.00 : playerCountScale));
 
-  // Played center cards are ~15-20% larger than hand cards
-  const centerCardW = Math.round(cardW * 1.18);
-  const centerCardH = Math.round(cardH * 1.18);
+  // Played center cards are ~18-25% larger than hand cards
+  const centerCardW = Math.round(cardW * (isSmall ? 1.25 : 1.18));
+  const centerCardH = Math.round(cardH * (isSmall ? 1.25 : 1.18));
 
   const bgTheme = feltColor === '#076324' ? '#0b5e28' : feltColor;
 
@@ -2545,10 +2543,10 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       shadowRadius: 14,
       elevation: 12,
     },
-    cardRank: { fontSize: Math.max(13, cardW * 0.38), fontWeight: '900' },
-    cardSuit: { fontSize: Math.max(17, cardW * 0.48), textAlign: 'center' },
+    cardRank: { fontSize: Math.max(11, cardW * 0.38), fontWeight: '900' },
+    cardSuit: { fontSize: Math.max(14, cardW * 0.48), textAlign: 'center' },
     cardBottom: { alignItems: 'flex-end' },
-    cardRankSmall: { fontSize: Math.max(10, cardW * 0.28), fontWeight: '900' },
+    cardRankSmall: { fontSize: Math.max(9, cardW * 0.28), fontWeight: '900' },
     cardBack: {
       width: cardW,
       height: cardH,
@@ -2780,8 +2778,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     myHandScroll: {
       alignItems: 'center',
-      gap: isSmall ? 6 : 10,
-      paddingHorizontal: 12,
+      gap: isSmall ? 3 : 10,
+      paddingHorizontal: isSmall ? 4 : 12,
     },
     myHandScrollView: {
       flexGrow: 0,
