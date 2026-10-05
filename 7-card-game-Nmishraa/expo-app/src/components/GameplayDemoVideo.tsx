@@ -481,9 +481,9 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
                       <Text style={styles.winnerBadgeText}>🏆 WINNER: 4 PTS</Text>
                     </View>
                     <View style={styles.revealedCardsRow}>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>A♥</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>A♠</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>2♦</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>A</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♥</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#0f172a' }]}>A</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♠</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>2</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♦</Text></View>
                     </View>
                   </View>
 
@@ -493,9 +493,9 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
                       <Text style={styles.scoreBadgeText}>19 PTS</Text>
                     </View>
                     <View style={styles.revealedCardsRow}>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>9♠</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>7♣</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>3♥</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>9</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♠</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#0f172a' }]}>7</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♣</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>3</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♥</Text></View>
                     </View>
                   </View>
 
@@ -505,9 +505,9 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
                       <Text style={styles.scoreBadgeText}>28 PTS</Text>
                     </View>
                     <View style={styles.revealedCardsRow}>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>K♣</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>Q♥</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>8♦</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>K</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♣</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>Q</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♥</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>8</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♦</Text></View>
                     </View>
                   </View>
 
@@ -517,10 +517,10 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
                       <Text style={styles.scoreBadgeText}>32 PTS</Text>
                     </View>
                     <View style={styles.revealedCardsRow}>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>J♠</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>10♥</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#e11d48' }]}>7♦</Text></View>
-                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>5♣</Text></View>
+                      <View style={styles.miniRevealCard}><Text style={[styles.miniRank, { color: '#0f172a' }]}>J</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♠</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>10</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♥</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#e11d48' }]}>7</Text><Text style={[styles.miniSuit, { color: '#e11d48' }]}>♦</Text></View>
+                      <View style={[styles.miniRevealCard, { marginLeft: -10 }]}><Text style={[styles.miniRank, { color: '#0f172a' }]}>5</Text><Text style={[styles.miniSuit, { color: '#0f172a' }]}>♣</Text></View>
                     </View>
                   </View>
                 </View>
@@ -1017,16 +1017,24 @@ const styles = StyleSheet.create({
   revealedPlayerName: { color: '#fff', fontWeight: 'bold', fontSize: 11 },
   winnerBadgeText: { color: '#fbbf24', fontWeight: '900', fontSize: 11 },
   scoreBadgeText: { color: '#cbd5e1', fontSize: 10, fontWeight: 'bold' },
-  revealedCardsRow: { flexDirection: 'row', gap: 6 },
+  revealedCardsRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   miniRevealCard: {
-    width: 26,
-    height: 36,
-    backgroundColor: '#fff',
-    borderRadius: 4,
+    width: 32,
+    height: 46,
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
   },
-  miniRank: { fontSize: 10, fontWeight: 'bold' },
+  miniRank: { fontSize: 13, fontWeight: '900', lineHeight: 14 },
+  miniSuit: { fontSize: 12, lineHeight: 13 },
 
   resultOverlay: {
     ...StyleSheet.absoluteFillObject,
