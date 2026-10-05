@@ -280,11 +280,6 @@ routes.forEach(route => {
     );
   }
 
-  // Inject route-specific Schema
-  if (route.schema) {
-    const schemaScript = `\n    <script type="application/ld+json">\n    ${JSON.stringify(route.schema, null, 2)}\n    </script>\n  </head>`;
-    routeHtml = routeHtml.replace('</head>', schemaScript);
-  }
 
   // Update fallback Semantic HTML inside <div id="root">
   const fallbackHtml = `
