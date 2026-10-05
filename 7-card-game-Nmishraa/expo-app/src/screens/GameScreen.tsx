@@ -1923,11 +1923,11 @@ export const GameScreen: React.FC<Props> = ({
                             cardStyle = { ...cardStyle, marginBottom: 5 };
                             showCardsAbove = true;
                           } else if (x >= 80) {
-                            infoStyle = { ...infoStyle, bottom: avatarSize + 4, right: half + 4, alignItems: 'flex-end', width: 98 };
-                            showCardsAbove = true;
+                            infoStyle = { ...infoStyle, top: avatarSize + 2, right: 0, alignItems: 'center', width: 90 };
+                            showCardsAbove = false;
                           } else if (x <= 20) {
-                            infoStyle = { ...infoStyle, bottom: avatarSize + 4, left: half + 4, alignItems: 'flex-start', width: 98 };
-                            showCardsAbove = true;
+                            infoStyle = { ...infoStyle, top: avatarSize + 2, left: 0, alignItems: 'center', width: 90 };
+                            showCardsAbove = false;
                           }
 
                           return (
@@ -2287,9 +2287,9 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
   const cardW = Math.round(baseCardW * (isSmall ? 1.00 : playerCountScale));
   const cardH = Math.round(baseCardH * (isSmall ? 1.00 : playerCountScale));
 
-  // Played center cards are ~18-25% larger than hand cards
-  const centerCardW = Math.round(cardW * (isSmall ? 1.25 : 1.18));
-  const centerCardH = Math.round(cardH * (isSmall ? 1.25 : 1.18));
+  // Played center cards are ~12-25% larger than hand cards
+  const centerCardW = Math.round(cardW * (isSmall ? (n >= 6 ? 1.12 : 1.25) : 1.18));
+  const centerCardH = Math.round(cardH * (isSmall ? (n >= 6 ? 1.12 : 1.25) : 1.18));
 
   const bgTheme = feltColor === '#076324' ? '#0b5e28' : feltColor;
 
@@ -2502,8 +2502,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     centerPilesRow: {
       flexDirection: 'row', 
       alignItems: 'center', 
-      gap: isSmall ? 8 : 25, 
-      marginVertical: isSmall ? 4 : 10,
+      gap: isSmall ? (n >= 5 ? 4 : 8) : (n >= 5 ? 12 : 25), 
+      marginVertical: isSmall ? 2 : 10,
     },
     pileContainer: { alignItems: 'center' },
     pileLabel: { color: 'rgba(255,255,255,0.8)', fontSize: isSmall ? 8 : 10, fontWeight: '900', marginBottom: 4, letterSpacing: 1, textTransform: 'uppercase' },
@@ -2756,7 +2756,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     playerDockContainer: {
       width: '100%',
       alignItems: 'center',
-      paddingVertical: isSmall ? 8 : 12,
+      paddingTop: isSmall ? 6 : 12,
+      paddingBottom: isSmall ? 28 : 12,
       paddingHorizontal: isSmall ? 6 : 10,
       backgroundColor: 'rgba(0, 0, 0, 0.65)',
       borderTopWidth: 1,
