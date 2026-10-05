@@ -1169,14 +1169,19 @@ export const GameScreen: React.FC<Props> = ({
     }
   };
 
-  const renderCard = (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => {
+  const renderCard = (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean, isCenterCard?: boolean) => {
     const isRed = card.suit === 'Hearts' || card.suit === 'Diamonds';
     const suitIcon = card.suit === 'Hearts' ? '♥' : card.suit === 'Diamonds' ? '♦' : card.suit === 'Spades' ? '♠' : '♣';
     const suitColor = isRed ? '#f43f5e' : '#0f172a';
     return (
       <TouchableOpacity 
         key={card.id} 
-        style={[styles.card, isSelected && styles.selectedCard, isJoker && styles.jokerCardGlow]}
+        style={[
+          styles.card, 
+          isCenterCard && styles.centerCard, 
+          isSelected && styles.selectedCard, 
+          isJoker && styles.jokerCardGlow
+        ]}
         onPress={onPress}
         disabled={!onPress}
         activeOpacity={0.8}
@@ -1973,14 +1978,14 @@ export const GameScreen: React.FC<Props> = ({
                         {room.jokerCard && (
                           <View style={styles.pileContainer} pointerEvents="box-none">
                             <Text style={styles.pileLabel}>JOKER</Text>
-                            <View style={styles.jokerCardWrapper} pointerEvents="none">{renderCard(room.jokerCard, false)}</View>
+                            <View style={styles.jokerCardWrapper} pointerEvents="none">{renderCard(room.jokerCard, false, undefined, true, true)}</View>
                           </View>
                         )}
                         <View style={styles.pileContainer} pointerEvents="box-none">
                           <Text style={styles.pileLabel}>DECK</Text>
                           <TouchableOpacity 
                             ref={deckRef}
-                            style={[styles.cardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
+                            style={[styles.centerCardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
                             onPress={() => animateDrawCard('deck')} 
                             disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
                             activeOpacity={0.7}
@@ -2000,12 +2005,12 @@ export const GameScreen: React.FC<Props> = ({
                             >
                               {room.discardPile.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
                                 <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }} pointerEvents="none">
-                                  {renderCard(card, false)}
+                                  {renderCard(card, false, undefined, false, true)}
                                 </View>
                               ))}
                             </TouchableOpacity>
                           ) : (
-                            <View ref={discardRef} style={[styles.card, styles.emptyPile]} />
+                            <View ref={discardRef} style={[styles.centerCard, styles.emptyPile]} />
                           )}
                         </View>
 
@@ -2015,7 +2020,7 @@ export const GameScreen: React.FC<Props> = ({
                             <View style={styles.cardCluster} pointerEvents="none">
                               {room.pendingDiscard.map((card, idx) => (
                                 <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }}>
-                                  {renderCard(card, false)}
+                                  {renderCard(card, false, undefined, false, true)}
                                 </View>
                               ))}
                             </View>
@@ -2269,8 +2274,24 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
   
   const csmW = Math.max(10, 22 - n);
   const csmH = Math.max(14, 30 - n * 1.5);
-  const cardW = isTiny ? 48 : (isSmall ? 56 : 68);
-  const cardH = isTiny ? 70 : (isSmall ? 82 : 98);
+
+  // Responsive player count scaling factor:
+  // 2-3 players: 1.08 (more room on table)
+  // 4 players: 1.00 (baseline target size)
+  // 5-6 players: 0.94
+  // 7-8 players: 0.88 (prevent excessive crowding)
+  const playerCountScale = n <= 3 ? 1.08 : (n === 4 ? 1.00 : (n <= 6 ? 0.94 : 0.88));
+
+  // Base card dimensions (increased ~10-15% for readability)
+  const baseCardW = isTiny ? 52 : (isSmall ? 62 : 76);
+  const baseCardH = isTiny ? 76 : (isSmall ? 90 : 110);
+
+  const cardW = Math.round(baseCardW * playerCountScale);
+  const cardH = Math.round(baseCardH * playerCountScale);
+
+  // Played center cards are ~15-20% larger than hand cards
+  const centerCardW = Math.round(cardW * 1.18);
+  const centerCardH = Math.round(cardH * 1.18);
 
   const bgTheme = feltColor === '#076324' ? '#0b5e28' : feltColor;
 
@@ -2502,13 +2523,27 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       shadowOpacity: 0.4,
       shadowRadius: 5,
     },
+    centerCard: {
+      width: centerCardW,
+      height: centerCardH,
+      backgroundColor: '#fff',
+      borderRadius: 7,
+      padding: isSmall ? 3 : 5,
+      justifyContent: 'space-between',
+      elevation: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.45,
+      shadowRadius: 7,
+    },
     selectedCard: { 
       borderColor: '#facc15', 
       borderWidth: 3, 
-      transform: [{ translateY: -14 }],
+      transform: [{ translateY: -16 }, { scale: 1.06 }],
       shadowColor: '#facc15',
-      shadowOpacity: 0.8,
-      shadowRadius: 12,
+      shadowOpacity: 0.85,
+      shadowRadius: 14,
+      elevation: 12,
     },
     cardRank: { fontSize: Math.max(13, cardW * 0.38), fontWeight: '900' },
     cardSuit: { fontSize: Math.max(17, cardW * 0.48), textAlign: 'center' },
@@ -2517,6 +2552,15 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     cardBack: {
       width: cardW,
       height: cardH,
+      backgroundColor: '#1e40af',
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: '#fff',
+      overflow: 'hidden',
+    },
+    centerCardBack: {
+      width: centerCardW,
+      height: centerCardH,
       backgroundColor: '#1e40af',
       borderRadius: 8,
       borderWidth: 2,
