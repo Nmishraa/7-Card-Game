@@ -440,36 +440,31 @@ const AnimatedRevealedHandOnTable: React.FC<{
 
   // Dynamic responsive card sizing based on player count (n), hand size, and viewport
   const getResponsiveRevealCardStyle = (n: number, handCount: number, isMob: boolean) => {
-    let baseScale = 0.48;
-    let baseMargin = -10;
+    let baseScale = 0.42;
+    let baseMargin = -14;
 
     if (n <= 2) {
-      baseScale = 0.56;
-      baseMargin = -7;
+      baseScale = handCount >= 6 ? (isMob ? 0.34 : 0.44) : (isMob ? 0.42 : 0.52);
+      baseMargin = handCount >= 6 ? (isMob ? -16 : -13) : (isMob ? -12 : -9);
     } else if (n === 3) {
-      baseScale = 0.48;
-      baseMargin = -9;
+      baseScale = handCount >= 6 ? (isMob ? 0.32 : 0.40) : (isMob ? 0.38 : 0.46);
+      baseMargin = handCount >= 6 ? (isMob ? -16 : -14) : (isMob ? -13 : -10);
     } else if (n === 4) {
-      baseScale = 0.42;
-      baseMargin = -11;
+      baseScale = handCount >= 6 ? (isMob ? 0.30 : 0.36) : (isMob ? 0.35 : 0.40);
+      baseMargin = handCount >= 6 ? (isMob ? -16 : -14) : (isMob ? -13 : -11);
     } else if (n === 5) {
-      baseScale = 0.38;
-      baseMargin = -13;
+      baseScale = isMob ? 0.28 : 0.34;
+      baseMargin = isMob ? -16 : -14;
     } else if (n === 6) {
-      baseScale = 0.34;
-      baseMargin = -14;
+      baseScale = isMob ? 0.26 : 0.31;
+      baseMargin = isMob ? -16 : -14;
     } else if (n === 7) {
-      baseScale = 0.31;
-      baseMargin = -15;
+      baseScale = isMob ? 0.24 : 0.28;
+      baseMargin = isMob ? -17 : -15;
     } else {
       // 8 players
-      baseScale = 0.28;
-      baseMargin = -16;
-    }
-
-    if (isMob) {
-      baseScale *= 0.95;
-      baseMargin = Math.round(baseMargin * 1.1);
+      baseScale = isMob ? 0.22 : 0.26;
+      baseMargin = isMob ? -17 : -15;
     }
 
     return {
