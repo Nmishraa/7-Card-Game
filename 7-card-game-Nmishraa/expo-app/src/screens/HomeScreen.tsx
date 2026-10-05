@@ -85,6 +85,35 @@ export const HomeScreen: React.FC<Props> = ({
   const [showTerms, setShowTerms] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const faqList = [
+    {
+      q: "What is 7 Cards Least?",
+      a: "7 Cards Least (often called Low Hand Rummy or 7 Cards) is a fast-paced shedding card game played with a standard 52-card deck. Each player is dealt 7 cards. The objective is to achieve the lowest cumulative hand point total by discarding high cards, forming equal-rank sets or suited runs, and declaring 'Least!' when your hand score drops to 10 points or less."
+    },
+    {
+      q: "How do card point values and Joker wildcards work?",
+      a: "Aces count as 1 point. Cards 2 through 10 carry their face value. Jack, Queen, and King are worth 10 points each. During table setup, one card is dealt face-up next to the draw pile to establish the zero-point Joker rank—any matching rank card in your hand counts as 0 points!"
+    },
+    {
+      q: "What is the 80-point penalty for a false Least call?",
+      a: "If a player calls 'Least!' but an opponent holds an equal or lower hand point score when hands are revealed, the caller incurs an 80-point penalty added to their round score. The opponent with the lowest hand score earns 0 points."
+    },
+    {
+      q: "Can I play 7 Cards Least against computer AI bots?",
+      a: "Yes! You can play singleplayer matches immediately against 1 to 7 intelligent computer AI bots. Customize the number of rounds (1–20) and turn timer (1 minute or no timer) to suit your pace."
+    },
+    {
+      q: "How do I create a private table and play with friends?",
+      a: "Tap 'Create Private Table' or 'Play with Friends & Family' on the game setup card. Share the 4-digit room code or invite link via WhatsApp, text, or social media. Friends join instantly without needing an account or app download."
+    },
+    {
+      q: "Is 7 Cards Least free to play online?",
+      a: "Yes, 7 Cards Least is 100% free to play directly in your web browser. There are no mandatory signups, paid downloads, or microtransactions required to enjoy full singleplayer and multiplayer access."
+    }
+  ];
+
   const isWide = width >= 900;
   const isDesktop = width >= 900;
 
@@ -401,6 +430,42 @@ export const HomeScreen: React.FC<Props> = ({
               </TouchableOpacity>
             </View>
 
+            {/* Table Felt Wallpaper Customizer (World of Card Games style) */}
+            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>🎨 Table Wallpaper / Felt Theme</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+              {[
+                { name: 'Classic Green', color: '#076324', icon: '🌿' },
+                { name: 'Ocean Blue', color: '#0a192f', icon: '🌊' },
+                { name: 'Royal Charcoal', color: '#18181b', icon: '🖤' },
+                { name: 'Crimson Red', color: '#450a0a', icon: '🍷' }
+              ].map((themeItem) => {
+                const isSelected = currentFeltColor === themeItem.color;
+                return (
+                  <TouchableOpacity
+                    key={themeItem.color}
+                    onPress={() => onSelectTheme(themeItem.color)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      backgroundColor: themeItem.color,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 8,
+                      borderWidth: 2,
+                      borderColor: isSelected ? '#38bdf8' : 'rgba(255,255,255,0.2)'
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Set theme to ${themeItem.name}`}
+                  >
+                    <Text style={{ fontSize: 14 }}>{themeItem.icon}</Text>
+                    <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: isSelected ? 'bold' : '600' }}>{themeItem.name}</Text>
+                    {isSelected && <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>✓</Text>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
             <View style={styles.divider} />
 
             {/* Actions */}
@@ -492,6 +557,81 @@ export const HomeScreen: React.FC<Props> = ({
                 <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
                   <Text style={styles.inlineLinkText}>📜 Read Game Rules &amp; Scoring ➔</Text>
                 </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* 🎴 CARD POINT SYSTEM REFERENCE GRID (World of Card Games style) */}
+            <View style={[styles.seoSectionCard, { marginTop: 16, backgroundColor: 'rgba(15, 23, 42, 0.85)', borderColor: 'rgba(56, 189, 248, 0.3)' }]}>
+              <Text style={[styles.h2Title, { color: '#38bdf8' }]}>🎴 Official Card Point Values &amp; Scoring</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>
+                {[
+                  { title: 'Ace (A)', pts: '1 Point', desc: 'Lowest face card value', color: '#38bdf8' },
+                  { title: 'Number Cards (2–10)', pts: 'Face Value (2–10 pts)', desc: 'Carries exact rank points', color: '#94a3b8' },
+                  { title: 'Face Cards (J, Q, K)', pts: '10 Points', desc: 'High penalty risk', color: '#f43f5e' },
+                  { title: 'Joker Rank (Wild)', pts: '0 Points', desc: 'Established by table setup flip', color: '#34d399' },
+                  { title: 'Least Threshold', pts: '≤ 10 Points', desc: 'Required to declare Least', color: '#fbbf24' },
+                  { title: 'False Least Penalty', pts: '+80 Points', desc: 'Penalty if opponent is lower', color: '#ef4444' }
+                ].map((item, idx) => (
+                  <View key={idx} style={{ flex: 1, minWidth: 160, backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+                    <Text style={{ color: item.color, fontWeight: 'bold', fontSize: 14 }}>{item.title}</Text>
+                    <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 16, marginVertical: 4 }}>{item.pts}</Text>
+                    <Text style={{ color: '#94a3b8', fontSize: 12 }}>{item.desc}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* ❓ INTERACTIVE COLLAPSIBLE FAQ ACCORDION (World of Card Games style) */}
+            <View style={[styles.seoSectionCard, { marginTop: 16, backgroundColor: 'rgba(10, 22, 40, 0.9)', borderColor: 'rgba(255,255,255,0.15)' }]}>
+              <Text style={styles.h2Title}>❓ Frequently Asked Questions (FAQ)</Text>
+              <Text style={{ color: '#94a3b8', fontSize: 14, marginBottom: 16 }}>
+                Everything you need to know about playing 7 Cards Least online, rules, wildcards, and game options.
+              </Text>
+
+              <View style={{ gap: 10 }}>
+                {faqList.map((faq, index) => {
+                  const isOpen = openFaqIndex === index;
+                  return (
+                    <View 
+                      key={index}
+                      style={{
+                        backgroundColor: isOpen ? 'rgba(30, 41, 59, 0.9)' : 'rgba(15, 23, 42, 0.6)',
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: isOpen ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255,255,255,0.08)',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => setOpenFaqIndex(isOpen ? null : index)}
+                        style={{
+                          padding: 14,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={faq.q}
+                      >
+                        <Text style={{ color: isOpen ? '#38bdf8' : '#ffffff', fontSize: 15, fontWeight: 'bold', flex: 1, paddingRight: 10 }}>
+                          {faq.q}
+                        </Text>
+                        <Text style={{ color: isOpen ? '#38bdf8' : '#64748b', fontSize: 16, fontWeight: 'bold' }}>
+                          {isOpen ? '▲' : '▼'}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {isOpen && (
+                        <View style={{ paddingHorizontal: 14, paddingBottom: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 10 }}>
+                          <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                            {faq.a}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
               </View>
             </View>
           </View>
@@ -880,8 +1020,8 @@ const createStyles = (width: number, height: number) => {
     },
     introParagraph: {
       color: '#cbd5e1',
-      fontSize: isSmall ? 13 : 16,
-      lineHeight: 24,
+      fontSize: isSmall ? 15 : 16,
+      lineHeight: 25,
       textAlign: 'center',
       paddingHorizontal: 16,
       maxWidth: 640,

@@ -468,7 +468,7 @@ const AnimatedRevealedHandOnTable: React.FC<{
     }
 
     if (isMob) {
-      baseScale *= 0.80;
+      baseScale *= 0.95;
       baseMargin = Math.round(baseMargin * 1.1);
     }
 
@@ -580,6 +580,12 @@ export const GameScreen: React.FC<Props> = ({
   const [shareToast, setShareToast] = useState<string | null>(null);
   const [isScoreboardCollapsed, setIsScoreboardCollapsed] = useState<boolean>(() => {
     return (room?.turnOrder?.length || 0) >= 6;
+  });
+  const [hasSeenCardValuesGuide, setHasSeenCardValuesGuide] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem('hasSeenCardValuesGuide') === 'true';
+    }
+    return false;
   });
 
   const copyToClipboard = async (textToCopy: string): Promise<boolean> => {
@@ -1166,6 +1172,7 @@ export const GameScreen: React.FC<Props> = ({
   const renderCard = (card: CardType, isSelected: boolean, onPress?: () => void, isJoker?: boolean) => {
     const isRed = card.suit === 'Hearts' || card.suit === 'Diamonds';
     const suitIcon = card.suit === 'Hearts' ? '♥' : card.suit === 'Diamonds' ? '♦' : card.suit === 'Spades' ? '♠' : '♣';
+    const suitColor = isRed ? '#f43f5e' : '#0f172a';
     return (
       <TouchableOpacity 
         key={card.id} 
@@ -1175,10 +1182,10 @@ export const GameScreen: React.FC<Props> = ({
         activeOpacity={0.8}
       >
         {isJoker && <Text style={styles.jokerBadge}>★ JOKER</Text>}
-        <Text style={[styles.cardRank, { color: isRed ? '#e11d48' : '#111' }, isJoker && { marginTop: 4 }]}>{card.rank}</Text>
-        <Text style={[styles.cardSuit, { color: isRed ? '#e11d48' : '#111' }]}>{suitIcon}</Text>
+        <Text style={[styles.cardRank, { color: suitColor }, isJoker && { marginTop: 4 }]}>{card.rank}</Text>
+        <Text style={[styles.cardSuit, { color: suitColor }]}>{suitIcon}</Text>
         <View style={styles.cardBottom}>
-          <Text style={[styles.cardRankSmall, { color: isRed ? '#e11d48' : '#111' }]}>{card.rank}</Text>
+          <Text style={[styles.cardRankSmall, { color: suitColor }]}>{card.rank}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -1383,6 +1390,44 @@ export const GameScreen: React.FC<Props> = ({
                         </Text>
                         <Text style={styles.summaryTotalText}>{p.totalScore} pts total</Text>
                       </View>
+
+                      {/* First-Game / First-Round Card Values Explanation */}
+                      {!hasSeenCardValuesGuide && p.id === currentPlayerId && (
+                        <View style={styles.firstTimeCardValuesBox}>
+                          <View style={styles.cardValuesHeader}>
+                            <Text style={styles.cardValuesTitle}>Card Values</Text>
+                            <TouchableOpacity 
+                              style={styles.cardValuesDismissBtn}
+                              onPress={() => {
+                                if (typeof window !== 'undefined' && window.localStorage) {
+                                  window.localStorage.setItem('hasSeenCardValuesGuide', 'true');
+                                }
+                                setHasSeenCardValuesGuide(true);
+                              }}
+                            >
+                              <Text style={styles.cardValuesDismissText}>✕</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <View style={styles.cardValuesGrid}>
+                            <Text style={styles.cardValueBullet}>• A = 1 point</Text>
+                            <Text style={styles.cardValueBullet}>• 2 = 2 points</Text>
+                            <Text style={styles.cardValueBullet}>• 3 = 3 points</Text>
+                            <Text style={styles.cardValueBullet}>• 4 = 4 points</Text>
+                            <Text style={styles.cardValueBullet}>• 5 = 5 points</Text>
+                            <Text style={styles.cardValueBullet}>• 6 = 6 points</Text>
+                            <Text style={styles.cardValueBullet}>• 7 = 7 points</Text>
+                            <Text style={styles.cardValueBullet}>• 8 = 8 points</Text>
+                            <Text style={styles.cardValueBullet}>• 9 = 9 points</Text>
+                            <Text style={styles.cardValueBullet}>• 10 = 10 points</Text>
+                            <Text style={styles.cardValueBullet}>• J = 10 points</Text>
+                            <Text style={styles.cardValueBullet}>• Q = 10 points</Text>
+                            <Text style={styles.cardValueBullet}>• K = 10 points</Text>
+                          </View>
+                          <View style={styles.yourScoreHighlightBox}>
+                            <Text style={styles.yourScoreHighlightText}>Your Score: {p.roundScore} points</Text>
+                          </View>
+                        </View>
+                      )}
 
                       {/* Step/Card UI for Round Scores */}
                       <View style={styles.stepRoundsBox}>
@@ -2224,8 +2269,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
   
   const csmW = Math.max(10, 22 - n);
   const csmH = Math.max(14, 30 - n * 1.5);
-  const cardW = isTiny ? 40 : (isSmall ? 44 : 60);
-  const cardH = isTiny ? 58 : (isSmall ? 64 : 86);
+  const cardW = isTiny ? 48 : (isSmall ? 56 : 68);
+  const cardH = isTiny ? 70 : (isSmall ? 82 : 98);
 
   const bgTheme = feltColor === '#076324' ? '#0b5e28' : feltColor;
 
@@ -2465,10 +2510,10 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       shadowOpacity: 0.8,
       shadowRadius: 12,
     },
-    cardRank: { fontSize: Math.max(10, cardW * 0.35), fontWeight: '900' },
-    cardSuit: { fontSize: Math.max(14, cardW * 0.45), textAlign: 'center' },
+    cardRank: { fontSize: Math.max(13, cardW * 0.38), fontWeight: '900' },
+    cardSuit: { fontSize: Math.max(17, cardW * 0.48), textAlign: 'center' },
     cardBottom: { alignItems: 'flex-end' },
-    cardRankSmall: { fontSize: Math.max(8, cardW * 0.25), fontWeight: '900' },
+    cardRankSmall: { fontSize: Math.max(10, cardW * 0.28), fontWeight: '900' },
     cardBack: {
       width: cardW,
       height: cardH,
@@ -2534,11 +2579,11 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.85)',
       paddingHorizontal: isSmall ? 6 : 8, 
-      paddingVertical: isSmall ? 2 : 4,
-      borderRadius: 4,
+      paddingVertical: isSmall ? 3 : 5,
+      borderRadius: 6,
       borderWidth: 1,
       borderColor: 'rgba(201,168,76,0.5)',
-      minWidth: isSmall ? 55 : 70,
+      minWidth: isSmall ? 65 : 75,
     },
     winnerLabelBox: {
       backgroundColor: '#713f12',
@@ -2565,8 +2610,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       color: '#fef08a',
       fontWeight: '900',
     },
-    opponentName: { color: '#fff', fontSize: isSmall ? 9 : 11, fontWeight: '900' },
-    opponentCardCountText: { color: '#facc15', fontSize: isSmall ? 8 : 10, fontWeight: 'bold', marginTop: 1 },
+    opponentName: { color: '#fff', fontSize: isSmall ? 12 : 13, fontWeight: '900' },
+    opponentCardCountText: { color: '#facc15', fontSize: isSmall ? 10 : 11, fontWeight: 'bold', marginTop: 1 },
     
     opponentHand: { flexDirection: 'row', marginTop: 2 },
     cardBackSmall: { width: csmW, height: csmH, backgroundColor: '#1e3a8a', borderRadius: 4, borderWidth: 1, borderColor: '#93c5fd' },
@@ -2697,11 +2742,11 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     myHandScrollView: {
       flexGrow: 0,
     },
-    actionBtn: { paddingVertical: isSmall ? 8 : 12, paddingHorizontal: isSmall ? 16 : 30, borderRadius: 25, alignItems: 'center', minWidth: isSmall ? 95 : 140, elevation: 5 },
+    actionBtn: { paddingVertical: isSmall ? 12 : 14, paddingHorizontal: isSmall ? 20 : 30, borderRadius: 25, alignItems: 'center', justifyContent: 'center', minWidth: isSmall ? 110 : 140, minHeight: 48, elevation: 6 },
     discardBtn: { backgroundColor: '#2563eb' },
     leastBtn: { backgroundColor: '#16a34a' },
     disabled: { opacity: 0.5 },
-    actionBtnText: { color: '#fff', fontWeight: 'bold', fontSize: isSmall ? 13 : 18, letterSpacing: 0.5 },
+    actionBtnText: { color: '#fff', fontWeight: 'bold', fontSize: isSmall ? 15 : 18, letterSpacing: 0.5 },
     
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 12 },
     modalBox: { backgroundColor: '#0f172a', width: '94%', maxWidth: 400, maxHeight: '90%', borderRadius: 24, padding: isSmall ? 16 : 24, borderWidth: 1, borderColor: '#334155' },
@@ -2840,6 +2885,70 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       marginTop: 14,
       marginBottom: 10,
       width: '100%',
+    },
+    firstTimeCardValuesBox: {
+      backgroundColor: '#0f172a',
+      borderRadius: 14,
+      padding: 14,
+      marginTop: 10,
+      marginBottom: 12,
+      borderWidth: 1.5,
+      borderColor: '#38bdf8',
+      shadowColor: '#38bdf8',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    cardValuesHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    cardValuesTitle: {
+      color: '#fbbf24',
+      fontSize: 16,
+      fontWeight: '900',
+    },
+    cardValuesDismissBtn: {
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    cardValuesDismissText: {
+      color: '#94a3b8',
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    cardValuesGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginBottom: 12,
+    },
+    cardValueBullet: {
+      color: '#cbd5e1',
+      fontSize: 13,
+      width: '46%',
+      fontWeight: '600',
+    },
+    yourScoreHighlightBox: {
+      backgroundColor: '#0284c7',
+      borderRadius: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      alignItems: 'center',
+      marginTop: 4,
+      borderWidth: 1,
+      borderColor: '#38bdf8',
+    },
+    yourScoreHighlightText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '900',
+      letterSpacing: 0.5,
     },
     guideMainTitle: {
       color: '#ffffff',
