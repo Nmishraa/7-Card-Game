@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
 import { GamePreviewSection } from '../components/GamePreviewSection';
-
-
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -12,6 +10,30 @@ interface Props {
 export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const faqList = [
+    {
+      q: "What is 7 Cards Least?",
+      a: "7 Cards Least is a strategic lowest score card game played with a 52-card deck. Players try to shed high-value cards, form matching sets and suited runs, and declare 'Least!' when their total hand score drops to 10 points or less."
+    },
+    {
+      q: "How do Joker wildcards work?",
+      a: "During round setup, one card is flipped face-up next to the draw pile to establish the zero-point Joker rank. Any card matching this rank in a player's hand counts as 0 points!"
+    },
+    {
+      q: "What is the penalty for a false Least call?",
+      a: "If you declare 'Least!' but an opponent holds an equal or lower total hand score, you incur an 80-point penalty added to your round score."
+    },
+    {
+      q: "Can I play 7 Cards Least solo against computer AI?",
+      a: "Yes! Singleplayer mode allows instant play against 1 to 7 smart computer AI bots with custom round lengths and turn timers."
+    },
+    {
+      q: "Is 7 Cards Least free to play without download?",
+      a: "Yes, 7 Cards Least is 100% free to play directly in your web browser with no download or signups required."
+    }
+  ];
 
   useEffect(() => {
     updatePageSeo('7-cards-least');
@@ -140,13 +162,60 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
             </View>
           </View>
 
-          <View style={styles.cardSection}>
-            <Text style={styles.h2}>Frequently Asked Questions</Text>
-            <Text style={styles.bodyText}>
-              Have questions about card count, player setups, scoring penalties, or AI bot play? Explore our dedicated FAQ page.
+          <View style={[styles.cardSection, { backgroundColor: 'rgba(10, 22, 40, 0.95)', borderColor: 'rgba(56, 189, 248, 0.25)' }]}>
+            <Text style={styles.h2}>Frequently Asked Questions (FAQ)</Text>
+            <Text style={[styles.bodyText, { marginBottom: 14 }]}>
+              Common questions about rules, wildcards, scoring, and playing online with friends.
             </Text>
+
+            <View style={{ gap: 10 }}>
+              {faqList.map((faq, index) => {
+                const isOpen = openFaqIndex === index;
+                return (
+                  <View 
+                    key={index}
+                    style={{
+                      backgroundColor: isOpen ? 'rgba(30, 41, 59, 0.9)' : 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: isOpen ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255,255,255,0.08)',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => setOpenFaqIndex(isOpen ? null : index)}
+                      style={{
+                        padding: 14,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityLabel={faq.q}
+                    >
+                      <Text style={{ color: isOpen ? '#38bdf8' : '#ffffff', fontSize: 15, fontWeight: 'bold', flex: 1, paddingRight: 10 }}>
+                        {faq.q}
+                      </Text>
+                      <Text style={{ color: isOpen ? '#38bdf8' : '#64748b', fontSize: 16, fontWeight: 'bold' }}>
+                        {isOpen ? '▲' : '▼'}
+                      </Text>
+                    </TouchableOpacity>
+
+                    {isOpen && (
+                      <View style={{ paddingHorizontal: 14, paddingBottom: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 10 }}>
+                        <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                          {faq.a}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+
             <TouchableOpacity onPress={() => onNavigate('/7-cards-least/faq')} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Visit 7 Cards Least FAQ →</Text>
+              <Text style={styles.inlineCtaText}>Explore full FAQ &amp; support page →</Text>
             </TouchableOpacity>
           </View>
         </View>
