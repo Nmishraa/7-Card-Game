@@ -958,7 +958,7 @@ const styles = StyleSheet.create({
   playerScoreText: { color: '#fbbf24', fontSize: 10, fontWeight: 'bold' },
 
   seatTop: { top: 52, alignSelf: 'center' },
-  seatBottom: { bottom: 44, alignSelf: 'center' },
+  seatBottom: { bottom: 70, alignSelf: 'center' },
   seatLeft: { left: 16, top: '45%' },
   seatRight: { right: 16, top: '45%' },
 
