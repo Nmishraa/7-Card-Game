@@ -2258,26 +2258,31 @@ export const GameScreen: React.FC<Props> = ({
 };
 
 const createStyles = (width: number, height: number, n: number = 4, avatarSize: number = 40, feltColor: string = '#076324') => {
-  const isSmall = width < 500;
+  const isSmall = width < 500 || height < 520;
   const isMobile = width < 768;
-  const isTiny = width < 360;
+  const isTiny = width < 360 || height < 420;
   const isLandscape = width > height;
 
+  // Height constraint factor to prevent table overflowing vertically in embedded iframes (e.g. CrazyGames embed container)
+  const availableHeight = Math.max(200, height - (isSmall ? 150 : 210));
+  const maxTableWidthFromHeight = isLandscape ? availableHeight * 2.3 : availableHeight * 1.3;
+
   const tableWidth = isLandscape
-    ? Math.min(width * 0.88, 850 + n * 20)
-    : Math.min(width - 12, 380 + n * 12);
+    ? Math.min(width * 0.88, 850 + n * 20, maxTableWidthFromHeight)
+    : Math.min(width - 12, 380 + n * 12, maxTableWidthFromHeight);
   
   const csmW = Math.max(10, 22 - n);
   const csmH = Math.max(14, 30 - n * 1.5);
 
-  // Responsive player count scaling factor:
-  const playerCountScale = n <= 3 ? 1.08 : (n === 4 ? 1.00 : (n <= 6 ? 0.94 : 0.88));
+  // Responsive player count & vertical height scaling factor:
+  const heightScale = height < 550 ? 0.76 : (height < 650 ? 0.88 : 1.0);
+  const playerCountScale = (n <= 3 ? 1.08 : (n === 4 ? 1.00 : (n <= 6 ? 0.94 : 0.88))) * heightScale;
 
   // Mobile card width calculation:
   // Dynamically calculate cardW on mobile so all 7 hand cards fit on screen without horizontal scrolling
-  const mobileCardW = Math.min(58, Math.max(44, Math.floor((width - 32) / 7)));
-  const baseCardW = isTiny ? Math.max(42, Math.floor((width - 24) / 7)) : (isSmall ? mobileCardW : 76);
-  const baseCardH = isSmall ? Math.round(baseCardW * 1.45) : 110;
+  const mobileCardW = Math.min(58, Math.max(40, Math.floor((width - 32) / 7)));
+  const baseCardW = isTiny ? Math.max(38, Math.floor((width - 24) / 7)) : (isSmall ? mobileCardW : 76 * heightScale);
+  const baseCardH = isSmall ? Math.round(baseCardW * 1.45) : Math.round(110 * heightScale);
 
   const cardW = Math.round(baseCardW * (isSmall ? 1.00 : playerCountScale));
   const cardH = Math.round(baseCardH * (isSmall ? 1.00 : playerCountScale));
@@ -2453,8 +2458,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      padding: isSmall ? 4 : 12,
-      paddingBottom: isSmall ? 20 : 60,
+      padding: isSmall ? 2 : 8,
+      paddingBottom: isSmall ? 4 : 20,
     },
     /* Mahogany wood rail */
     tableRailOuter: {
@@ -2751,8 +2756,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     playerDockContainer: {
       width: '100%',
       alignItems: 'center',
-      paddingTop: isSmall ? 6 : 12,
-      paddingBottom: isSmall ? 28 : 12,
+      paddingTop: isSmall ? 4 : 8,
+      paddingBottom: isSmall ? 8 : 12,
       paddingHorizontal: isSmall ? 6 : 10,
       backgroundColor: 'rgba(0, 0, 0, 0.65)',
       borderTopWidth: 1,
@@ -2762,8 +2767,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     dockActionRow: {
       flexDirection: 'row',
       justifyContent: 'center',
-      gap: isSmall ? 10 : 16,
-      marginBottom: isSmall ? 8 : 12,
+      gap: isSmall ? 8 : 16,
+      marginBottom: isSmall ? 4 : 8,
     },
     myHandDockWrapper: {
       width: '100%',

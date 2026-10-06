@@ -190,6 +190,7 @@
       html,
       body {
         height: 100%;
+        width: 100%;
         background-color: #0b5e28;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         touch-action: manipulation;
@@ -197,10 +198,12 @@
         -webkit-touch-callout: none;
         user-select: none;
         -webkit-user-select: none;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
       }
       body {
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
         margin: 0;
       }
       #root {
@@ -208,8 +211,9 @@
         flex-direction: column;
         width: 100%;
         height: 100%;
-        min-height: 100vh;
+        max-height: 100vh;
         flex: 1;
+        overflow: hidden;
       }
       /* Focus visible style for web accessibility */
       :focus-visible {
@@ -278,7 +282,7 @@
         });
       }
     </script>
-  <script src="/_expo/static/js/web/index-7da2a39d436e9b418a66db3b250f5bc2.js" defer></script>
+  <script src="/_expo/static/js/web/index-5bbce4288185249d6aefe1679568ecbd.js" defer></script>
 </body>
 </html>
 
