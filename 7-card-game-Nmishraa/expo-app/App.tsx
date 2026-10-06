@@ -225,6 +225,15 @@ export default function App() {
                 return;
               }
             }
+
+            // Guard: If local state is in 'picking' phase (player discarded and must draw), ignore stale server poll that still says 'discarding'
+            if (
+              currentRoomRef.current.turnIndex === formattedRoom.turnIndex &&
+              currentRoomRef.current.turnPhase === 'picking' &&
+              formattedRoom.turnPhase === 'discarding'
+            ) {
+              return;
+            }
           }
 
           setCurrentRoom(formattedRoom);
