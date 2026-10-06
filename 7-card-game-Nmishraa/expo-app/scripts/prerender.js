@@ -182,7 +182,8 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
     h1: '7 Cards Least Rules',
     h2: 'Complete guide to card point values, discards, wildcards, turn rules, and penalties.',
-    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts.'
+    content: 'Aces = 1pt, Face cards = 10pts, Joker rank = 0pts.',
+    redirect: true
   },
   {
     path: '/how-to-play',
@@ -192,7 +193,8 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
     h1: 'How to Play 7 Cards Least',
     h2: "A beginner-friendly step-by-step guide to dealing, drawing, discarding, and winning.",
-    content: 'Understand dealing 7 cards, discarding sets and suited runs, drawing replacement cards.'
+    content: 'Understand dealing 7 cards, discarding sets and suited runs, drawing replacement cards.',
+    redirect: true
   },
   {
     path: '/strategy',
@@ -202,7 +204,8 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
     h1: '7 Cards Least Strategy',
     h2: 'Educational tactical guide to organizing hands, prioritizing discards, and managing risks.',
-    content: 'Learn when to dump face cards early, how to build 3+ card suited runs.'
+    content: 'Learn when to dump face cards early, how to build 3+ card suited runs.',
+    redirect: true
   },
   {
     path: '/faq',
@@ -212,7 +215,8 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
     h1: '7 Cards Least Frequently Asked Questions',
     h2: 'Frequently asked questions about rules, turns, scoring, multiplayer, and AI play.',
-    content: 'Answers to: What is 7 Cards Least? How do you play? Can I play online?'
+    content: 'Answers to: What is 7 Cards Least? How do you play? Can I play online?',
+    redirect: true
   },
   {
     path: '/multiplayer',
@@ -278,6 +282,11 @@ routes.forEach(route => {
       /"@type": "BreadcrumbList",[\s\S]*?"itemListElement": \[[\s\S]*?\]/,
       `"@type": "BreadcrumbList",\n          "@id": "${route.canonical}#breadcrumb",\n          "itemListElement": ${breadcrumbJson}`
     );
+  }
+
+  if (route.redirect) {
+    const metaRedirect = `  <meta http-equiv="refresh" content="0;url=${route.canonical}" />\n    <script>window.location.replace("${route.canonical}");</script>\n  </head>`;
+    routeHtml = routeHtml.replace('</head>', metaRedirect);
   }
 
 
