@@ -47,7 +47,13 @@ export default function App() {
   const getCleanPath = (pathStr?: string): string => {
     if (!pathStr) return '/';
     let p = pathStr.trim().toLowerCase();
-    if (p.startsWith('/preview') || p.startsWith('/crazygames')) {
+    if (typeof window !== 'undefined' && window.self !== window.top) {
+      return '/';
+    }
+    if (p === '/index.html' || p.endsWith('/index.html') || p.endsWith('/index.htm')) {
+      return '/';
+    }
+    if (p.startsWith('/preview') || p.startsWith('/crazygames') || p.includes('crazygames')) {
       return '/';
     }
     if (p.length > 1 && p.endsWith('/')) {
@@ -817,7 +823,8 @@ export default function App() {
       '/solo',
       '/faq',
       '/demo',
-      '/preview'
+      '/preview',
+      '/index.html'
     ];
     if (isExpiredRoom) {
       return (
