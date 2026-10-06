@@ -47,6 +47,9 @@ export default function App() {
   const getCleanPath = (pathStr?: string): string => {
     if (!pathStr) return '/';
     let p = pathStr.trim().toLowerCase();
+    if (p.startsWith('/preview') || p.startsWith('/crazygames')) {
+      return '/';
+    }
     if (p.length > 1 && p.endsWith('/')) {
       p = p.slice(0, -1);
     }
