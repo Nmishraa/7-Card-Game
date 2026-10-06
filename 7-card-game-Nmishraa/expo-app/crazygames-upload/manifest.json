@@ -1,0 +1,23 @@
+{
+  "short_name": "7 Card Game",
+  "name": "7 Card Game Online – Play With Friends or AI",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#062d12",
+  "theme_color": "#0b5e28",
+  "display": "standalone",
+  "orientation": "any",
+  "description": "Play 7 Card Game online with friends or AI computer bots. Fast browser-based multiplayer card game with room creation, live chat, and strategic card play.",
+  "categories": ["games", "entertainment", "multiplayer"]
+}
