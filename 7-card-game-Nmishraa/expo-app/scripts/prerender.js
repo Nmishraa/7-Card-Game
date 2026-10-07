@@ -33,6 +33,9 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/',
     h1: '7 Cards Least Game Online – Play Free With Friends & AI',
     h2: 'The ultimate online portal for 7 Cards Least rules, strategy, and real-time multiplayer card games.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Play Free With Friends &amp; AI</h1>
@@ -77,6 +80,10 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least',
     h1: '7 Cards Least Game Online – Official Guide & Portal',
     h2: 'Master the rules, scoring, discards, and winning strategies for 7 Cards Least.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Official Guide &amp; Portal</h1>
@@ -152,6 +159,11 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
     h1: '7 Cards Least Official Rules & Scoring Guide',
     h2: 'Complete guide to card values, turns, discard combinations, Joker wildcards, and penalties.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "Official Rules", "item": "https://cards.gnanamai.com/7-cards-least/rules" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Official Rules &amp; Scoring Guide</h1>
@@ -199,6 +211,11 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
     h1: 'How to Play 7 Cards Least – Step-by-Step Guide',
     h2: 'A beginner-friendly walkthrough to dealing cards, drawing, discarding, and calling Least.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "How to Play", "item": "https://cards.gnanamai.com/7-cards-least/how-to-play" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">How to Play 7 Cards Least – Step-by-Step Guide</h1>
@@ -244,6 +261,11 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
     h1: '7 Cards Least Winning Strategy & Tactics',
     h2: 'Expert tactics for managing hand values, timing Least calls, and outplaying opponents.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "Strategy & Tips", "item": "https://cards.gnanamai.com/7-cards-least/strategy" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Winning Strategy &amp; Tactics</h1>
@@ -289,6 +311,11 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
     h1: '7 Cards Least Frequently Asked Questions',
     h2: 'Everything you need to know about rules, turns, scoring, online multiplayer, and AI bots.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "FAQ", "item": "https://cards.gnanamai.com/7-cards-least/faq" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Frequently Asked Questions</h1>
@@ -358,6 +385,10 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/multiplayer',
     h1: '7 Cards Least Online Multiplayer',
     h2: 'Create private rooms, invite friends via WhatsApp, or join instant online player tables.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Multiplayer Mode", "item": "https://cards.gnanamai.com/multiplayer" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Online Multiplayer</h1>
@@ -393,6 +424,10 @@ const routes = [
     canonical: 'https://cards.gnanamai.com/play-against-ai',
     h1: '7 Cards Least Against Computer AI',
     h2: 'Practice your card shedding tactics singleplayer against smart computer bots.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Play Against AI", "item": "https://cards.gnanamai.com/play-against-ai" }
+    ],
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Against Computer AI</h1>
