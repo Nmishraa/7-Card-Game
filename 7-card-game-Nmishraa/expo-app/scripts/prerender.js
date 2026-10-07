@@ -69,16 +69,46 @@ const routes = [
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Official Guide &amp; Portal</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Master the rules, scoring, discards, and winning strategies for 7 Cards Least.</h2>
+        
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          <strong>7 Cards Least</strong> is one of the most popular card shedding games played around the world. Every player starts with 7 cards dealt from a standard 52-card deck. The goal is simple: discard your high-value cards, keep zero-point Jokers and low Aces, and declare <em>LEAST!</em> when your total score is lower than everyone else at the table.
+          <strong>7 Cards Least</strong> (often known simply as 7 Card Game or Low Hand Rummy) is a fast-paced card shedding game played with a standard 52-card deck. Players are dealt 7 cards each and aim to shed high-value point cards, form matching rank sets and suited runs, and declare <em>LEAST!</em> when their total hand score drops below all opponents.
         </p>
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">✨ Key Gameplay Features</h3>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 What Is 7 Cards Least?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          In 7 Cards Least, the objective is to finish with the lowest cumulative score across multiple rounds. Unlike traditional card games where high points win, holding face cards (J, Q, K = 10 pts each) increases your risk of losing. The game introduces table wildcards, match-and-skip turns, and automatic card drops.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📋 Card Values &amp; Scoring Table</h3>
         <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px;">
-          <li><strong style="color: #ffffff;">Matching Rank Discards:</strong> Discard single cards, pairs, triples, or 4 of a kind in a single turn.</li>
-          <li><strong style="color: #ffffff;">Suited Runs:</strong> Discard 3 or more consecutive cards of the same suit (e.g. 4♠-5♠-6♠).</li>
-          <li><strong style="color: #ffffff;">Wildcard Joker Flip:</strong> Table setup establishes a zero-point Joker rank that turns matching rank cards into 0 points.</li>
-          <li><strong style="color: #ffffff;">Match &amp; Skip:</strong> If your discard rank matches the top of the discard pile, your turn finishes without needing to pick up.</li>
+          <li><strong style="color: #ffffff;">Ace (A):</strong> 1 Point (the lowest standard card value).</li>
+          <li><strong style="color: #ffffff;">Number Cards (2 to 10):</strong> Face Value (2–10 points each).</li>
+          <li><strong style="color: #ffffff;">Face Cards (J, Q, K):</strong> 10 Points each (high penalty risk).</li>
+          <li><strong style="color: #ffffff;">Table Joker Wildcard:</strong> 0 Points (established by the face-up card during table setup).</li>
+          <li><strong style="color: #ffffff;">Least Declaration Threshold:</strong> Total hand score must be 10 points or less to call Least.</li>
+          <li><strong style="color: #ffffff;">False Least Penalty:</strong> 80 points penalty added if an opponent holds an equal or lower hand score upon reveal.</li>
         </ul>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🕹️ How to Play Step-by-Step</h3>
+        <ol style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px;">
+          <li><strong>Deal:</strong> 7 cards are dealt to each player. 1 card is flipped face-up as the Joker wildcard rank, and 1 card starts the Discard Pile.</li>
+          <li><strong>Discard:</strong> On your turn, select a single card, a matching set (e.g. 9♠-9♥-9♦), or a suited run (e.g. 4♣-5♣-6♣) to drop onto the Discard Pile.</li>
+          <li><strong>Draw:</strong> Draw one replacement card from either the face-down Draw Deck or face-up Discard Pile.</li>
+          <li><strong>Declare LEAST!:</strong> When your hand sum is 10 points or lower, tap LEAST! during your turn to reveal hands. The player with the lowest score scores 0 points for the round.</li>
+        </ol>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">💡 Winning Strategies &amp; Tactics</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          Prioritize discarding 10s, Jacks, Queens, and Kings during early turns. Hold Joker wildcards to clear multi-card runs or reduce your total score to zero. Observe opponent discard picks to gauge when they are close to calling Least.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">❓ Frequently Asked Questions (FAQ)</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem;">
+          <strong>Q: Is 7 Cards Least free to play online?</strong><br />
+          A: Yes, 100% free on cards.gnanamai.com with no app download required.<br /><br />
+          <strong>Q: Can I play with computer AI bots or friends?</strong><br />
+          A: Both! Practice singleplayer against smart computer bots or create private 4-digit room code lobbies for friends.
+        </p>
         ${navHtml}
       </article>
     `

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
 import { HowToPlayVideoDemo } from '../components/HowToPlayVideoDemo';
-
-
+import { SeoLink } from '../components/SeoLink';
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -83,18 +82,18 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
     <SafeAreaView style={styles.root}>
       {/* ─── SITE NAVBAR ─── */}
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => onNavigate('/')} accessibilityRole="button" accessibilityLabel="Home">
+        <SeoLink href="/" onNavigate={onNavigate} accessibilityLabel="Home">
           <Text style={styles.brandTitle}>🃏 7 Cards Least</Text>
-        </TouchableOpacity>
+        </SeoLink>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navLinks}>
-          <TouchableOpacity onPress={() => onNavigate('/')} style={styles.navBtn}><Text style={styles.navText}>Play</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/7-cards-least')} style={styles.navBtn}><Text style={styles.navText}>7 Cards Least</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/7-cards-least/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/7-cards-least/how-to-play')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>How to Play</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/7-cards-least/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/play-against-ai')} style={styles.navBtn}><Text style={styles.navText}>Play Against AI</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/7-cards-least/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
+          <SeoLink href="/" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play</Text></SeoLink>
+          <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>7 Cards Least</Text></SeoLink>
+          <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></SeoLink>
+          <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>How to Play</Text></SeoLink>
+          <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></SeoLink>
+          <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></SeoLink>
+          <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play Against AI</Text></SeoLink>
+          <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></SeoLink>
         </ScrollView>
       </View>
 
@@ -102,9 +101,9 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
         <View style={[styles.container, isWide && styles.containerWide]}>
           {/* Breadcrumbs */}
           <View style={styles.breadcrumbRow}>
-            <TouchableOpacity onPress={() => onNavigate('/')}><Text style={styles.breadcrumbLink}>Home</Text></TouchableOpacity>
+            <SeoLink href="/" onNavigate={onNavigate}><Text style={styles.breadcrumbLink}>Home</Text></SeoLink>
             <Text style={styles.breadcrumbSep}>→</Text>
-            <TouchableOpacity onPress={() => onNavigate('/7-cards-least')}><Text style={styles.breadcrumbLink}>7 Cards Least</Text></TouchableOpacity>
+            <SeoLink href="/7-cards-least" onNavigate={onNavigate}><Text style={styles.breadcrumbLink}>7 Cards Least</Text></SeoLink>
             <Text style={styles.breadcrumbSep}>→</Text>
             <Text style={styles.breadcrumbCurrent}>How to Play</Text>
           </View>
@@ -328,12 +327,12 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
                 )}
 
                 <View style={styles.ctaRow}>
-                  <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
+                  <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>
                     <Text style={styles.ctaText}>⚡ Play 7 Cards Least Online Now</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/7-cards-least/rules')}>
+                  </SeoLink>
+                  <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.secondaryCta}>
                     <Text style={styles.secondaryCtaText}>📖 Read Full Rules</Text>
-                  </TouchableOpacity>
+                  </SeoLink>
                 </View>
               </View>
             )}
