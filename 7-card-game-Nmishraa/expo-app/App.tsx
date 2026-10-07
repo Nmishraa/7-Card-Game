@@ -780,7 +780,7 @@ export default function App() {
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
   const renderContent = () => {
-    if (currentPath === '/7-cards-least') {
+    if (currentPath === '/7-cards-least' || currentPath === '/7cards-least' || currentPath === '/7cards-least-') {
       return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
     }
 
@@ -819,6 +819,8 @@ export default function App() {
     const validPaths = [
       '/',
       '/7-cards-least',
+      '/7cards-least',
+      '/7cards-least-',
       '/7-cards-least/rules',
       '/7-cards-least/how-to-play',
       '/7-cards-least/strategy',
