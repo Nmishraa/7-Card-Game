@@ -59,11 +59,37 @@ import fs from 'fs';
 
 const webDistPath = path.join(__dirname, '../../dist');
 if (fs.existsSync(webDistPath)) {
-  // Direct pre-rendered HTML route handler (serves 200 OK directly without 301 redirects for SEO crawlers)
+  // SEO 301 Permanent Redirect Map for legacy/duplicate alias URLs
+  const redirects301: Record<string, string> = {
+    '/rules': '/7-cards-least/rules',
+    '/how-to-play': '/7-cards-least/how-to-play',
+    '/strategy': '/7-cards-least/strategy',
+    '/faq': '/7-cards-least/faq',
+    '/7cards-least': '/7-cards-least',
+    '/7cards-least-': '/7-cards-least',
+    '/solo': '/play-against-ai',
+    '/preview': '/demo'
+  };
+
   app.use((req: Request, res: Response, next) => {
     if (req.method !== 'GET' || req.path.startsWith('/api') || req.path === '/health') return next();
     
-    const cleanPath = (req.path.endsWith('/') && req.path !== '/') ? req.path.slice(0, -1) : req.path;
+    const lowerPath = req.path.toLowerCase();
+
+    // 1. Check direct 301 Permanent Redirects for legacy/duplicate alias paths
+    if (redirects301[lowerPath]) {
+      return res.redirect(301, redirects301[lowerPath]);
+    }
+
+    // 2. Trailing slash 301 redirect to non-trailing slash (e.g. /7-cards-least/ -> 301 -> /7-cards-least)
+    if (req.path.length > 1 && req.path.endsWith('/')) {
+      const safePath = req.path.slice(0, -1);
+      const query = req.url.slice(req.path.length);
+      return res.redirect(301, safePath + query);
+    }
+
+    // 3. Serve pre-rendered static HTML file with 200 OK for canonical pages
+    const cleanPath = req.path;
     const prerenderedPath = path.join(webDistPath, cleanPath, 'index.html');
 
     if (cleanPath !== '' && cleanPath !== '/' && fs.existsSync(prerenderedPath)) {

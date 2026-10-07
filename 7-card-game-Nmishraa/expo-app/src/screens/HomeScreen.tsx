@@ -14,6 +14,7 @@ import { TermsModal } from './TermsModal';
 import { GamePreviewSection } from '../components/GamePreviewSection';
 import { GameplayDemoVideo } from '../components/GameplayDemoVideo';
 import { GameInActionSection } from '../components/GameInActionSection';
+import { SeoLink } from '../components/SeoLink';
 
 
 
@@ -172,30 +173,33 @@ export const HomeScreen: React.FC<Props> = ({
             /* 🖥️ DESKTOP UNTOUCHED HORIZONTAL NAVBAR 🖥️ */
             <>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
-                <TouchableOpacity style={styles.siteNavBtnActive} onPress={() => handleNav('/')} accessibilityRole="button">
+                <SeoLink href="/" onNavigate={onNavigate} style={styles.siteNavBtnActive}>
                   <Text style={styles.siteNavTextActive}>Play</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.siteNavBtn}>
+                  <Text style={styles.siteNavText}>7 Cards Least</Text>
+                </SeoLink>
+                <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Rules</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/how-to-play')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>How to Play</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/strategy')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Strategy</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Multiplayer</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/play-against-ai')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Play Against AI</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/faq')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>FAQ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.siteNavBtn} onPress={() => handleNav('/demo')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/demo" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>🎬 Demo</Text>
-                </TouchableOpacity>
+                </SeoLink>
 
                 <View style={styles.navDivider} />
 
@@ -233,30 +237,33 @@ export const HomeScreen: React.FC<Props> = ({
           {/* 📱 MOBILE HAMBURGER MENU DROPDOWN 📱 */}
           {!isWide && mobileMenuOpen && (
             <View style={styles.mobileMenuDropdown}>
-              <TouchableOpacity style={styles.mobileNavItemActive} onPress={() => handleNav('/')}>
+              <SeoLink href="/" onNavigate={onNavigate} style={styles.mobileNavItemActive} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavTextActive}>🎮 Play Game</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/rules')}>
+              </SeoLink>
+              <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
+                <Text style={styles.mobileNavText}>🃏 7 Cards Least Guide</Text>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>📜 Rules &amp; Scoring</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/how-to-play')}>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>❓ How to Play Guide</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/strategy')}>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>💡 Winning Strategy</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/multiplayer')}>
+              </SeoLink>
+              <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>👥 Multiplayer Mode</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/play-against-ai')}>
+              </SeoLink>
+              <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>🤖 Play vs Computer AI</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/faq')}>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>❓ FAQ &amp; Support</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mobileNavItem} onPress={() => handleNav('/demo')}>
+              </SeoLink>
+              <SeoLink href="/demo" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>🎬 45s Gameplay Demo</Text>
-              </TouchableOpacity>
+              </SeoLink>
 
               <View style={styles.mobileNavDivider} />
 
@@ -548,15 +555,15 @@ export const HomeScreen: React.FC<Props> = ({
               
               {/* Internal Linking Buttons */}
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
-                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/7-cards-least')} accessibilityRole="button">
+                <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
                   <Text style={styles.inlineLinkText}>📖 Learn 7 Cards Least Guide ➔</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/multiplayer')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
                   <Text style={styles.inlineLinkText}>🎮 Play Multiplayer Online ➔</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.inlineLinkBtn} onPress={() => handleNav('/rules')} accessibilityRole="button">
+                </SeoLink>
+                <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
                   <Text style={styles.inlineLinkText}>📜 Read Game Rules &amp; Scoring ➔</Text>
-                </TouchableOpacity>
+                </SeoLink>
               </View>
             </View>
 
@@ -721,19 +728,21 @@ export const HomeScreen: React.FC<Props> = ({
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
             <View style={styles.footerNav}>
-              <TouchableOpacity onPress={() => handleNav('/')} accessibilityRole="button"><Text style={styles.footerLink}>Play</Text></TouchableOpacity>
+              <SeoLink href="/" onNavigate={onNavigate}><Text style={styles.footerLink}>Play</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/rules')} accessibilityRole="button"><Text style={styles.footerLink}>Rules</Text></TouchableOpacity>
+              <SeoLink href="/7-cards-least" onNavigate={onNavigate}><Text style={styles.footerLink}>7 Cards Least</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/how-to-play')} accessibilityRole="button"><Text style={styles.footerLink}>How to Play</Text></TouchableOpacity>
+              <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate}><Text style={styles.footerLink}>Rules</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/strategy')} accessibilityRole="button"><Text style={styles.footerLink}>Strategy</Text></TouchableOpacity>
+              <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate}><Text style={styles.footerLink}>How to Play</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/multiplayer')} accessibilityRole="button"><Text style={styles.footerLink}>Multiplayer</Text></TouchableOpacity>
+              <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate}><Text style={styles.footerLink}>Strategy</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/play-against-ai')} accessibilityRole="button"><Text style={styles.footerLink}>Play Against AI</Text></TouchableOpacity>
+              <SeoLink href="/multiplayer" onNavigate={onNavigate}><Text style={styles.footerLink}>Multiplayer</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => handleNav('/faq')} accessibilityRole="button"><Text style={styles.footerLink}>FAQ</Text></TouchableOpacity>
+              <SeoLink href="/play-against-ai" onNavigate={onNavigate}><Text style={styles.footerLink}>Play Against AI</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate}><Text style={styles.footerLink}>FAQ</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button"><Text style={styles.footerLink}>Privacy Policy</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
