@@ -72,7 +72,7 @@ if (fs.existsSync(webDistPath)) {
   };
 
   app.use((req: Request, res: Response, next) => {
-    if (req.method !== 'GET' || req.path.startsWith('/api') || req.path === '/health') return next();
+    if ((req.method !== 'GET' && req.method !== 'HEAD') || req.path.startsWith('/api') || req.path === '/health') return next();
     
     const lowerPath = req.path.toLowerCase();
 
