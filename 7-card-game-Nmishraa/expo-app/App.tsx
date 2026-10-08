@@ -99,6 +99,7 @@ export default function App() {
   const handleNavigate = (newPath: string) => {
     const clean = getCleanPath(newPath);
     setCurrentPath(clean);
+    setScreen('home');
     if (typeof window !== 'undefined' && window.history) {
       window.history.pushState({}, '', clean);
       window.scrollTo({ top: 0, behavior: 'smooth' });
