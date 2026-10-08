@@ -226,7 +226,7 @@ export const playTurn = (
   playerId: string,
   discardedCardIds: string[]
 ): GameRoom => {
-  if (room.turnOrder[room.turnIndex] !== playerId) return room;
+  if (room.turnOrder[room.turnIndex] !== playerId || room.turnPhase !== 'discarding') return room;
 
   const player = room.players[playerId];
   
@@ -637,16 +637,16 @@ export const botPlayTurn = (room: GameRoom, botId: string): GameRoom => {
       }
     });
 
-    currentState = playTurn(currentState, botId, bestMove.ids);
+    return playTurn(currentState, botId, bestMove.ids);
   }
 
   // 2. Perform Picking Phase
   if (currentState.turnPhase === 'picking') {
     const topDiscard = currentState.discardPile[currentState.discardPile.length - 1];
     if (topDiscard && topDiscard.value <= 2) {
-      currentState = drawCard(currentState, botId, 'discard');
+      return drawCard(currentState, botId, 'discard');
     } else {
-      currentState = drawCard(currentState, botId, 'deck');
+      return drawCard(currentState, botId, 'deck');
     }
   }
 
