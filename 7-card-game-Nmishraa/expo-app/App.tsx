@@ -353,27 +353,37 @@ export default function App() {
     }
     setCurrentRoom(null);
     setRoomId(null);
-    setScreen('auth');
+    setScreen('home');
   };
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  const getOrCreateUser = (playerName?: string): AppUser => {
+    if (user) return user;
+    const guest: AppUser = {
+      uid: 'guest_' + Math.random().toString(36).substring(2, 9),
+      displayName: playerName?.trim() || 'Guest Player',
+      isAnonymous: true,
+    };
+    setUser(guest);
+    return guest;
+  };
+
   const handleCreateRoom = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
-    if (!user) return;
+    const activeUser = getOrCreateUser(playerName);
     const newRoomId = generateRoomId();
-    const pName = playerName || user.displayName;
-    const player = makePlayer(user.uid, pName, false, user.photoURL);
+    const pName = playerName || activeUser.displayName;
+    const player = makePlayer(activeUser.uid, pName, false, activeUser.photoURL);
 
     const room: GameRoom = {
       id: newRoomId,
-      hostId: user.uid,
+      hostId: activeUser.uid,
       status: 'lobby',
       createdAt: Date.now(),
       deck: [],
       discardPile: [],
-      players: { [user.uid]: player },
+      players: { [activeUser.uid]: player },
       turnIndex: 0,
-      turnOrder: [user.uid],
+      turnOrder: [activeUser.uid],
       turnPhase: 'discarding',
       lastDiscardedCount: 1,
       currentRound: 1,
@@ -389,27 +399,27 @@ export default function App() {
     setCurrentRoom(room);
     setScreen('lobby');
     await updateDbRoom(room);
-    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId });
+    trackUserEvent(activeUser.uid, pName, 'create_room', { roomId: newRoomId });
   };
 
   const handleQuickMatch = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60) => {
-    if (!user) return;
+    const activeUser = getOrCreateUser(playerName);
     const newRoomId = generateRoomId();
-    const pName = playerName || user.displayName;
-    const p1 = makePlayer(user.uid, pName, false, user.photoURL);
+    const pName = playerName || activeUser.displayName;
+    const p1 = makePlayer(activeUser.uid, pName, false, activeUser.photoURL);
     const p2 = makePlayer('bot_1', 'AlphaBot 🤖', true);
     const p3 = makePlayer('bot_2', 'BetaBot 🤖', true);
     const p4 = makePlayer('bot_3', 'OmegaBot 🤖', true);
 
     const room: GameRoom = {
       id: newRoomId,
-      hostId: user.uid,
+      hostId: activeUser.uid,
       status: 'playing',
       deck: [],
       discardPile: [],
-      players: { [user.uid]: p1, 'bot_1': p2, 'bot_2': p3, 'bot_3': p4 },
+      players: { [activeUser.uid]: p1, 'bot_1': p2, 'bot_2': p3, 'bot_3': p4 },
       turnIndex: 0,
-      turnOrder: [user.uid, 'bot_1', 'bot_2', 'bot_3'],
+      turnOrder: [activeUser.uid, 'bot_1', 'bot_2', 'bot_3'],
       turnPhase: 'discarding',
       lastDiscardedCount: 1,
       currentRound: 1,
@@ -426,17 +436,17 @@ export default function App() {
     setCurrentRoom(readyRoom);
     setScreen('game');
     await updateDbRoom(readyRoom);
-    trackUserEvent(user.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
+    trackUserEvent(activeUser.uid, pName, 'start_game', { roomId: newRoomId, mode: 'quick_match' });
   };
 
   const handlePlayWithComputer = async (playerName: string, rounds: number = 5, turnTimeLimit: number = 60, numBots: number = 1) => {
-    if (!user) return;
+    const activeUser = getOrCreateUser(playerName);
     const newRoomId = generateRoomId();
-    const pName = playerName || user.displayName;
-    const humanPlayer = makePlayer(user.uid, pName, false, user.photoURL);
+    const pName = playerName || activeUser.displayName;
+    const humanPlayer = makePlayer(activeUser.uid, pName, false, activeUser.photoURL);
 
-    const players: Record<string, Player> = { [user.uid]: humanPlayer };
-    const turnOrder: string[] = [user.uid];
+    const players: Record<string, Player> = { [activeUser.uid]: humanPlayer };
+    const turnOrder: string[] = [activeUser.uid];
 
     const count = Math.min(7, Math.max(1, numBots));
     for (let i = 1; i <= count; i++) {
@@ -448,7 +458,7 @@ export default function App() {
 
     const room: GameRoom = {
       id: newRoomId,
-      hostId: user.uid,
+      hostId: activeUser.uid,
       status: 'playing',
       deck: [],
       discardPile: [],
@@ -471,11 +481,11 @@ export default function App() {
     setCurrentRoom(readyRoom);
     setScreen('game');
     await updateDbRoom(readyRoom);
-    trackUserEvent(user.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true, numBots: count });
+    trackUserEvent(activeUser.uid, pName, 'create_room', { roomId: newRoomId, isSolo: true, numBots: count });
   };
 
   const handleJoinRoom = async (playerName: string, rid: string, userOverride?: AppUser) => {
-    const activeUser = userOverride || user;
+    const activeUser = userOverride || getOrCreateUser(playerName);
     if (!activeUser || !rid) return;
     const cleanRid = rid.trim().toUpperCase();
     const pName = playerName || activeUser.displayName;
@@ -868,6 +878,25 @@ export default function App() {
       return <NotFoundPage onNavigate={handleNavigate} />;
     }
 
+    if (currentPath === '/') {
+      return (
+        <HomeScreen
+          userName={user ? user.displayName : 'Player'}
+          userId={user ? user.uid : ''}
+          userEmail={user?.email}
+          userPhoto={user?.photoURL}
+          onLogout={user ? handleLogout : () => setScreen('auth')}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+          onPlayWithComputer={handlePlayWithComputer}
+          currentFeltColor={tableTheme}
+          onSelectTheme={setTableTheme}
+          onQuickMatch={handleQuickMatch}
+          onNavigate={handleNavigate}
+        />
+      );
+    }
+
     if (screen === 'auth' || !user) {
       return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
     }
@@ -875,11 +904,11 @@ export default function App() {
     if (screen === 'home') {
       return (
         <HomeScreen
-          userName={user.displayName}
-          userId={user.uid}
-          userEmail={user.email}
-          userPhoto={user.photoURL}
-          onLogout={handleLogout}
+          userName={user ? user.displayName : 'Player'}
+          userId={user ? user.uid : ''}
+          userEmail={user?.email}
+          userPhoto={user?.photoURL}
+          onLogout={user ? handleLogout : () => setScreen('auth')}
           onCreateRoom={handleCreateRoom}
           onJoinRoom={handleJoinRoom}
           onPlayWithComputer={handlePlayWithComputer}
