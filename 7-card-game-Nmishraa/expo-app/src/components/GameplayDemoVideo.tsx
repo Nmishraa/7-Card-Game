@@ -14,9 +14,10 @@ import {
 interface Props {
   style?: any;
   onNavigate?: (route: string) => void;
+  onPlayGame?: () => void;
 }
 
-export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
+export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate, onPlayGame }) => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
@@ -568,7 +569,13 @@ export const GameplayDemoVideo: React.FC<Props> = ({ style, onNavigate }) => {
                       
                       <TouchableOpacity
                         style={styles.ctaPlayBtn}
-                        onPress={() => onNavigate && onNavigate('/')}
+                        onPress={() => {
+                          if (onPlayGame) {
+                            onPlayGame();
+                          } else if (onNavigate) {
+                            onNavigate('/');
+                          }
+                        }}
                         activeOpacity={0.85}
                       >
                         <Text style={styles.ctaPlayText}>🎮 PLAY GAME NOW</Text>
