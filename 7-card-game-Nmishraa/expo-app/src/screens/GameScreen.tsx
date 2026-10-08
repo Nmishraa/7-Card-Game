@@ -2117,7 +2117,10 @@ export const GameScreen: React.FC<Props> = ({
                             ? 'YOU ARE OUT' 
                             : (isMyTurn 
                                 ? (room.turnPhase === 'discarding' ? '⚡ YOUR TURN: DISCARD!' : '🎴 YOUR TURN: PICK!') 
-                                : `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'}'s Turn`
+                                : (room.turnPhase === 'discarding'
+                                    ? `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'} Discarding...`
+                                    : `👉 ${players[currentTurnId] ? players[currentTurnId].name : 'Opponent'} Picking Card...`
+                                  )
                               )
                           }
                         </Text>
