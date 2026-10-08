@@ -75,10 +75,11 @@ if (fs.existsSync(webDistPath)) {
     if ((req.method !== 'GET' && req.method !== 'HEAD') || req.path.startsWith('/api') || req.path === '/health') return next();
     
     const lowerPath = req.path.toLowerCase();
+    const cleanSlashPath = (lowerPath.length > 1 && lowerPath.endsWith('/')) ? lowerPath.slice(0, -1) : lowerPath;
 
-    // 1. Check direct 301 Permanent Redirects for legacy/duplicate alias paths
-    if (redirects301[lowerPath]) {
-      return res.redirect(301, redirects301[lowerPath]);
+    // 1. Check direct 301 Permanent Redirects for legacy/duplicate alias paths (with or without trailing slash)
+    if (redirects301[cleanSlashPath]) {
+      return res.redirect(301, redirects301[cleanSlashPath]);
     }
 
     // 2. Trailing slash 301 redirect to non-trailing slash (e.g. /7-cards-least/ -> 301 -> /7-cards-least)
