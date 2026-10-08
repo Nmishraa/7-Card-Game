@@ -790,6 +790,74 @@ export default function App() {
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
   const renderContent = () => {
+    // 1. If user is in an active game room or lobby, render GameScreen or LobbyScreen
+    if (screen === 'lobby' && currentRoom) {
+      return (
+        <LobbyScreen
+          room={currentRoom}
+          userId={user ? user.uid : (currentRoom.hostId || '')}
+          onLeaveRoom={handleLeaveRoom}
+          onStartGame={handleStartGame}
+          onAddBot={handleAddBot}
+          onEditName={handleEditName}
+          onChangeRounds={handleChangeRounds}
+          onChangeTurnTimeLimit={handleChangeTurnTimeLimit}
+        />
+      );
+    }
+
+    if (screen === 'game' && currentRoom) {
+      return (
+        <GameScreen
+          room={currentRoom}
+          currentPlayerId={user ? user.uid : (Object.keys(currentRoom.players)[0] || '')}
+          onStartGame={handleStartGame}
+          onDiscardAndDraw={handleDiscardAndDraw}
+          onDrawCard={handleDrawCard}
+          onCallLeast={handleCallLeast}
+          onNextRound={handleNextRound}
+          onAddBot={handleAddBot}
+          onSendMessage={handleSendMessage}
+          onLeaveRoom={handleLeaveRoom}
+          onEditName={handleEditName}
+          onSortHand={handleSortHand}
+          onTimeoutTurn={handleTimeoutTurn}
+          currentFeltColor={tableTheme}
+          onRequestRematch={handleRequestRematch}
+          onAcceptRematch={handleAcceptRematch}
+          onDeclineRematch={handleDeclineRematch}
+        />
+      );
+    }
+
+    if (isExpiredRoom) {
+      return (
+        <SafeAreaView style={styles.expiredContainer}>
+          <View style={styles.expiredBox}>
+            <Text style={styles.expiredIcon}>⌛</Text>
+            <Text style={styles.expiredTitle}>This game has ended. Start a new game to play!</Text>
+            <TouchableOpacity
+              style={styles.createNewGameBtn}
+              onPress={() => {
+                setIsExpiredRoom(false);
+                setRoomId(null);
+                setCurrentRoom(null);
+                if (user) {
+                  handleCreateRoom(user.displayName);
+                } else {
+                  setScreen('auth');
+                }
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.createNewGameBtnText}>🎮 Create New Game</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    }
+
+    // 2. SEO Content Routes
     if (currentPath === '/7-cards-least' || currentPath === '/7cards-least' || currentPath === '/7cards-least-') {
       return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
     }
@@ -847,129 +915,27 @@ export default function App() {
       '/preview',
       '/index.html'
     ];
-    if (isExpiredRoom) {
-      return (
-        <SafeAreaView style={styles.expiredContainer}>
-          <View style={styles.expiredBox}>
-            <Text style={styles.expiredIcon}>⌛</Text>
-            <Text style={styles.expiredTitle}>This game has ended. Start a new game to play!</Text>
-            <TouchableOpacity
-              style={styles.createNewGameBtn}
-              onPress={() => {
-                setIsExpiredRoom(false);
-                setRoomId(null);
-                setCurrentRoom(null);
-                if (user) {
-                  handleCreateRoom(user.displayName);
-                } else {
-                  setScreen('auth');
-                }
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.createNewGameBtnText}>🎮 Create New Game</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      );
-    }
 
     if (!validPaths.includes(currentPath)) {
       return <NotFoundPage onNavigate={handleNavigate} />;
     }
 
-    if (currentPath === '/') {
-      return (
-        <HomeScreen
-          userName={user ? user.displayName : 'Player'}
-          userId={user ? user.uid : ''}
-          userEmail={user?.email}
-          userPhoto={user?.photoURL}
-          onLogout={user ? handleLogout : () => setScreen('auth')}
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-          onPlayWithComputer={handlePlayWithComputer}
-          currentFeltColor={tableTheme}
-          onSelectTheme={setTableTheme}
-          onQuickMatch={handleQuickMatch}
-          onNavigate={handleNavigate}
-        />
-      );
-    }
-
-    if (screen === 'auth' || !user) {
-      return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
-    }
-
-    if (screen === 'home') {
-      return (
-        <HomeScreen
-          userName={user ? user.displayName : 'Player'}
-          userId={user ? user.uid : ''}
-          userEmail={user?.email}
-          userPhoto={user?.photoURL}
-          onLogout={user ? handleLogout : () => setScreen('auth')}
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-          onPlayWithComputer={handlePlayWithComputer}
-          currentFeltColor={tableTheme}
-          onSelectTheme={setTableTheme}
-          onQuickMatch={handleQuickMatch}
-          onNavigate={handleNavigate}
-        />
-      );
-    }
-
-    if (screen === 'lobby' && currentRoom) {
-      return (
-        <LobbyScreen
-          room={currentRoom}
-          userId={user.uid}
-          onLeaveRoom={handleLeaveRoom}
-          onStartGame={handleStartGame}
-          onAddBot={handleAddBot}
-          onEditName={handleEditName}
-          onChangeRounds={handleChangeRounds}
-          onChangeTurnTimeLimit={handleChangeTurnTimeLimit}
-        />
-      );
-    }
-
-    if (screen === 'game' && currentRoom) {
-      return (
-        <GameScreen
-          room={currentRoom}
-          currentPlayerId={user.uid}
-          onStartGame={handleStartGame}
-          onDiscardAndDraw={handleDiscardAndDraw}
-          onDrawCard={handleDrawCard}
-          onCallLeast={handleCallLeast}
-          onNextRound={handleNextRound}
-          onAddBot={handleAddBot}
-          onSendMessage={handleSendMessage}
-          onLeaveRoom={handleLeaveRoom}
-          onEditName={handleEditName}
-          onSortHand={handleSortHand}
-          onTimeoutTurn={handleTimeoutTurn}
-          currentFeltColor={tableTheme}
-          onRequestRematch={handleRequestRematch}
-          onAcceptRematch={handleAcceptRematch}
-          onDeclineRematch={handleDeclineRematch}
-        />
-      );
-    }
-
+    // Default: Main Home Screen
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0275d8" style={{ marginBottom: 16 }} />
-        <Text style={{ color: '#cbd5e1', fontSize: 16, marginBottom: 20 }}>Loading game...</Text>
-        <TouchableOpacity 
-          style={{ backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
-          onPress={() => setScreen('home')}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Return to Main Menu</Text>
-        </TouchableOpacity>
-      </View>
+      <HomeScreen
+        userName={user ? user.displayName : 'Player'}
+        userId={user ? user.uid : ''}
+        userEmail={user?.email}
+        userPhoto={user?.photoURL}
+        onLogout={user ? handleLogout : () => setScreen('auth')}
+        onCreateRoom={handleCreateRoom}
+        onJoinRoom={handleJoinRoom}
+        onPlayWithComputer={handlePlayWithComputer}
+        currentFeltColor={tableTheme}
+        onSelectTheme={setTableTheme}
+        onQuickMatch={handleQuickMatch}
+        onNavigate={handleNavigate}
+      />
     );
   };
 
