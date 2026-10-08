@@ -79,7 +79,7 @@ export default function App() {
     return null;
   });
 
-  const [screen, setScreen] = useState<AppScreen>(() => user ? 'home' : 'auth');
+  const [screen, setScreen] = useState<AppScreen>('home');
   const [currentRoom, setCurrentRoom] = useState<GameRoom | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [tableTheme, setTableTheme] = useState<string>('#076324');
@@ -346,14 +346,18 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await logoutFirebase();
+    try {
+      await logoutFirebase();
+    } catch (e) {
+      console.warn('[Firebase Signout Error]', e);
+    }
     setUser(null);
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem('7card_game_user');
     }
     setCurrentRoom(null);
     setRoomId(null);
-    setScreen('home');
+    setScreen('auth');
   };
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -790,6 +794,11 @@ export default function App() {
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
   const renderContent = () => {
+    // 0. If screen is 'auth', render LoginScreen
+    if (screen === 'auth') {
+      return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+    }
+
     // 1. If user is in an active game room or lobby, render GameScreen or LobbyScreen
     if (screen === 'lobby' && currentRoom) {
       return (
