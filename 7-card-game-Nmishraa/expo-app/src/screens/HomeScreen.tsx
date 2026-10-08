@@ -308,7 +308,11 @@ export const HomeScreen: React.FC<Props> = ({
 
           {/* ─── TOP SHOWCASE: DEMO VIDEO TOP, GAME PREVIEW UNDERNEATH ─── */}
           <View style={styles.topShowcaseContainer}>
-            <GameplayDemoVideo style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
+            <GameplayDemoVideo 
+              style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} 
+              onNavigate={onNavigate}
+              onPlayGame={handleHeroPlayPress}
+            />
             <GamePreviewSection style={{ width: '100%', maxWidth: '100%', marginVertical: 0 }} />
 
             {/* 🤖 HERO PRIMARY ACTION BUTTONS (PLAY VS BOT + PLAY WITH FRIENDS) 🎮 */}
