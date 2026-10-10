@@ -154,8 +154,8 @@ const routes = [
   {
     path: '/7-cards-least/rules',
     dir: path.join(distDir, '7-cards-least', 'rules'),
-    title: '7 Cards Least Rules – Complete Game Rules & Scoring Guide',
-    description: 'Official 7 Cards Least rules guide. Learn card point values (Aces=1, Face cards=10), Joker wildcard mechanics, Match & Skip turns, and the 80-point wrong call penalty.',
+    title: '7 Cards Least Official Rules & Scoring Guide (Ace=1, Face=10, Jokers=0)',
+    description: 'Official 7 Cards Least rules & scoring guide. Complete point breakdown (Ace=1, 2-10 face value, J/Q/K=10, Joker=0), match & skip turns, and 80-point wrong call penalty.',
     canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
     h1: '7 Cards Least Official Rules & Scoring Guide',
     h2: 'Complete guide to card values, turns, discard combinations, Joker wildcards, and penalties.',
@@ -168,6 +168,57 @@ const routes = [
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Official Rules &amp; Scoring Guide</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Complete guide to card values, turn flow, discard combinations, Joker wildcards, and penalties.</h2>
+        
+        <!-- Featured Snippet Definition & Scoring Table for Google Search Position 0 -->
+        <div style="background: rgba(56, 189, 248, 0.08); border: 2px solid #38bdf8; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
+          <h3 style="font-size: 1.2rem; color: #38bdf8; margin: 0 0 10px; font-weight: bold;">⚡ What is 7 Cards Least? (Quick Summary)</h3>
+          <p style="color: #f1f5f9; line-height: 1.7; font-size: 0.98rem; margin: 0 0 14px;">
+            <strong>7 Cards Least</strong> (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <strong>lowest cumulative hand point total</strong> by discarding high-value face cards (10 points each), building matched sets or suited runs, and calling <em>"LEAST!"</em> when your hand total drops to 10 points or fewer.
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; color: #cbd5e1;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                  <th style="padding: 8px 10px;">Card Rank</th>
+                  <th style="padding: 8px 10px;">Point Value</th>
+                  <th style="padding: 8px 10px;">Shedding Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">Ace (A)</td>
+                  <td style="padding: 8px 10px; color: #34d399; font-weight: bold;">1 Point</td>
+                  <td style="padding: 8px 10px;">Keep in hand (lowest standard card value)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">2 through 10</td>
+                  <td style="padding: 8px 10px; color: #fbbf24;">Face Value (2–10 pts)</td>
+                  <td style="padding: 8px 10px;">Discard high numbers (8–10); keep low numbers (2–3)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">Jack, Queen, King</td>
+                  <td style="padding: 8px 10px; color: #f87171; font-weight: bold;">10 Points Each</td>
+                  <td style="padding: 8px 10px;">Discard immediately in sets or as singles</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">Table Joker</td>
+                  <td style="padding: 8px 10px; color: #a78bfa; font-weight: bold;">0 Points</td>
+                  <td style="padding: 8px 10px;">Hold (zero-point wildcard for lowest hand score)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">Calling Least Threshold</td>
+                  <td style="padding: 8px 10px; color: #38bdf8; font-weight: bold;">≤ 10 Points</td>
+                  <td style="padding: 8px 10px;">Must hold 10 points or less to declare Least</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 10px; font-weight: bold; color: #fff;">Wrong Call Penalty</td>
+                  <td style="padding: 8px 10px; color: #ef4444; font-weight: bold;">+80 Points</td>
+                  <td style="padding: 8px 10px;">Assessed if an opponent ties or holds a lower hand</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">1. Deck Setup &amp; Dealing</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
@@ -380,8 +431,8 @@ const routes = [
   {
     path: '/multiplayer',
     dir: path.join(distDir, 'multiplayer'),
-    title: '7 Cards Least Multiplayer – Play Online With Friends',
-    description: 'Play 7 Cards Least multiplayer online with friends or real opponents. Create private 4-digit code rooms, customize rounds, and enjoy live table chat.',
+    title: 'Play 7 Cards Least Online Free – Multiplayer Card Game With Friends',
+    description: 'Play 7 Cards Least online for free with friends, family, or online players. Create private rooms, join with 4-digit codes, instant play in your browser with no download.',
     canonical: 'https://cards.gnanamai.com/multiplayer',
     h1: '7 Cards Least Online Multiplayer',
     h2: 'Create private rooms, invite friends via WhatsApp, or join instant online player tables.',

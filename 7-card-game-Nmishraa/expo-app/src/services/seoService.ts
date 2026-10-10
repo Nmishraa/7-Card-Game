@@ -19,8 +19,8 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     h1: "7 Cards Least Game Online – Official Guide & Portal",
   },
   "7-cards-least-rules": {
-    title: "7 Cards Least Rules – Complete Game Rules & Scoring Guide",
-    description: "Official 7 Cards Least rules guide. Learn card point values (Aces=1, Face cards=10), Joker wildcard mechanics, Match & Skip turns, and the 80-point wrong call penalty.",
+    title: "7 Cards Least Official Rules & Scoring Guide (Ace=1, Face=10, Jokers=0)",
+    description: "Official 7 Cards Least rules & scoring guide. Complete point breakdown (Ace=1, 2-10 face value, J/Q/K=10, Joker=0), match & skip turns, and 80-point wrong call penalty.",
     canonical: "https://cards.gnanamai.com/7-cards-least/rules",
     h1: "7 Cards Least Official Rules & Scoring Guide",
   },
@@ -43,8 +43,8 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     h1: "7 Cards Least Frequently Asked Questions",
   },
   rules: {
-    title: "7 Cards Least Rules – Complete Game Rules & Scoring Guide",
-    description: "Official 7 Cards Least rules guide. Learn card point values (Aces=1, Face cards=10), Joker wildcard mechanics, Match & Skip turns, and the 80-point wrong call penalty.",
+    title: "7 Cards Least Official Rules & Scoring Guide (Ace=1, Face=10, Jokers=0)",
+    description: "Official 7 Cards Least rules & scoring guide. Complete point breakdown (Ace=1, 2-10 face value, J/Q/K=10, Joker=0), match & skip turns, and 80-point wrong call penalty.",
     canonical: "https://cards.gnanamai.com/7-cards-least/rules",
     h1: "7 Cards Least Official Rules & Scoring Guide",
   },
@@ -61,8 +61,8 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     h1: "7 Cards Least Winning Strategy & Tactics",
   },
   multiplayer: {
-    title: "7 Cards Least Multiplayer – Play Online With Friends",
-    description: "Play 7 Cards Least multiplayer online with friends or real opponents. Create private 4-digit code rooms, customize rounds, and enjoy live table chat.",
+    title: "Play 7 Cards Least Online Free – Multiplayer Card Game With Friends",
+    description: "Play 7 Cards Least online for free with friends, family, or online players. Create private rooms, join with 4-digit codes, instant play in your browser with no download.",
     canonical: "https://cards.gnanamai.com/multiplayer",
     h1: "7 Cards Least Online Multiplayer",
   },

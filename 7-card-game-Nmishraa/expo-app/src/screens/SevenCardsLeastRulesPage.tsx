@@ -45,11 +45,58 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate }) => {
             <Text style={styles.breadcrumbCurrent}>Rules</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Rules</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Official Rules &amp; Scoring Guide</Text>
           <Text style={styles.subtitle}>Complete guide to card point values, discards, wildcards, turn rules, and penalties in 7 Cards Least.</Text>
 
+          {/* ─── GOOGLE FEATURED SNIPPET DEFINITION & SCORING TABLE ─── */}
+          <View style={styles.featuredSnippetCard}>
+            <Text style={styles.featuredSnippetHeading} accessibilityRole="header" aria-level={2}>⚡ What is 7 Cards Least? (Quick Summary)</Text>
+            <Text style={styles.featuredSnippetText}>
+              <Text style={styles.boldText}>7 Cards Least</Text> (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <Text style={{ color: '#34d399', fontWeight: 'bold' }}>lowest cumulative hand point total</Text> by discarding high-value face cards (10 pts), building matched sets or runs, and calling <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text> when your hand total is 10 points or fewer.
+            </Text>
+
+            {/* Quick Scoring Table */}
+            <View style={styles.tableBox}>
+              <View style={[styles.tableRow, styles.tableHeaderRow]}>
+                <Text style={[styles.tableCol, styles.tableColHeader, { flex: 1.2 }]}>Card Rank</Text>
+                <Text style={[styles.tableCol, styles.tableColHeader, { flex: 1 }]}>Points</Text>
+                <Text style={[styles.tableCol, styles.tableColHeader, { flex: 2 }]}>Shedding Strategy</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>Ace (A)</Text>
+                <Text style={[styles.tableCol, { color: '#34d399', fontWeight: 'bold', flex: 1 }]}>1 Point</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>Keep in hand (lowest value)</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>2 to 10</Text>
+                <Text style={[styles.tableCol, { color: '#fbbf24', fontWeight: 'bold', flex: 1 }]}>Face Value</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>Shed 8–10 early; keep 2–3</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>J, Q, K</Text>
+                <Text style={[styles.tableCol, { color: '#f87171', fontWeight: 'bold', flex: 1 }]}>10 Points</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>High risk – discard immediately</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>Table Joker</Text>
+                <Text style={[styles.tableCol, { color: '#a78bfa', fontWeight: 'bold', flex: 1 }]}>0 Points</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>Hold (best zero-point wildcard)</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>Call Least</Text>
+                <Text style={[styles.tableCol, { color: '#38bdf8', fontWeight: 'bold', flex: 1 }]}>≤ 10 Points</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>Declare when hand score ≤ 10</Text>
+              </View>
+              <View style={[styles.tableRow, { borderBottomWidth: 0 }]}>
+                <Text style={[styles.tableCol, styles.tableBold, { flex: 1.2 }]}>Wrong Call</Text>
+                <Text style={[styles.tableCol, { color: '#ef4444', fontWeight: 'bold', flex: 1 }]}>+80 Pts</Text>
+                <Text style={[styles.tableCol, { flex: 2 }]}>Penalty if opponent ties or wins</Text>
+              </View>
+            </View>
+          </View>
+
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>1. Card Point System</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>1. Card Point System</Text>
             <Text style={styles.bodyText}>
               • <Text style={styles.boldText}>Ace:</Text> 1 point
               {'\n'}• <Text style={styles.boldText}>Cards 2 to 10:</Text> Face value (2 to 10 points)
@@ -59,7 +106,7 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>2. Turn Sequence &amp; Valid Discards</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>2. Turn Sequence &amp; Valid Discards</Text>
             <Text style={styles.bodyText}>
               Turns progress anticlockwise. On your turn, you must discard before drawing:
               {'\n'}• <Text style={styles.boldText}>Single Card:</Text> Any single card from your hand.
@@ -69,7 +116,7 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>3. Special Game Actions</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>3. Special Game Actions</Text>
             <Text style={styles.bodyText}>
               • <Text style={styles.boldText}>Match &amp; Skip:</Text> If your discard rank matches the current top discard rank, your turn ends immediately without drawing!
               {'\n'}• <Text style={styles.boldText}>Auto Drop:</Text> Drawing a card from the deck matching your immediate discard rank drops it automatically.
@@ -77,13 +124,16 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>4. Calling Least &amp; 80-Point Penalty</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>4. Calling Least &amp; 80-Point Penalty</Text>
             <Text style={styles.bodyText}>
               Call "Least!" during your discard turn when you evaluate your hand total to be lower than all opponents. If an opponent ties or beats your score, you receive an <Text style={styles.boldText}>80-point penalty</Text>! Players reaching 200 cumulative points are eliminated.
             </Text>
             <View style={styles.ctaRow}>
-              <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>
-                <Text style={styles.ctaText}>⚡ Play 7 Cards Least Online</Text>
+              <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.primaryCta}>
+                <Text style={styles.ctaText}>🎮 Play Multiplayer With Friends</Text>
+              </SeoLink>
+              <SeoLink href="/" onNavigate={onNavigate} style={styles.secondaryCta}>
+                <Text style={styles.secondaryCtaText}>⚡ Play Solo vs AI</Text>
               </SeoLink>
               <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.secondaryCta}>
                 <Text style={styles.secondaryCtaText}>📖 Read How to Play</Text>
@@ -130,6 +180,59 @@ const styles = StyleSheet.create({
 
   h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 20 },
+
+  featuredSnippetCard: {
+    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#38bdf8',
+  },
+  featuredSnippetHeading: {
+    color: '#38bdf8',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  featuredSnippetText: {
+    color: '#f1f5f9',
+    fontSize: 15,
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  tableBox: {
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.3)',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+  },
+  tableHeaderRow: {
+    borderBottomWidth: 2,
+    borderBottomColor: 'rgba(56, 189, 248, 0.5)',
+    paddingBottom: 10,
+  },
+  tableCol: {
+    color: '#cbd5e1',
+    fontSize: 13,
+  },
+  tableColHeader: {
+    color: '#38bdf8',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  tableBold: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
 
   cardSection: {
     backgroundColor: 'rgba(10, 22, 40, 0.85)',
