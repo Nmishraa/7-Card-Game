@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Platform, Modal, ScrollView, useWindowDimensions,
@@ -15,6 +15,7 @@ import { GamePreviewSection } from '../components/GamePreviewSection';
 import { GameplayDemoVideo } from '../components/GameplayDemoVideo';
 import { GameInActionSection } from '../components/GameInActionSection';
 import { SeoLink } from '../components/SeoLink';
+import { updatePageSeo } from '../services/seoService';
 
 
 
@@ -38,6 +39,11 @@ export const HomeScreen: React.FC<Props> = ({
 }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
+
+  useEffect(() => {
+    updatePageSeo('home');
+  }, []);
+
   const [name, setName] = useState(userName);
   const [selectedRounds, setSelectedRounds] = useState(5);
   const [selectedBots, setSelectedBots] = useState(1);
@@ -300,7 +306,7 @@ export const HomeScreen: React.FC<Props> = ({
               accessibilityLabel="7 Card Game Logo"
             />
             {/* H1 for Search Engine Discoverability */}
-            <Text style={styles.h1Title}>7 Cards Least Game Online</Text>
+            <Text style={styles.h1Title} accessibilityRole="header" aria-level={1}>7 Cards Least Game Online – Play Free With Friends &amp; AI</Text>
             <Text style={styles.introParagraph}>
               Play 7 Cards Least online for free. Enjoy real-time multiplayer card games with friends or practice solo against computer AI. No download required.
             </Text>
@@ -357,7 +363,7 @@ export const HomeScreen: React.FC<Props> = ({
 
             {/* Header Row */}
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle} accessibilityRole="header">7 Card Game Online</Text>
+              <Text style={styles.cardTitle} accessibilityRole="header" aria-level={2}>7 Card Game Online</Text>
               <TouchableOpacity style={styles.rulesBtn} onPress={() => setShowRules(true)} accessibilityRole="button" accessibilityLabel="View How to Play Rules">
                 <Text style={styles.rulesBtnText}>How to Play</Text>
               </TouchableOpacity>
