@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView, TextInput, Linking } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
+import { SeoLink } from '../components/SeoLink';
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -33,7 +34,26 @@ const styles = StyleSheet.create({
   breadcrumbSep: { color: '#64748b', fontSize: 14 },
   breadcrumbCurrent: { color: '#94a3b8', fontSize: 14 },
   h1: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', marginBottom: 8 },
-  subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 20 },
+  subtitle: { color: '#94a3b8', fontSize: 16, lineHeight: 24, marginBottom: 14 },
+  rulesCalloutBanner: {
+    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.4)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  rulesCalloutText: {
+    color: '#cbd5e1',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  rulesCalloutLink: {
+    color: '#38bdf8',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
 
   /* Family & Friends Carousel Styles */
   familyCarouselSection: {
@@ -278,18 +298,18 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
     <SafeAreaView style={styles.root}>
       {/* ─── SITE NAVBAR ─── */}
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => onNavigate('/')} accessibilityRole="button" accessibilityLabel="Home">
-          <Text style={styles.brandTitle}>🃏 7 Card Game</Text>
-        </TouchableOpacity>
+        <SeoLink href="/" onNavigate={onNavigate} accessibilityLabel="Home">
+          <Text style={styles.brandTitle}>🃏 7 Cards Least</Text>
+        </SeoLink>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navLinks}>
-          <TouchableOpacity onPress={() => onNavigate('/')} style={styles.navBtn}><Text style={styles.navText}>Home</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/how-to-play')} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/variations')} style={styles.navBtn}><Text style={styles.navText}>Variations</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Multiplayer</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/solo')} style={styles.navBtn}><Text style={styles.navText}>Solo</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
+          <SeoLink href="/" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Home</Text></SeoLink>
+          <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>7 Cards Least</Text></SeoLink>
+          <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></SeoLink>
+          <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></SeoLink>
+          <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></SeoLink>
+          <SeoLink href="/multiplayer" onNavigate={onNavigate} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Multiplayer</Text></SeoLink>
+          <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play Against AI</Text></SeoLink>
+          <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></SeoLink>
         </ScrollView>
       </View>
 
@@ -297,13 +317,23 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
         <View style={[styles.container, isWide && styles.containerWide]}>
           {/* Breadcrumbs */}
           <View style={styles.breadcrumbRow}>
-            <TouchableOpacity onPress={() => onNavigate('/')}><Text style={styles.breadcrumbLink}>Home</Text></TouchableOpacity>
+            <SeoLink href="/" onNavigate={onNavigate}><Text style={styles.breadcrumbLink}>Home</Text></SeoLink>
             <Text style={styles.breadcrumbSep}>→</Text>
             <Text style={styles.breadcrumbCurrent}>Multiplayer</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Multiplayer Online</Text>
-          <Text style={styles.subtitle}>Play 7 Cards Least multiplayer online with friends or instant online player matchfilling.</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>Play 7 Cards Least Online Free – Multiplayer</Text>
+          <Text style={styles.subtitle}>Play 7 Cards Least multiplayer online with friends or instant online player matchmaking in your browser.</Text>
+
+          {/* ─── RULES CROSS-LINK CALLOUT BANNER ─── */}
+          <View style={styles.rulesCalloutBanner}>
+            <Text style={styles.rulesCalloutText}>
+              💡 New to 7 Cards Least? Learn card values, Jokers, and the 80-point penalty in our{' '}
+              <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate}>
+                <Text style={styles.rulesCalloutLink}>Official Rules &amp; Scoring Guide →</Text>
+              </SeoLink>
+            </Text>
+          </View>
 
           {/* ─── PLAY WITH FAMILY & FRIENDS CAROUSEL ─── */}
           <View style={styles.familyCarouselSection}>
