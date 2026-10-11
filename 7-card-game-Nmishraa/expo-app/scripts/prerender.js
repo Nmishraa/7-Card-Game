@@ -50,13 +50,6 @@ const routes = [
           "gamePlatform": "Web Browser",
           "operatingSystem": "All",
           "genre": ["Card Game", "Multiplayer", "Casual Game"],
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.9",
-            "ratingCount": "1420",
-            "bestRating": "5",
-            "worstRating": "1"
-          },
           "offers": {
             "@type": "Offer",
             "price": "0",
