@@ -30,8 +30,21 @@ export const PrivacyModal: React.FC<Props> = ({ visible, onClose }) => {
 
             <Text style={styles.sectionHead}>3. Analytics & Cookies</Text>
             <Text style={styles.sectionBody}>
-              Anonymous analytics help us identify performance bottlenecks, bot turn delays, and room creation errors to improve gameplay for all users.
+              Anonymous analytics help us identify performance bottlenecks, bot turn delays, and room creation errors to improve gameplay for all users. We strictly adhere to GDPR and ePrivacy regulations by respecting your consent choices.
             </Text>
+            <TouchableOpacity
+              style={styles.cookiePrefsBtn}
+              onPress={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('reopen-7cards-cookie-banner'));
+                }
+                onClose();
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Manage Cookie Preferences"
+            >
+              <Text style={styles.cookiePrefsBtnText}>🍪 Manage Cookie Preferences</Text>
+            </TouchableOpacity>
 
             <Text style={styles.sectionHead}>4. Security & Safety</Text>
             <Text style={styles.sectionBody}>
@@ -118,5 +131,22 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  cookiePrefsBtn: {
+    marginTop: 10,
+    marginBottom: 10,
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.5)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cookiePrefsBtnText: {
+    color: '#38bdf8',
+    fontSize: 13.5,
+    fontWeight: 'bold',
   },
 });
