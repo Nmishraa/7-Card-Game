@@ -17,28 +17,40 @@ export const SevenCardsLeastFaqPage: React.FC<Props> = ({ onNavigate }) => {
 
   const faqs = [
     {
-      q: 'What is 7 Cards Least?',
-      a: '7 Cards Least is an online multiplayer card shedding game where 2 to 4 players are dealt 7 cards each. Players discard sets or runs to achieve the lowest total hand score before calling Least.'
+      q: 'Can Ace be used at both high and low ends in suited runs (e.g. A-2-3 vs Q-K-A)?',
+      a: 'In 7 Cards Least, Ace is strictly a low card worth 1 point. Suited runs can begin with Ace (A-2-3-4), but King-Ace wrapping (e.g. Q-K-A) is not permitted. This makes Aces uniquely valuable for anchoring low-scoring suited sequences.'
     },
     {
-      q: 'How do you play 7 Cards Least?',
-      a: 'On your turn, discard a single card, set, or run to the discard pile, then draw a card from the deck or discard pile. Call Least when your hand total is lower than opponents.'
+      q: 'What happens if the Draw Deck runs out of cards during an active round?',
+      a: 'If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert. Play continues seamlessly.'
     },
     {
-      q: 'How many cards are used?',
-      a: 'A standard 52-card deck is used. Each player starts with 7 cards.'
+      q: 'Can I discard cards matching the Table Joker rank as a set or sequence?',
+      a: 'Yes! Cards matching the round\'s Table Joker rank score 0 points, but they retain their original rank and suit identities for set and run combinations. You can discard a set of Jokers or include a Joker in a suited sequence.'
     },
     {
-      q: 'How does scoring work?',
-      a: 'Ace = 1 pt, 2–10 = face value, Face cards (J, Q, K) = 10 pts, and matching Joker rank = 0 pts. The round winner gets 0 points.'
+      q: 'What happens if two or more opponents tie for the lowest score when Least is declared?',
+      a: 'If the caller holds more points than the opponents, the caller fails and incurs the full 80-point penalty. If two or more opponents tie for the lowest hand score (e.g. both hold 3 points), both tied opponents share round victory and receive 0 penalty points, while all other players score their point difference.'
     },
     {
-      q: 'Can I play 7 Cards Least online?',
-      a: 'Yes, 7 Cards Least is 100% free to play directly in your web browser with zero download required.'
+      q: 'Can I call "Least!" on my very first turn of a round?',
+      a: 'Yes! If your dealt hand already totals 10 points or less—for example, if you were dealt multiple Jokers (0 pts) and low Aces—you are legally permitted to declare "LEAST!" on your very first turn.'
     },
     {
-      q: 'Can I play against AI or with friends?',
-      a: 'Yes! You can start an instant solo game vs computer AI bots or create private 4-digit code tables to play with friends online.'
+      q: 'Do I always have to draw a card after discarding on every turn?',
+      a: 'Standard turns require discarding valid cards followed by drawing 1 card. However, if your discard rank matches the rank of the current top card on the Discard Pile, the "Match & Skip" rule activates: your turn ends immediately without drawing, permanently shrinking your hand size.'
+    },
+    {
+      q: 'How does the 200-point elimination rule work across tournament rounds?',
+      a: '7 Cards Least is played across a series of rounds (customizable from 1 to 20 rounds). Points accumulate round over round. Any player whose cumulative penalty score reaches or surpasses 200 points is eliminated from the table. The player with the lowest score at the end wins.'
+    },
+    {
+      q: 'Can I play 7 Cards Least on mobile without downloading an app or signing up?',
+      a: 'Yes! 7 Cards Least runs completely in mobile browsers (Safari, Chrome, Firefox) on iOS and Android. Touch gestures, tap-to-select cards, and table animations work smoothly with no app store download or signup required.'
+    },
+    {
+      q: 'Can I create private rooms to play with family and friends across different devices?',
+      a: 'Yes. Table hosts can create private rooms with customizable rounds (1 to 20) and turn timers (60-sec or unlimited). A unique 4-digit code and direct WhatsApp link are generated, allowing friends to join across any device.'
     }
   ];
 
@@ -72,12 +84,12 @@ export const SevenCardsLeastFaqPage: React.FC<Props> = ({ onNavigate }) => {
             <Text style={styles.breadcrumbCurrent}>FAQ</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Frequently Asked Questions</Text>
-          <Text style={styles.subtitle}>Frequently asked questions about 7 Cards Least rules, turn mechanics, scoring, multiplayer, and AI play.</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Frequently Asked Questions</Text>
+          <Text style={styles.subtitle}>Specific answers to detailed player questions about edge-case rules, reshuffling, Joker runs, ties, turn limits, and online multiplayer rooms.</Text>
 
           {faqs.map((faq, idx) => (
             <View key={idx} style={styles.cardSection}>
-              <Text style={styles.h2}>❓ {faq.q}</Text>
+              <Text style={styles.h2} accessibilityRole="header" aria-level={2}>❓ {faq.q}</Text>
               <Text style={styles.bodyText}>{faq.a}</Text>
             </View>
           ))}

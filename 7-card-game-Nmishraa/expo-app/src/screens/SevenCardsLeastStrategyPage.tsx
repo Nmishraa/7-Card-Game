@@ -45,41 +45,80 @@ export const SevenCardsLeastStrategyPage: React.FC<Props> = ({ onNavigate }) => 
             <Text style={styles.breadcrumbCurrent}>Strategy</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Strategy</Text>
-          <Text style={styles.subtitle}>Educational tactical guide to organizing hands, prioritizing discards, leveraging wildcards, and managing calling risks.</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Winning Strategy &amp; Tactics</Text>
+          <Text style={styles.subtitle}>Mastering 7 Cards Least requires calculated risk management, card tracking, and precise timing. Study these concrete tactical scenarios to consistently outplay opponents.</Text>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>1. Discard High-Value Singles Early</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>1. Opening Turns: The High-Point Liability Dump</Text>
             <Text style={styles.bodyText}>
-              Kings, Queens, Jacks, and 10s add 10 points each to your hand score. Discard high-rank singles during early turns unless they match the active Joker rank.
+              In the opening 1 to 3 turns, unmatched face cards (Jacks, Queens, Kings) are your biggest vulnerability. Each face card inflicts a 10-point penalty if an opponent makes an early Least declaration.
+              {'\n\n'}
+              <Text style={styles.boldText}>Concrete Scenario:</Text>
+              {'\n'}Suppose your opening dealt hand is K♠ (10), Q♦ (10), J♣ (10), 7♥ (7), 4♠ (4), 2♦ (2), and A♣ (1). Your starting hand sum is <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>44 points</Text>.
+              {'\n'}• Turn 1: Discard K♠ (hand drops to 34 pts + drawn card).
+              {'\n'}• Turn 2: Discard Q♦ (hand drops further).
+              {'\n'}• Turn 3: Discard J♣.
+              {'\n'}By aggressively shedding 10-point cards first, your penalty risk plummets by 30 points before mid-game play begins.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>2. Building Multi-Card Runs &amp; Sets</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>2. Building Multi-Card Runs &amp; Sets</Text>
             <Text style={styles.bodyText}>
-              Discarding cards individually takes 7 full turns. Form equal-rank sets (e.g. 6♠ 6♥) or suited sequences (e.g. 8♦ 9♦ 10♦) to shed 20+ points in a single move.
+              Discarding cards one by one requires 7 full turns. The fastest way to rapidly slash your hand points is forming matching rank sets (pairs or triples) and suited numerical runs (3+ consecutive cards in the same suit).
+              {'\n\n'}
+              <Text style={styles.boldText}>Concrete Scenario:</Text>
+              {'\n'}You hold 9♠, 9♥, 9♦ along with small cards. Discarding all three 9s at once sheds <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>27 points</Text> in a single turn! Similarly, discarding a suited run like 6♣-7♣-8♣ sheds 21 points in one move, putting you within calling range several turns ahead of opponents who only discard single cards.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>3. Strategic Joker Wildcard Retention</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>3. Strategic Joker Wildcard Retention</Text>
             <Text style={styles.bodyText}>
-              Any card matching the active face-up Joker rank counts as <Text style={styles.boldText}>0 points</Text>. Hold Jokers to drop hand points to zero or use them to complete longer suited runs.
+              Every card matching the table setup Joker rank counts as <Text style={styles.boldText}>0 points</Text>. Holding Jokers provides an impenetrable defensive shield for your hand score.
+              {'\n\n'}
+              <Text style={styles.boldText}>Concrete Scenario:</Text>
+              {'\n'}The table Joker rank is <Text style={{ color: '#a78bfa', fontWeight: 'bold' }}>5</Text>. You hold 5♠ (0 pts), 5♦ (0 pts), A♥ (1 pt), and 3♣ (3 pts).
+              {'\n'}Your hand total is only <Text style={{ color: '#34d399', fontWeight: 'bold' }}>4 points</Text> across 4 cards! Even though you hold multiple cards, your score is already low enough to declare Least with near-guaranteed victory. Never discard a Joker card as a single unless you are closing out a game-winning combo.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>4. Evaluating Least Call Safety</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>4. Exploiting the "Match &amp; Skip" Tactic</Text>
             <Text style={styles.bodyText}>
-              Calling Least with 0 to 6 total hand points carries high win probability. Calling with 8 to 12 points risks the <Text style={styles.boldText}>80-point penalty</Text> if an opponent holds an equal or lower score.
+              When you discard a card matching the rank of the current top card on the Discard Pile, the game executes a <Text style={styles.boldText}>Match &amp; Skip</Text>: your turn ends immediately without drawing from the deck!
+              {'\n\n'}
+              <Text style={styles.boldText}>Concrete Scenario:</Text>
+              {'\n'}The previous player discards an 8♥ onto the open pile. You hold an 8♦ in hand. By selecting and discarding your 8♦, you match the top rank. You do not pick up a replacement card! Your hand size permanently shrinks from 7 cards to 6 cards, reducing both your point liability and future turns needed to reach victory.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>5. Safe "LEAST!" Score Thresholds &amp; Risk Management</Text>
+            <Text style={styles.bodyText}>
+              While the game permits declaring Least at 10 points or less, declaring at 9 or 10 points carries significant risk of incurring the <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>80-point penalty</Text>.
+              {'\n\n'}
+              <Text style={styles.boldText}>Calling Windows:</Text>
+              {'\n'}• <Text style={{ color: '#34d399', fontWeight: 'bold' }}>0 to 4 Points (Ultra Safe):</Text> >95% win probability. Declare immediately.
+              {'\n'}• <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>5 to 7 Points (Moderate Risk):</Text> Safe if opponents have drawn from the deck; risky if opponents picked low cards from the discard pile.
+              {'\n'}• <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>8 to 10 Points (High Risk):</Text> Only declare if you have verified that opponents are trapped holding un-discarded face cards.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>6. Tournament &amp; 200-Point Survival Play</Text>
+            <Text style={styles.bodyText}>
+              In multi-round matches, players reaching 200 cumulative points are eliminated. If your cumulative total is 140+ points, an 80-point penalty will instantly eliminate you (140 + 80 = 220 pts). In this danger zone, play purely defensively: prioritize safe shedding and only call Least when your hand is 3 points or lower.
             </Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>
-                <Text style={styles.ctaText}>⚡ Test Strategy Live</Text>
+                <Text style={styles.ctaText}>⚡ Test Strategy in Live Match</Text>
               </SeoLink>
               <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.secondaryCta}>
-                <Text style={styles.secondaryCtaText}>📜 Review Rules</Text>
+                <Text style={styles.secondaryCtaText}>📜 Official Rules</Text>
+              </SeoLink>
+              <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.secondaryCta}>
+                <Text style={styles.secondaryCtaText}>🤖 Practice vs AI</Text>
               </SeoLink>
             </View>
           </View>

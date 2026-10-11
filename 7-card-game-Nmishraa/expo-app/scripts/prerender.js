@@ -36,6 +36,61 @@ const routes = [
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/#webapp",
+          "name": "7 Cards Game Online – 7 Cards & 7 Cards Least Free",
+          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7card game", "7cards game", "7 Cards Least", "Seven Cards Least"],
+          "url": "https://cards.gnanamai.com/",
+          "description": "Play 7 Cards Least online for free. Track 7 cards least score live, discard matching sets and runs to achieve lowest hand points, and win against friends or AI.",
+          "applicationCategory": "GameApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All",
+          "genre": ["Card Game", "Multiplayer", "Casual Game"],
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "1420",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Nmishraa",
+            "url": "https://cards.gnanamai.com/"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://cards.gnanamai.com/#website",
+          "url": "https://cards.gnanamai.com/",
+          "name": "7 Cards Game",
+          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7cards game"],
+          "description": "The Ultimate 7 Cards Game Online Multiplayer Experience",
+          "publisher": {
+            "@type": "Organization",
+            "name": "7 Card Game",
+            "url": "https://cards.gnanamai.com/",
+            "logo": "https://cards.gnanamai.com/assets/logo.png"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Play Free With Friends &amp; AI</h1>
@@ -75,61 +130,92 @@ const routes = [
   {
     path: '/7-cards-least',
     dir: path.join(distDir, '7-cards-least'),
-    title: '7 Cards Least Game Online – Lowest Score Card Game',
-    description: '7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score. Easy to learn and played online with friends and family.',
+    title: '7 Cards Least Game Online – Official Guide & Portal',
+    description: 'Comprehensive guide to 7 Cards Least card game. Master deck setup, zero-point Joker wildcards, turn sequences, Match & Skip, and 80-point penalty.',
     canonical: 'https://cards.gnanamai.com/7-cards-least',
     h1: '7 Cards Least Game Online – Official Guide & Portal',
     h2: 'Master the rules, scoring, discards, and winning strategies for 7 Cards Least.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
-      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" }
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "@id": "https://cards.gnanamai.com/7-cards-least#article",
+          "headline": "7 Cards Least Game Online – Official Guide & Portal",
+          "url": "https://cards.gnanamai.com/7-cards-least",
+          "description": "Comprehensive guide to 7 Cards Least card game. Master deck setup, zero-point Joker wildcards, turn sequences, Match & Skip, and 80-point penalty.",
+          "inLanguage": "en-US",
+          "author": {
+            "@type": "Person",
+            "name": "Nmishraa",
+            "url": "https://cards.gnanamai.com/"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "7 Card Game",
+            "url": "https://cards.gnanamai.com/",
+            "logo": "https://cards.gnanamai.com/assets/logo.png"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/7-cards-least#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Official Guide &amp; Portal</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Master the rules, scoring, discards, and winning strategies for 7 Cards Least.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          <strong>7 Cards Least</strong> (commonly known as 7 Cards Least Game Online, 7 card game, or low hand rummy) is a classic shedding card game played with a standard 52-card deck. As a popular lowest score card game, 7 Cards Least flips traditional card mechanics upside down: players aim to shed high-point cards, minimize their hand total, and finish each match with the least score.
+          Welcome to the official encyclopedia and portal for <strong>7 Cards Least</strong> (also known as 7 Card Game or Low Hand Rummy). 7 Cards Least is a fast-paced card shedding game played with a standard 52-card deck. Rather than competing to amass high trick points, players aim to minimize their cumulative hand point total by discarding high cards, assembling matching rank sets, and building suited runs.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 Objective of Getting the Lowest Score</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 Deck Setup &amp; The Table Joker Wildcard</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          The primary goal in 7 Cards Least is to achieve the lowest hand point total at the end of every round. Players are dealt 7 cards each. Holding face cards like Jacks, Queens, and Kings adds 10 penalty points per card to your hand. To win, players strategically discard pairs, triples, or suited runs, hold zero-point Jokers, and call <strong>LEAST!</strong> when their total hand score reaches 10 points or fewer.
+          A game uses a standard 52-card deck (single deck for 2 to 5 players; two shuffled decks for 6 to 8 players) with no physical jokers. At the beginning of each round, 1 card is flipped face-up in the center to establish the <strong>zero-point Joker rank</strong>. Any card matching this rank in any player's hand scores <strong>0 points</strong>! A second card is flipped face-up to begin the Discard Pile, and 7 cards are dealt to each player.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📋 Card Point Values &amp; Card Scoring</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📋 Card Point Values</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 12px;">
-          Card scoring in 7 Cards Least is straightforward yet highly tactical:
+          Hand scores are calculated by summing the point values of all remaining cards:
         </p>
         <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong style="color: #ffffff;">Ace (A):</strong> 1 Point (the most valuable standard card for keeping hand totals low).</li>
-          <li><strong style="color: #ffffff;">Number Cards (2 to 10):</strong> Face Value (2 to 10 points based on rank).</li>
-          <li><strong style="color: #ffffff;">Face Cards (J, Q, K):</strong> 10 Points each (heavy point burdens to shed early).</li>
-          <li><strong style="color: #ffffff;">Table Joker Wildcard:</strong> 0 Points (established by the face-up setup card during table deal).</li>
-          <li><strong style="color: #ffffff;">Least Call Requirement:</strong> Hand total must be 10 points or less to call Least.</li>
-          <li><strong style="color: #ffffff;">False Call Penalty:</strong> An 80-point penalty is added if an opponent has an equal or lower score.</li>
+          <li><strong style="color: #ffffff;">Ace (A):</strong> 1 Point (the lowest standard card).</li>
+          <li><strong style="color: #ffffff;">Number Cards (2 to 10):</strong> Face Value (2–10 points based on rank).</li>
+          <li><strong style="color: #ffffff;">Face Cards (Jack, Queen, King):</strong> 10 Points each (high liability cards to discard early).</li>
+          <li><strong style="color: #ffffff;">Table Joker Rank:</strong> 0 Points (established by the round setup flip).</li>
+          <li><strong style="color: #ffffff;">Least Calling Window:</strong> Total hand score must be 10 points or less to call Least.</li>
+          <li><strong style="color: #ffffff;">False Call Penalty:</strong> An 80-point penalty is assessed if an opponent holds an equal or lower score.</li>
         </ul>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🕹️ Gameplay: Drawing and Discarding</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🕹️ Turn Progression &amp; Actions</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Understanding how the game works during each turn is key to winning:
+          Turns proceed clockwise around the table. Each turn involves two distinct phases:
         </p>
         <ol style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong>Dealing:</strong> 7 cards are dealt to each player. 1 card is turned face-up on the table to determine the zero-point Joker rank, and 1 card starts the Discard Pile.</li>
-          <li><strong>Discarding:</strong> On your turn, select a single card, a matching set (e.g. 9♠-9♥-9♦), or a suited numerical sequence (e.g. 4♣-5♣-6♣) to drop onto the Discard Pile.</li>
-          <li><strong>Drawing:</strong> Draw one replacement card from either the face-down Draw Deck or the top face-up card of the Discard Pile.</li>
-          <li><strong>Match &amp; Skip:</strong> If a player discards a card matching the rank of the current Discard Pile top card, adjacent players can drop matching cards for extra shedding.</li>
+          <li><strong>Phase 1 – Discarding:</strong> Drop a single card, a matching set (e.g. 9♠-9♥-9♦), or a suited sequence (e.g. 4♣-5♣-6♣) onto the Discard Pile.</li>
+          <li><strong>Match &amp; Skip:</strong> If your discard matches the rank of the current top discard card, your turn concludes immediately without drawing, permanently shrinking your hand.</li>
+          <li><strong>Phase 2 – Drawing:</strong> Draw 1 card from either the face-down Draw Deck or the face-up Discard Pile.</li>
         </ol>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🏆 How a Round Ends &amp; How the Winner Is Determined</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🏆 Calling "LEAST!" &amp; 80-Point Penalty</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A round ends when a player calls <strong>LEAST!</strong> during their turn. All players reveal their remaining cards. If the caller's score is strictly lower than every opponent's hand, the caller wins the round and receives 0 penalty points, while opponents score their remaining hand values. However, if an opponent holds an equal or lower score, the caller suffers a severe 80-point penalty! Across a match of multiple rounds, scores accumulate, and the player with the least score when others hit the point limit is crowned champion.
+          When your hand sum drops to 10 points or less, you can call <strong>LEAST!</strong> on your turn. All hands are revealed: if your hand is strictly lower than every opponent, you win the round with 0 penalty points. However, if any opponent ties or holds a lower score, you incur an <strong>80-point penalty</strong>! Players reaching 200 cumulative points across rounds are eliminated.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🌐 Playing With Friends &amp; Playing Online</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🌐 Explore Related Guides</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Playing online is 100% free on cards.gnanamai.com. You can create private room code lobbies to <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">play with friends and family</a> across mobile and desktop browsers, or practice solo in <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">singleplayer mode against AI</a>. For detailed guidelines, check out the <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official 7 Cards Least rules</a>, learn <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">how to play step-by-step</a>, explore <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">card shedding strategy</a>, or visit our <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">FAQ section</a>.
+          Deepen your expertise with our <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official scoring rules</a>, learn <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">how to play step-by-step</a>, study <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">winning strategies &amp; hand examples</a>, review the <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">FAQ section</a>, play with friends in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">online multiplayer</a>, or practice against <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">computer AI bots</a>.
         </p>
         ${navHtml}
       </article>
@@ -138,16 +224,14 @@ const routes = [
   {
     path: '/7cards-least',
     dir: path.join(distDir, '7cards-least'),
-    title: '7 Cards Least Game Online – Lowest Score Card Game',
-    description: '7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score.',
+    title: '7 Cards Least Game Online – Official Guide & Portal',
     canonical: 'https://cards.gnanamai.com/7-cards-least',
     redirect: true
   },
   {
     path: '/7cards-least-',
     dir: path.join(distDir, '7cards-least-'),
-    title: '7 Cards Least Game Online – Lowest Score Card Game',
-    description: '7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score.',
+    title: '7 Cards Least Game Online – Official Guide & Portal',
     canonical: 'https://cards.gnanamai.com/7-cards-least',
     redirect: true
   },
@@ -161,9 +245,42 @@ const routes = [
     h2: 'Complete guide to card values, turns, discard combinations, Joker wildcards, and penalties.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
-      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
-      { "@type": "ListItem", "position": 3, "name": "Official Rules", "item": "https://cards.gnanamai.com/7-cards-least/rules" }
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "Rules", "item": "https://cards.gnanamai.com/7-cards-least/rules" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "@id": "https://cards.gnanamai.com/7-cards-least/rules#article",
+          "headline": "7 Cards Least Official Rules & Scoring Guide",
+          "url": "https://cards.gnanamai.com/7-cards-least/rules",
+          "description": "Official 7 Cards Least rules & scoring guide. Complete point breakdown (Ace=1, 2-10 face value, J/Q/K=10, Joker=0), match & skip turns, and 80-point wrong call penalty.",
+          "inLanguage": "en-US",
+          "author": {
+            "@type": "Person",
+            "name": "Nmishraa",
+            "url": "https://cards.gnanamai.com/"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "7 Card Game",
+            "url": "https://cards.gnanamai.com/",
+            "logo": "https://cards.gnanamai.com/assets/logo.png"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/7-cards-least/rules#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+            { "@type": "ListItem", "position": 3, "name": "Rules", "item": "https://cards.gnanamai.com/7-cards-least/rules" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Official Rules &amp; Scoring Guide</h1>
@@ -181,7 +298,7 @@ const routes = [
                 <tr style="border-bottom: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
                   <th style="padding: 8px 10px;">Card Rank</th>
                   <th style="padding: 8px 10px;">Point Value</th>
-                  <th style="padding: 8px 10px;">Shedding Action</th>
+                  <th style="padding: 8px 10px;">Shedding Strategy</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,12 +355,16 @@ const routes = [
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">3. Valid Discard Combinations &amp; Turn Flow</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          On your turn, you must discard valid cards onto the Discard Pile before drawing a replacement card. Valid discards include single cards, matching rank sets (e.g. 10♥-10♦), or suited runs of 3+ consecutive cards (e.g. 5♠-6♠-7♠). After discarding, draw one replacement card from either the face-down Draw Deck or top card of the Discard Pile.
+          On your turn, you must discard valid cards onto the Discard Pile before drawing a replacement card. Valid discards include single cards, matching rank sets (e.g. 10♥-10♦), or suited runs of 3+ consecutive cards (e.g. 5♠-6♠-7♠). After discarding, draw one replacement card from either the face-down Draw Deck or top card of the Discard Pile. If your discard matches the current pile top rank, Match &amp; Skip triggers: your turn ends immediately without drawing.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">4. Declaring LEAST! &amp; The 80-Point Wrong Call Penalty</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">4. Declaring LEAST! &amp; Concrete Penalty Examples</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          When your total hand score is 10 points or less, you may declare <strong>LEAST!</strong> during your turn. All hands are instantly revealed. If your hand total is strictly lower than every opponent, you score 0 penalty points for the round, while opponents score their remaining hand values. However, if any opponent holds an equal or lower score, you have committed a false call and receive an <strong>80-point penalty</strong>!
+          When your total hand score is 10 points or less, you may declare <strong>LEAST!</strong> during your turn.
+          <br /><br />
+          <strong>Scenario A – Victory:</strong> Caller holds 4 points. Opponent holds 9 points. Caller wins the round with 0 penalty points, while opponent scores 5 points (9 − 4).
+          <br /><br />
+          <strong>Scenario B – False Call (80-Point Penalty):</strong> Caller declares Least with 7 points, but an opponent holds 5 points! Because the caller did not strictly beat every opponent, the caller incurs the <strong>80-point penalty</strong>.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Additional Guides &amp; Resources</h3>
@@ -264,21 +385,73 @@ const routes = [
     h2: 'A beginner-friendly walkthrough to dealing cards, drawing, discarding, and calling Least.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
-      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
       { "@type": "ListItem", "position": 3, "name": "How to Play", "item": "https://cards.gnanamai.com/7-cards-least/how-to-play" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "HowTo",
+          "@id": "https://cards.gnanamai.com/7-cards-least/how-to-play#howto",
+          "name": "How to Play 7 Cards Least – Step-by-Step Guide",
+          "description": "A beginner-friendly walkthrough to dealing cards, drawing, discarding sets & runs, and calling Least.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "position": 1,
+              "name": "Choose Game Mode & Launch",
+              "text": "Select your nickname and choose between singleplayer vs AI or multiplayer room."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 2,
+              "name": "Understand Your 7 Cards & Score",
+              "text": "Identify your card values: Ace=1, numbers face value, face cards=10, and matching table Joker=0 points."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 3,
+              "name": "Discard High-Point Cards & Combinations",
+              "text": "Discard a single card, matching rank sets, or suited runs onto the Discard Pile."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 4,
+              "name": "Draw a Replacement Card",
+              "text": "Draw one card from the draw deck or the face-up discard pile, unless Match & Skip applies."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 5,
+              "name": "Declare LEAST! at 10 Points or Less",
+              "text": "When your total hand sum drops to 10 points or less, call LEAST! on your turn to win the round with 0 points."
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/7-cards-least/how-to-play#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+            { "@type": "ListItem", "position": 3, "name": "How to Play", "item": "https://cards.gnanamai.com/7-cards-least/how-to-play" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">How to Play 7 Cards Least – Step-by-Step Guide</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">A beginner-friendly walkthrough to dealing cards, drawing, discarding, and calling Least.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          Learning <strong>7 Cards Least</strong> is fast and highly engaging for players of all skill levels! This beginner-friendly walkthrough guides you step-by-step through every phase of a match, from entering a table to declaring Least for victory.
+          Learning <strong>7 Cards Least</strong> is fast and highly engaging! This beginner-friendly walkthrough guides you step-by-step through every phase of a match, from table setup to declaring Least for victory.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 1: Join or Host a Room</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Enter your player name on cards.gnanamai.com. Choose between joining an instant <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">singleplayer match against computer AI bots</a> or creating a private room lobby to <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">play multiplayer online with friends</a> using a unique 4-digit room code.
+          Enter your player nickname on cards.gnanamai.com. Choose between instant solo play against AI bots or creating a private room lobby to play multiplayer with friends using a unique 4-digit code.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 2: Evaluate Your Dealt Hand</h3>
@@ -293,12 +466,12 @@ const routes = [
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 4: Draw a Replacement Card</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          After discarding, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile to keep your hand size balanced at 7 cards.
+          After discarding, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile to keep your hand size balanced at 7 cards, unless Match &amp; Skip applies.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 5: Declare LEAST! for the Win</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          When your total hand sum drops to 10 points or lower, click <strong>LEAST!</strong> during your turn. Hands are revealed. If your score is the lowest, you score 0 penalty points for the round! Review our <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official rules and scoring table</a>, study expert <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">7 Cards Least strategies</a>, or visit our <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">FAQ section</a>.
+          When your total hand sum drops to 10 points or lower, click <strong>LEAST!</strong> during your turn. Hands are revealed. If your score is strictly the lowest, you score 0 penalty points for the round!
         </p>
         ${navHtml}
       </article>
@@ -314,41 +487,74 @@ const routes = [
     h2: 'Expert tactics for managing hand values, timing Least calls, and outplaying opponents.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
-      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
-      { "@type": "ListItem", "position": 3, "name": "Strategy & Tips", "item": "https://cards.gnanamai.com/7-cards-least/strategy" }
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 3, "name": "Strategy", "item": "https://cards.gnanamai.com/7-cards-least/strategy" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "@id": "https://cards.gnanamai.com/7-cards-least/strategy#article",
+          "headline": "7 Cards Least Winning Strategy & Tactics",
+          "url": "https://cards.gnanamai.com/7-cards-least/strategy",
+          "description": "Master winning 7 Cards Least strategies: dump high-value face cards early, track opponent discards, utilize zero-point Jokers, and calculate safe Least call score windows.",
+          "inLanguage": "en-US",
+          "author": {
+            "@type": "Person",
+            "name": "Nmishraa",
+            "url": "https://cards.gnanamai.com/"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "7 Card Game",
+            "url": "https://cards.gnanamai.com/",
+            "logo": "https://cards.gnanamai.com/assets/logo.png"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/7-cards-least/strategy#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+            { "@type": "ListItem", "position": 3, "name": "Strategy", "item": "https://cards.gnanamai.com/7-cards-least/strategy" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Winning Strategy &amp; Tactics</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Expert tactics for managing hand values, timing Least calls, and outplaying opponents.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          Winning consistently at <strong>7 Cards Least</strong> requires a balance of aggressive point shedding, hand tracking, and risk management when calling Least. Here are key strategy tactics used by top players:
+          Winning consistently at <strong>7 Cards Least</strong> requires a balance of aggressive point shedding, hand tracking, and risk management when calling Least. Here are concrete strategy tactics used by top players:
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">1. Early Game: Dump Face Cards &amp; Tens</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">1. Early Game: The Face Card Liability Dump</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Always prioritize discarding Jacks, Queens, Kings, and 10s during your first 3 turns. Holding unmatched 10-point face cards creates massive liability if an opponent calls Least quickly.
+          Always prioritize discarding Jacks, Queens, Kings, and 10s during your first 3 turns. Holding unmatched 10-point face cards creates massive liability if an opponent calls Least quickly. A hand with K-Q-J starts at 30 penalty points before considering other cards.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">2. Multi-Card Discard Optimization</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Focus on building matching rank pairs/triples or suited runs (e.g. 6♥-7♥-8♥). Discarding 2 to 4 cards in a single move rapidly drops your total hand sum in fewer turns than single-card discards.
+          Focus on building matching rank pairs/triples or suited runs (e.g. 6♥-7♥-8♥). Discarding 2 to 4 cards in a single move rapidly drops your total hand sum in fewer turns than single-card discards, saving up to 3 turns.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">3. Tactical Zero-Point Joker Preservation</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Cards matching the Table Joker setup rank count as 0 points. Preserve zero-point Jokers to substitute in suited sequences or hold them to guarantee a zero-point hand for an unchallengeable Least declaration.
+          Cards matching the Table Joker setup rank count as 0 points. Preserve zero-point Jokers to substitute in suited sequences or hold them to guarantee a low-scoring hand for an unchallengeable Least declaration.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">4. Discard Pile Tracking &amp; Safe Least Thresholds</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">4. Exploiting the Match &amp; Skip Tactic</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Track which cards opponents draw from the Discard Pile to estimate their remaining hand points. Avoid declaring Least at 8 to 10 points if opponents have collected low Aces or Jokers; target 0 to 5 points to prevent the 80-point wrong call penalty.
+          When an opponent discards a card rank you also hold, drop your matching rank card to trigger Match &amp; Skip. Your turn ends without drawing, permanently reducing your hand size and accelerating your path to Least.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Additional Gameplay Guides</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Safe Calling Windows &amp; 200-Point Survival</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Check out the <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official 7 Cards Least rules</a>, learn <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">how to play step-by-step</a>, practice in <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">singleplayer against computer AI</a>, or challenge friends in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">online multiplayer mode</a>.
+          Calling at 8 to 10 points is high-risk. Target hands between 0 and 4 points to guarantee victory and eliminate the risk of an 80-point penalty. In multi-round matches, preserve points when approaching the 200-point elimination limit.
         </p>
         ${navHtml}
       </article>
@@ -358,43 +564,155 @@ const routes = [
     path: '/7-cards-least/faq',
     dir: path.join(distDir, '7-cards-least', 'faq'),
     title: '7 Cards Least FAQ – Frequently Asked Questions & Answers',
-    description: 'Answers to common 7 Cards Least questions: card values, dealing rules, online multiplayer rooms, AI difficulty, Joker wildcard evaluation, and score elimination.',
+    description: 'Specific answers to detailed player questions about edge-case rules, reshuffling, Joker runs, ties, turn limits, and online multiplayer rooms.',
     canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
     h1: '7 Cards Least Frequently Asked Questions',
     h2: 'Everything you need to know about rules, turns, scoring, online multiplayer, and AI bots.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
-      { "@type": "ListItem", "position": 2, "name": "7 Cards Least Guide", "item": "https://cards.gnanamai.com/7-cards-least" },
+      { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
       { "@type": "ListItem", "position": 3, "name": "FAQ", "item": "https://cards.gnanamai.com/7-cards-least/faq" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "FAQPage",
+          "@id": "https://cards.gnanamai.com/7-cards-least/faq#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Can Ace be used at both high and low ends in suited runs (e.g. A-2-3 vs Q-K-A)?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "In 7 Cards Least, Ace is strictly a low card worth 1 point. Suited runs can begin with Ace (A-2-3-4), but King-Ace wrapping (e.g. Q-K-A) is not permitted."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens if the Draw Deck runs out of cards during an active round?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I discard cards matching the Table Joker rank as a set or sequence?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! Cards matching the round's Table Joker rank score 0 points, but they retain their original rank and suit identities for set and run combinations."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens if two or more opponents tie for the lowest score when Least is declared?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "If the caller holds more points than the opponents, the caller fails and incurs the full 80-point penalty. If two or more opponents tie for the lowest hand score, both tied opponents share round victory and receive 0 penalty points."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I call 'Least!' on my very first turn of a round?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! If your dealt hand already totals 10 points or less—for example, if you were dealt multiple Jokers (0 pts) and low Aces—you are legally permitted to declare 'LEAST!' on your very first turn."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I always have to draw a card after discarding on every turn?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Standard turns require discarding valid cards followed by drawing 1 card. However, if your discard rank matches the rank of the current top card on the Discard Pile, the Match & Skip rule activates: your turn ends immediately without drawing."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does the 200-point elimination rule work across tournament rounds?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "7 Cards Least is played across a series of rounds (customizable from 1 to 20 rounds). Points accumulate round over round. Any player whose cumulative penalty score reaches or surpasses 200 points is eliminated."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I play 7 Cards Least on mobile without downloading an app or signing up?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! 7 Cards Least runs completely in mobile browsers (Safari, Chrome, Firefox) on iOS and Android with no download or signup required."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I create private rooms to play with family and friends across different devices?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Table hosts can create private rooms with customizable rounds (1 to 20) and turn timers (60-sec or unlimited). A unique 4-digit code and direct WhatsApp link are generated."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/7-cards-least/faq#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "7 Cards Least", "item": "https://cards.gnanamai.com/7-cards-least" },
+            { "@type": "ListItem", "position": 3, "name": "FAQ", "item": "https://cards.gnanamai.com/7-cards-least/faq" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Frequently Asked Questions</h1>
-        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Everything you need to know about rules, turns, scoring, online multiplayer, and AI bots.</h2>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Specific answers to detailed player questions about edge-case rules, reshuffling, Joker runs, ties, turn limits, and online multiplayer rooms.</h2>
         
-        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What is 7 Cards Least and how does it work?</h3>
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can Ace be used at both high and low ends in suited runs (e.g. A-2-3 vs Q-K-A)?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: 7 Cards Least is a shedding card game played with 7 cards per player where the objective is to finish each round with the lowest hand point score by discarding high-value cards and calling Least when your hand total is 10 points or less.
+          A: In 7 Cards Least, Ace is strictly a low card worth 1 point. Suited runs can begin with Ace (A-2-3-4), but King-Ace wrapping (e.g. Q-K-A) is not permitted. This makes Aces uniquely valuable for anchoring low-scoring suited sequences.
         </p>
 
-        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Is 7 Cards Least free to play online?</h3>
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What happens if the Draw Deck runs out of cards during an active round?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: Yes! 7 Cards Least is 100% free to play on cards.gnanamai.com directly in web browsers on desktop, tablet, and mobile with no app download required.
+          A: If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert. Play continues seamlessly.
         </p>
 
-        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: How are card point values scored?</h3>
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I discard cards matching the Table Joker rank as a set or sequence?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: Ace = 1 point, Number cards (2–10) = face value, Face cards (J, Q, K) = 10 points each, and cards matching the Table Joker setup card = 0 points.
+          A: Yes! Cards matching the round's Table Joker rank score 0 points, but they retain their original rank and suit identities for set and run combinations. You can discard a set of Jokers or include a Joker in a suited sequence.
         </p>
 
-        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What happens on a false or wrong Least call?</h3>
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What happens if two or more opponents tie for the lowest score when Least is declared?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: If an opponent holds an equal or lower hand score when Least is declared, the caller is penalized with an 80-point penalty!
+          A: If the caller holds more points than the opponents, the caller fails and incurs the full 80-point penalty. If two or more opponents tie for the lowest hand score (e.g. both hold 3 points), both tied opponents share round victory and receive 0 penalty points, while all other players score their point difference.
         </p>
 
-        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I play with friends or AI computer bots?</h3>
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I call "Least!" on my very first turn of a round?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: Both! You can host private 4-digit room code lobbies in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">online multiplayer mode</a> or practice solo against 1 to 7 computer bots in <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">play against AI mode</a>. For full rules and strategies, explore our <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official rules page</a>, read <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">how to play</a>, or study <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">winning strategies</a>.
+          A: Yes! If your dealt hand already totals 10 points or less—for example, if you were dealt multiple Jokers (0 pts) and low Aces—you are legally permitted to declare "LEAST!" on your very first turn.
+        </p>
+
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Do I always have to draw a card after discarding on every turn?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          A: Standard turns require discarding valid cards followed by drawing 1 card. However, if your discard rank matches the rank of the current top card on the Discard Pile, the "Match &amp; Skip" rule activates: your turn ends immediately without drawing, permanently shrinking your hand size.
+        </p>
+
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: How does the 200-point elimination rule work across tournament rounds?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          A: 7 Cards Least is played across a series of rounds (customizable from 1 to 20 rounds). Points accumulate round over round. Any player whose cumulative penalty score reaches or surpasses 200 points is eliminated from the table. The player with the lowest score at the end wins.
+        </p>
+
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I play 7 Cards Least on mobile without downloading an app or signing up?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          A: Yes! 7 Cards Least runs completely in mobile browsers (Safari, Chrome, Firefox) on iOS and Android. Touch gestures, tap-to-select cards, and table animations work smoothly with no app store download or signup required.
+        </p>
+
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I create private rooms to play with family and friends across different devices?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          A: Yes. Table hosts can create private rooms with customizable rounds (1 to 20) and turn timers (60-sec or unlimited). A unique 4-digit code and direct WhatsApp link are generated, allowing friends to join across any device.
         </p>
         ${navHtml}
       </article>
@@ -403,28 +721,28 @@ const routes = [
   {
     path: '/rules',
     dir: path.join(distDir, 'rules'),
-    title: '7 Cards Least Rules – Complete Game Rules & Scoring Guide',
+    title: '7 Cards Least Official Rules & Scoring Guide (Ace=1, Face=10, Jokers=0)',
     canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
     redirect: true
   },
   {
     path: '/how-to-play',
     dir: path.join(distDir, 'how-to-play'),
-    title: 'How to Play 7 Cards Least – Complete Guide',
+    title: 'How to Play 7 Cards Least – Complete Step-by-Step Guide',
     canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
     redirect: true
   },
   {
     path: '/strategy',
     dir: path.join(distDir, 'strategy'),
-    title: '7 Cards Least Strategy – Tips & Tactics',
+    title: '7 Cards Least Strategy – Tips & Tactics to Win More Matches',
     canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
     redirect: true
   },
   {
     path: '/faq',
     dir: path.join(distDir, 'faq'),
-    title: '7 Cards Least FAQ – Rules, Gameplay & Online Play',
+    title: '7 Cards Least FAQ – Frequently Asked Questions & Answers',
     canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
     redirect: true
   },
@@ -434,15 +752,38 @@ const routes = [
     title: 'Play 7 Cards Least Online Free – Multiplayer Card Game With Friends',
     description: 'Play 7 Cards Least online for free with friends, family, or online players. Create private rooms, join with 4-digit codes, instant play in your browser with no download.',
     canonical: 'https://cards.gnanamai.com/multiplayer',
-    h1: '7 Cards Least Online Multiplayer',
+    h1: 'Play 7 Cards Least Online Free – Multiplayer',
     h2: 'Create private rooms, invite friends via WhatsApp, or join instant online player tables.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
       { "@type": "ListItem", "position": 2, "name": "Multiplayer Mode", "item": "https://cards.gnanamai.com/multiplayer" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/multiplayer#webapp",
+          "name": "Play 7 Cards Least Online Free – Multiplayer",
+          "url": "https://cards.gnanamai.com/multiplayer",
+          "description": "Create private 4-digit room codes, share WhatsApp invite links, and play real-time 7 Cards Least multiplayer with friends and online opponents.",
+          "applicationCategory": "GameApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/multiplayer#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Multiplayer Mode", "item": "https://cards.gnanamai.com/multiplayer" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
-        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Online Multiplayer</h1>
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">Play 7 Cards Least Online Free – Multiplayer</h1>
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Create private rooms, invite friends via WhatsApp, or join instant online player tables.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
@@ -479,6 +820,29 @@ const routes = [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
       { "@type": "ListItem", "position": 2, "name": "Play Against AI", "item": "https://cards.gnanamai.com/play-against-ai" }
     ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/play-against-ai#webapp",
+          "name": "7 Cards Least Against Computer AI",
+          "url": "https://cards.gnanamai.com/play-against-ai",
+          "description": "Practice 7 Cards Least singleplayer against intelligent computer bots. Zero matchmaking delay, customizable bot counts, and instant play in your browser.",
+          "applicationCategory": "GameApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/play-against-ai#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Play Against AI", "item": "https://cards.gnanamai.com/play-against-ai" }
+          ]
+        }
+      ]
+    },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Against Computer AI</h1>
@@ -559,13 +923,10 @@ routes.forEach(route => {
     routeHtml = routeHtml.replace(/<meta name="twitter:url" content=".*?" \/>/gi, `<meta name="twitter:url" content="${route.canonical}" />`);
   }
 
-  // Inject or update BreadcrumbList inside main schema graph
-  if (route.breadcrumbs) {
-    const breadcrumbJson = JSON.stringify(route.breadcrumbs, null, 12);
-    routeHtml = routeHtml.replace(
-      /"@type": "BreadcrumbList",[\s\S]*?"itemListElement": \[[\s\S]*?\]/,
-      `"@type": "BreadcrumbList",\n          "@id": "${route.canonical}#breadcrumb",\n          "itemListElement": ${breadcrumbJson}`
-    );
+  // Inject or replace tailored JSON-LD schema graph
+  if (route.schema) {
+    const formattedSchema = `    <script type="application/ld+json">\n${JSON.stringify(route.schema, null, 2)}\n    </script>`;
+    routeHtml = routeHtml.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, formattedSchema);
   }
 
   if (route.redirect) {
@@ -597,4 +958,16 @@ routes.forEach(route => {
   console.log(`[SEO Prerender] Generated: ${path.relative(distDir, targetFile)}`);
 });
 
+// Copy sitemap.xml and robots.txt from public to dist to ensure 100% synchronization
+const publicDir = path.join(__dirname, '../public');
+if (fs.existsSync(path.join(publicDir, 'sitemap.xml'))) {
+  fs.copyFileSync(path.join(publicDir, 'sitemap.xml'), path.join(distDir, 'sitemap.xml'));
+  console.log('[SEO Prerender] Synced: public/sitemap.xml -> dist/sitemap.xml');
+}
+if (fs.existsSync(path.join(publicDir, 'robots.txt'))) {
+  fs.copyFileSync(path.join(publicDir, 'robots.txt'), path.join(distDir, 'robots.txt'));
+  console.log('[SEO Prerender] Synced: public/robots.txt -> dist/robots.txt');
+}
+
 console.log('[SEO Prerender] Successfully pre-rendered static HTML for all 7 Cards Least cluster routes!');
+

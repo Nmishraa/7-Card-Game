@@ -68,15 +68,15 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
             <Text style={styles.breadcrumbCurrent}>7 Cards Least</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Game Online</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Game Online – Official Guide &amp; Portal</Text>
           <Text style={styles.subtitle}>
-            7 Cards Least Game Online is a free lowest score card game where players try to finish with the least score. This least score card game is easy to learn and can be played online with friends and family.
+            Welcome to the official portal for 7 Cards Least (also known as 7 Card Game or Low Hand Rummy). Discover complete deck mechanics, Joker wildcard rules, turn sequences, and lowest-score strategies.
           </Text>
 
           {/* ⚡ TOP HERO PLAY CTA CARD ⚡ */}
           <View style={styles.topHeroCard}>
             <Text style={styles.topHeroTitle}>🎴 Ready to Play 7 Cards Least?</Text>
-            <Text style={styles.topHeroSubtitle}>Play online instantly in your browser. No download required!</Text>
+            <Text style={styles.topHeroSubtitle}>Play online instantly in your browser with friends or smart computer AI. No download required!</Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/" onNavigate={onNavigate} style={styles.heroPlayCta}>
                 <Text style={styles.heroPlayCtaText}>⚡ Play Free Now</Text>
@@ -91,80 +91,110 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
           <GamePreviewSection />
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>What Is 7 Cards Least?</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>What Is 7 Cards Least?</Text>
             <Text style={styles.bodyText}>
-              7 Cards Least (often known simply as 7 Card Game or Low Hand Rummy) is a fast-paced card shedding game played with a standard 52-card deck. Players are dealt 7 cards each and aim to shed high-value point cards, form matching sets and suited runs, and declare "Least!" when their total hand score drops below all opponents.
+              7 Cards Least is a strategic lowest-score card shedding game played with a standard 52-card deck. Unlike classic card games where the goal is to accumulate high points, 7 Cards Least inverts traditional scoring: each player is dealt 7 cards, and the goal is to systematically minimize your hand total by discarding high cards, assembling matching rank sets, and building suited runs.
+              {'\n\n'}
+              When a player calculates that their total hand value has dropped to <Text style={styles.boldText}>10 points or less</Text>, they declare <Text style={styles.boldText}>"LEAST!"</Text> during their turn. The player holding the lowest score wins the round with zero penalty points!
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>How to Play 7 Cards Least</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Deck Setup &amp; The Table Joker Wildcard</Text>
             <Text style={styles.bodyText}>
-              Turns move in an anticlockwise direction. On your turn, you perform two primary actions:
-              {'\n'}1. <Text style={styles.boldText}>Discard first:</Text> Select a single card, an equal rank set (e.g. 8♠ 8♥ 8♦), or a suited run (e.g. 4♣ 5♣ 6♣) to drop onto the central Discard Pile.
-              {'\n'}2. <Text style={styles.boldText}>Draw next:</Text> Draw one replacement card from either the face-down Deck or face-up Discard Pile.
+              A match is played with a standard 52-card deck (single deck for 2 to 5 players, two decks shuffled together for 6 to 8 players) without physical joker cards.
+              {'\n\n'}
+              • <Text style={styles.boldText}>Table Joker Selection:</Text> At the start of each round, 1 card is flipped face-up from the deck into the center table. The rank of this card establishes the <Text style={styles.boldText}>zero-point Joker rank</Text> for the entire round. Any card of matching rank held in any player's hand scores <Text style={styles.boldText}>0 points</Text>!
+              {'\n'}• <Text style={styles.boldText}>Dealing:</Text> Every player is dealt exactly 7 cards.
+              {'\n'}• <Text style={styles.boldText}>Discard Pile Open:</Text> A second card is flipped face-up adjacent to the draw deck to start the active Discard Pile.
             </Text>
-            <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Read full beginner guide →</Text>
-            </SeoLink>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>7 Cards Least Rules</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Card Point Values &amp; Scoring System</Text>
             <Text style={styles.bodyText}>
-              • <Text style={styles.boldText}>Card Values:</Text> Ace = 1 pt, Cards 2–10 = face value, Face cards (J, Q, K) = 10 pts.
-              {'\n'}• <Text style={styles.boldText}>Joker Wildcards:</Text> The face-up card flipped during round setup establishes the zero-point Joker rank. Any matching rank card in your hand counts as 0 points.
-              {'\n'}• <Text style={styles.boldText}>Match &amp; Skip:</Text> Discarding a card matching the rank of the current top discard ends your turn immediately without drawing.
-              {'\n'}• <Text style={styles.boldText}>Penalty Rule:</Text> Calling Least when an opponent has an equal or lower hand score incurs an <Text style={styles.boldText}>80-point penalty</Text>.
+              Every card remaining in your hand when a round concludes contributes directly to your penalty score:
+              {'\n'}• <Text style={styles.boldText}>Ace (A):</Text> 1 Point (the lowest standard card).
+              {'\n'}• <Text style={styles.boldText}>Numbered Cards (2 to 10):</Text> Face value (2–10 points corresponding to card rank).
+              {'\n'}• <Text style={styles.boldText}>Face Cards (Jack, Queen, King):</Text> 10 Points each (high liability cards to discard early).
+              {'\n'}• <Text style={styles.boldText}>Table Joker Rank:</Text> 0 Points (established by the table setup card).
             </Text>
             <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Explore full official rules →</Text>
+              <Text style={styles.inlineCtaText}>View complete official rules &amp; scoring reference →</Text>
             </SeoLink>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>How the Game Works</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Turn Progression &amp; Actions</Text>
             <Text style={styles.bodyText}>
-              A match consists of 1 to 20 rounds (customizable when creating private tables). Round winners earn 0 points, while opponents accumulate points based on their remaining hand totals. Players reaching 200 cumulative points are eliminated until one final winner stands.
+              Turns advance in a clockwise direction around the table. Each turn consists of two distinct phases:
+              {'\n\n'}
+              1. <Text style={styles.boldText}>Phase 1 – Discarding:</Text> You must discard valid cards onto the Discard Pile. Valid combinations include:
+              {'\n'}   - A single card (e.g. King of Spades).
+              {'\n'}   - An equal-rank set of 2+ cards (e.g. 7♥ 7♦ or 9♠ 9♥ 9♣).
+              {'\n'}   - A suited run of 3+ consecutive cards in the same suit (e.g. 4♣ 5♣ 6♣).
+              {'\n\n'}
+              2. <Text style={styles.boldText}>The Match &amp; Skip Rule:</Text> If your discarded card matches the rank of the current top card of the Discard Pile, your turn concludes immediately! You do not have to draw a replacement card, permanently decreasing your hand size.
+              {'\n\n'}
+              3. <Text style={styles.boldText}>Phase 2 – Drawing:</Text> If your discard does not match the pile rank, draw 1 card from either the face-down Draw Deck or the face-up Discard Pile.
+            </Text>
+            <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.inlineCta}>
+              <Text style={styles.inlineCtaText}>Step-by-step interactive beginner tutorial →</Text>
+            </SeoLink>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Calling "LEAST!" &amp; The 80-Point Penalty</Text>
+            <Text style={styles.bodyText}>
+              When your total hand score is 10 points or less, you can declare <Text style={styles.boldText}>"LEAST!"</Text> on your turn to halt the round. All players reveal their hands:
+              {'\n\n'}
+              • <Text style={styles.boldText}>Successful Call:</Text> If your hand score is strictly lower than every opponent, you win the round and score <Text style={styles.boldText}>0 points</Text>. Opponents receive points equal to their hand score minus your winning score.
+              {'\n'}• <Text style={styles.boldText}>False Call (The 80-Point Penalty):</Text> If ANY opponent holds an equal or lower hand score than your hand, your call fails! You incur a heavy <Text style={styles.boldText}>80-point penalty</Text> added to your match score, while the true lowest player wins the round.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>7 Cards Least Scoring</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Match Structure &amp; Elimination</Text>
             <Text style={styles.bodyText}>
-              Keeping your hand score minimal is the core of 7 Cards Least. Holding un-matched face cards exposes you to high scores. Utilizing Joker ranks and multi-card discards keeps your point total safe before calling Least.
+              Matches consist of 1 to 20 rounds (customizable by the table host). Points accumulate from round to round. Any player whose cumulative score reaches or exceeds <Text style={styles.boldText}>200 points</Text> is eliminated from the game. When the designated rounds finish or only one player survives, the player with the lowest total score is crowned champion.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>7 Cards Least Strategy</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Winning Strategy Overview</Text>
             <Text style={styles.bodyText}>
-              Prioritize shedding high cards early, hold Joker wildcards to clear multi-card runs, observe opponent discard picks, and only call Least when your hand score is safely under 7 points.
+              Top players prioritize discarding high-point face cards (J, Q, K) during the first 3 turns, hold zero-point Jokers to construct game-ending low hands, watch opponent pickup choices from the discard pile, and only declare Least when their hand is safely below 6 points to guard against the 80-point penalty.
             </Text>
             <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Discover winning strategy tips →</Text>
+              <Text style={styles.inlineCtaText}>Explore in-depth tactical strategies &amp; hand examples →</Text>
             </SeoLink>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>Play 7 Cards Least Online</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Game Modes: Solo AI &amp; Real-Time Multiplayer</Text>
             <Text style={styles.bodyText}>
-              Enjoy 7 Cards Least in your web browser with zero download required. Play solo vs intelligent computer AI bots or join real-time multiplayer rooms with friends using 4-digit table codes.
+              Play 7 Cards Least in whichever mode suits your schedule:
+              {'\n\n'}
+              • <Text style={styles.boldText}>Singleplayer vs Computer AI:</Text> Practice against 1 to 7 smart computer bots with zero wait time and adjustable turn limits.
+              {'\n'}• <Text style={styles.boldText}>Real-Time Online Multiplayer:</Text> Create private room lobbies with 4-digit codes, share WhatsApp invite links, and play with friends and family across mobile or desktop browsers.
             </Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>
                 <Text style={styles.ctaText}>⚡ Play 7 Cards Least Now</Text>
               </SeoLink>
+              <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.secondaryCta}>
+                <Text style={styles.secondaryCtaText}>👥 Multiplayer Mode</Text>
+              </SeoLink>
               <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.secondaryCta}>
-                <Text style={styles.secondaryCtaText}>🤖 Play vs Computer AI</Text>
+                <Text style={styles.secondaryCtaText}>🤖 Play vs AI Bots</Text>
               </SeoLink>
             </View>
           </View>
 
           <View style={[styles.cardSection, { backgroundColor: 'rgba(10, 22, 40, 0.95)', borderColor: 'rgba(56, 189, 248, 0.25)' }]}>
-            <Text style={styles.h2}>Frequently Asked Questions (FAQ)</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Frequently Asked Questions (FAQ)</Text>
             <Text style={[styles.bodyText, { marginBottom: 14 }]}>
-              Common questions about rules, wildcards, scoring, and playing online with friends.
+              Quick answers about 7 Cards Least rules, wildcards, and game options.
             </Text>
 
             <View style={{ gap: 10 }}>
@@ -214,7 +244,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate }) => {
             </View>
 
             <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Explore full FAQ &amp; support page →</Text>
+              <Text style={styles.inlineCtaText}>Explore comprehensive FAQ &amp; support page →</Text>
             </SeoLink>
           </View>
         </View>

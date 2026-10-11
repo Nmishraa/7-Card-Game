@@ -96,37 +96,53 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>1. Card Point System</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>1. Card Point System &amp; Hand Score Calculation</Text>
             <Text style={styles.bodyText}>
               • <Text style={styles.boldText}>Ace:</Text> 1 point
               {'\n'}• <Text style={styles.boldText}>Cards 2 to 10:</Text> Face value (2 to 10 points)
               {'\n'}• <Text style={styles.boldText}>Jack, Queen, King:</Text> 10 points each
               {'\n'}• <Text style={styles.boldText}>Active Joker Rank:</Text> 0 points (all cards matching the flipped Joker rank count as 0 pts)
+              {'\n\n'}
+              <Text style={styles.boldText}>Concrete Hand Calculation Example:</Text>
+              {'\n'}Suppose the table Joker rank is <Text style={{ color: '#a78bfa', fontWeight: 'bold' }}>8</Text>. A player holds:
+              {'\n'}• A♠ (1 pt) + 3♥ (3 pts) + 8♦ [Joker] (0 pts) + 8♣ [Joker] (0 pts) = <Text style={{ color: '#34d399', fontWeight: 'bold' }}>4 total hand points</Text>.
+              {'\n'}Because 4 ≤ 10, this player is fully eligible to declare "LEAST!".
             </Text>
           </View>
 
           <View style={styles.cardSection}>
             <Text style={styles.h2} accessibilityRole="header" aria-level={2}>2. Turn Sequence &amp; Valid Discards</Text>
             <Text style={styles.bodyText}>
-              Turns progress anticlockwise. On your turn, you must discard before drawing:
-              {'\n'}• <Text style={styles.boldText}>Single Card:</Text> Any single card from your hand.
-              {'\n'}• <Text style={styles.boldText}>Equal Rank Set:</Text> Two or more cards of identical rank (e.g. 9♠ 9♦ 9♣).
-              {'\n'}• <Text style={styles.boldText}>Suited Sequence (Run):</Text> Three or more consecutive cards in the same suit (e.g. 5♥ 6♥ 7♥).
+              Turns progress clockwise around the table. On your turn, you must discard before drawing:
+              {'\n'}• <Text style={styles.boldText}>Single Card:</Text> Any single card from your hand (e.g. King of Spades = 10 pts shed).
+              {'\n'}• <Text style={styles.boldText}>Equal Rank Set:</Text> Two or more cards of identical rank (e.g. 9♠ 9♦ 9♣ = 27 pts shed in one move).
+              {'\n'}• <Text style={styles.boldText}>Suited Sequence (Run):</Text> Three or more consecutive cards in the same suit (e.g. 5♥ 6♥ 7♥ = 18 pts shed).
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>3. Special Game Actions</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>3. Special Game Actions: Match &amp; Skip</Text>
             <Text style={styles.bodyText}>
-              • <Text style={styles.boldText}>Match &amp; Skip:</Text> If your discard rank matches the current top discard rank, your turn ends immediately without drawing!
-              {'\n'}• <Text style={styles.boldText}>Auto Drop:</Text> Drawing a card from the deck matching your immediate discard rank drops it automatically.
+              • <Text style={styles.boldText}>Match &amp; Skip:</Text> If your discard rank matches the current top discard rank on the pile, your turn ends immediately without drawing! Your hand size permanently decreases.
+              {'\n'}• <Text style={styles.boldText}>Immediate Drop on Draw:</Text> If you draw from the face-down deck and the drawn card matches the discard pile top rank, it immediately drops onto the pile and your turn ends.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>4. Calling Least &amp; 80-Point Penalty</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>4. Calling Least &amp; 80-Point Penalty Examples</Text>
             <Text style={styles.bodyText}>
-              Call "Least!" during your discard turn when you evaluate your hand total to be lower than all opponents. If an opponent ties or beats your score, you receive an <Text style={styles.boldText}>80-point penalty</Text>! Players reaching 200 cumulative points are eliminated.
+              A player may call <Text style={styles.boldText}>"LEAST!"</Text> during their turn if their hand sum is 10 points or less.
+              {'\n\n'}
+              <Text style={{ color: '#34d399', fontWeight: 'bold' }}>Scenario A – Successful Call (Victory):</Text>
+              {'\n'}Player 1 declares Least holding 4 points. Opponent A reveals 9 points, Opponent B reveals 16 points.
+              {'\n'}• Player 1 wins the round and receives <Text style={styles.boldText}>0 points</Text>.
+              {'\n'}• Opponent A scores 5 points (9 − 4).
+              {'\n'}• Opponent B scores 12 points (16 − 4).
+              {'\n\n'}
+              <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>Scenario B – False Call (80-Point Penalty):</Text>
+              {'\n'}Player 1 declares Least holding 7 points. Opponent A reveals 5 points!
+              {'\n'}• Because Opponent A has a lower score than the caller, Player 1 committed a false call and incurs an <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>80-point penalty</Text> added to their match total.
+              {'\n'}• Opponent A wins the round with 0 points.
             </Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.primaryCta}>

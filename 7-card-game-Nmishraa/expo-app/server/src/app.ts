@@ -93,9 +93,17 @@ if (fs.existsSync(webDistPath)) {
 
     // 3. Serve pre-rendered static HTML file with 200 OK for canonical pages
     const cleanPath = req.path;
-    const prerenderedPath = path.join(webDistPath, cleanPath, 'index.html');
+    if (cleanPath === '' || cleanPath === '/') {
+      const rootHtmlPath = path.join(webDistPath, 'index.html');
+      if (fs.existsSync(rootHtmlPath)) {
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        res.setHeader('Cache-Control', 'public, max-age=0');
+        return res.sendFile(rootHtmlPath);
+      }
+    }
 
-    if (cleanPath !== '' && cleanPath !== '/' && fs.existsSync(prerenderedPath)) {
+    const prerenderedPath = path.join(webDistPath, cleanPath, 'index.html');
+    if (fs.existsSync(prerenderedPath)) {
       res.setHeader('Content-Type', 'text/html; charset=UTF-8');
       res.setHeader('Cache-Control', 'public, max-age=0');
       return res.sendFile(prerenderedPath);
