@@ -31,12 +31,36 @@ const filesToUpload = [
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/public/sitemap.xml'
   },
   {
+    local: path.join(__dirname, '../public/index.html'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/public/index.html'
+  },
+  {
     local: path.join(__dirname, 'src/app.ts'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server/src/app.ts'
   },
   {
+    local: path.join(__dirname, '../src/screens/SevenCardsLeastMainPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastMainPage.tsx'
+  },
+  {
     local: path.join(__dirname, '../src/screens/SevenCardsLeastRulesPage.tsx'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastRulesPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/SevenCardsLeastHowToPlayPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastHowToPlayPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/SevenCardsLeastStrategyPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastStrategyPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/SevenCardsLeastFaqPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastFaqPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/PlayAgainstAiPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/PlayAgainstAiPage.tsx'
   },
   {
     local: path.join(__dirname, '../src/screens/MultiplayerPage.tsx'),

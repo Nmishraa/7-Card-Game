@@ -108,8 +108,8 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
             <Text style={styles.breadcrumbCurrent}>How to Play</Text>
           </View>
 
-          <Text style={styles.h1}>Interactive How to Play 7 Cards Least</Text>
-          <Text style={styles.subtitle}>Try out cards, test discards, and learn how to win 7 Cards Least step-by-step!</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>How to Play 7 Cards Least – Step-by-Step Guide</Text>
+          <Text style={styles.subtitle}>A beginner-friendly walkthrough to dealing cards, drawing, discarding sets and runs, and calling Least.</Text>
 
           {/* ⚡ ANIMATED VIDEO TUTORIAL WITH AUDIO & VOICEOVER ⚡ */}
           <HowToPlayVideoDemo />
@@ -301,7 +301,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate }) =>
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 5: Call "Least!" to Win the Round</Text>
                 <Text style={styles.stepBoxDesc}>
-                  When your hand score is low enough (typically under 10-15 pts), tap <Text style={styles.boldText}>LEAST!</Text> on your turn to end the round. If you have the lowest score, you get <Text style={styles.boldText}>0 points</Text>!
+                  When your total hand score is <Text style={styles.boldText}>10 points or less (≤ 10 pts)</Text>, tap <Text style={styles.boldText}>LEAST!</Text> during your turn to halt the round. If your hand holds the lowest score, you earn <Text style={styles.boldText}>0 points</Text> for the round!
                 </Text>
 
                 <View style={styles.callLeastDemoBox}>

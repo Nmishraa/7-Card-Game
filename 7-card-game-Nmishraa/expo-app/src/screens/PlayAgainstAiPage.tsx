@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
+import { SeoLink } from '../components/SeoLink';
 
 interface Props {
   onNavigate: (route: string) => void;
@@ -18,17 +19,18 @@ export const PlayAgainstAiPage: React.FC<Props> = ({ onNavigate }) => {
     <SafeAreaView style={styles.root}>
       {/* ─── SITE NAVBAR ─── */}
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => onNavigate('/')} accessibilityRole="button" accessibilityLabel="Home">
-          <Text style={styles.brandTitle}>🃏 7 Card Game</Text>
-        </TouchableOpacity>
+        <SeoLink href="/" onNavigate={onNavigate} accessibilityLabel="Home">
+          <Text style={styles.brandTitle}>🃏 7 Cards Least</Text>
+        </SeoLink>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navLinks}>
-          <TouchableOpacity onPress={() => onNavigate('/')} style={styles.navBtn}><Text style={styles.navText}>Play</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/how-to-play')} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/play-against-ai')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Play Against AI</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
+          <SeoLink href="/" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play</Text></SeoLink>
+          <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>7 Cards Least</Text></SeoLink>
+          <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></SeoLink>
+          <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></SeoLink>
+          <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></SeoLink>
+          <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></SeoLink>
+          <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Play Against AI</Text></SeoLink>
+          <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></SeoLink>
         </ScrollView>
       </View>
 
@@ -36,51 +38,54 @@ export const PlayAgainstAiPage: React.FC<Props> = ({ onNavigate }) => {
         <View style={[styles.container, isWide && styles.containerWide]}>
           {/* Breadcrumbs */}
           <View style={styles.breadcrumbRow}>
-            <TouchableOpacity onPress={() => onNavigate('/')}><Text style={styles.breadcrumbLink}>Home</Text></TouchableOpacity>
+            <SeoLink href="/" onNavigate={onNavigate}><Text style={styles.breadcrumbLink}>Home</Text></SeoLink>
             <Text style={styles.breadcrumbSep}>→</Text>
             <Text style={styles.breadcrumbCurrent}>Play Against AI</Text>
           </View>
 
-          <Text style={styles.h1}>7 Cards Least Against AI</Text>
-          <Text style={styles.subtitle}>Challenge intelligent computer bots offline or solo in your browser with zero waiting time.</Text>
+          <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Against Computer AI</Text>
+          <Text style={styles.subtitle}>Practice your card shedding tactics and Joker plays solo against smart computer bots with zero wait time.</Text>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>🤖 How AI Gameplay Works</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>🤖 How AI Decision-Making Works</Text>
             <Text style={styles.bodyText}>
-              In AI mode, you compete against virtual computer opponents (AlphaBot, BetaBot, and OmegaBot). The computer AI evaluates your face-up discards, calculates optimal hand combinations, builds suited runs, and strategically determines when to call "Least!".
+              In AI mode, you compete against intelligent computer bot opponents (AlphaBot, BetaBot, and OmegaBot). The computer AI evaluates your face-up discards, calculates optimal hand combinations, builds matching rank sets and suited runs, and strategically determines when to call "Least!" based on its hand total (≤ 10 points).
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>⚡ Instant Start &amp; Zero Waiting</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>⚡ Instant Start &amp; Zero Matchmaking Delays</Text>
             <Text style={styles.bodyText}>
-              Solo AI matches start instantly from your browser with no player matchmaking delays. Computer turns execute smoothly with a natural 2-second interval, letting you practice Joker rank strategies, set building, and Least calls at your own pace.
+              Solo AI matches launch instantly from your browser with no player matchmaking delays. Computer turns execute smoothly with natural 1-second intervals, letting you practice Table Joker evaluations, multi-card discards, and Least call timing at your own pace.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>🎯 Player Controls &amp; Scoring</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>🎯 Customizable Bot Counts &amp; Match Lengths</Text>
             <Text style={styles.bodyText}>
-              You hold 7 cards per round and follow standard game rules: select single cards, equal rank sets, or suited runs to discard, draw a card from the deck or discard pile, and call Least when your hand total is lower than the computer bots.
+              On the homepage setup card, you can configure your singleplayer game against anywhere from 1 to 7 computer bots, adjust rounds from 1 to 20, and set turn timers to 60 seconds or unlimited practice mode.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>Ready to Challenge the Computer?</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Ready to Challenge the Computer?</Text>
             <View style={styles.ctaRow}>
-              <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
+              <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>
                 <Text style={styles.ctaText}>⚡ Start AI Match Now</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/how-to-play')}>
-                <Text style={styles.secondaryCtaText}>📖 Read How to Play</Text>
-              </TouchableOpacity>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.secondaryCta}>
+                <Text style={styles.secondaryCtaText}>📖 Read Rules</Text>
+              </SeoLink>
+              <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.secondaryCta}>
+                <Text style={styles.secondaryCtaText}>💡 Strategy Guide</Text>
+              </SeoLink>
             </View>
           </View>
         </View>
 
         {/* ─── FOOTER ─── */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>7 Card Game • cards.gnanamai.com</Text>
+          <Text style={styles.footerText}>7 Cards Least • cards.gnanamai.com</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
