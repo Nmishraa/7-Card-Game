@@ -42,7 +42,23 @@ export const HomeScreen: React.FC<Props> = ({
 
   useEffect(() => {
     updatePageSeo('home');
+
+    const handleOpenPrivacy = () => setShowPrivacy(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('open-7cards-privacy-modal', handleOpenPrivacy);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('open-7cards-privacy-modal', handleOpenPrivacy);
+      }
+    };
   }, []);
+
+  const handleReopenCookies = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('reopen-7cards-cookie-banner'));
+    }
+  };
 
   const [name, setName] = useState(userName);
   const [selectedRounds, setSelectedRounds] = useState(5);
@@ -757,6 +773,8 @@ export const HomeScreen: React.FC<Props> = ({
               <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button"><Text style={styles.footerLink}>Privacy Policy</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => setShowTerms(true)} accessibilityRole="button"><Text style={styles.footerLink}>Terms</Text></TouchableOpacity>
+              <Text style={styles.footerDot}>•</Text>
+              <TouchableOpacity onPress={handleReopenCookies} accessibilityRole="button"><Text style={styles.footerLink}>Cookies</Text></TouchableOpacity>
             </View>
             <Text style={styles.footerCredits}>
               7 Card Game • cards.gnanamai.com

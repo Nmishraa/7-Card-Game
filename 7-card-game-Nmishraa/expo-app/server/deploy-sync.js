@@ -69,6 +69,10 @@ const filesToUpload = [
   {
     local: path.join(__dirname, '../scripts/prerender.js'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/scripts/prerender.js'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/PrivacyModal.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/PrivacyModal.tsx'
   }
 ];
 

@@ -20,14 +20,36 @@
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
-    <!-- Google Analytics 4 (GA4) Tag -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WQS2TKE5H"></script>
+    <!-- Google Consent Mode v2 (Default: Denied until user consents) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+
+      var storedConsent = null;
+      try {
+        storedConsent = localStorage.getItem('7cards_cookie_consent');
+      } catch (e) {}
+
+      if (storedConsent === 'granted') {
+        gtag('consent', 'default', {
+          'analytics_storage': 'granted',
+          'ad_storage': 'denied',
+          'ad_user_data': 'denied',
+          'ad_personalization': 'denied'
+        });
+      } else {
+        gtag('consent', 'default', {
+          'analytics_storage': 'denied',
+          'ad_storage': 'denied',
+          'ad_user_data': 'denied',
+          'ad_personalization': 'denied'
+        });
+      }
+
       gtag('js', new Date());
       gtag('config', 'G-1WQS2TKE5H', { send_page_view: true, app_name: '7 Card Game' });
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WQS2TKE5H"></script>
 
     <!-- Open Graph / Facebook / WhatsApp / LinkedIn -->
     <meta property="og:type" content="website" />
@@ -306,7 +328,84 @@
         });
       }
     </script>
-  <script src="/_expo/static/js/web/index-c822cf799d51c9ac45d129cb8ed78d57.js" defer></script>
+    <!-- GDPR & ePrivacy Compliant Cookie Consent Banner -->
+    <div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; max-width: 520px; margin: 0 auto; background: rgba(15, 23, 42, 0.98); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; padding: 18px 22px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5); z-index: 999999; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
+      <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 26px; line-height: 1;">🍪</span>
+        <div style="flex: 1;">
+          <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #ffffff;">Cookie &amp; Privacy Choices</h4>
+          <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;">
+            We use strictly necessary cookies to keep you signed in and save your preferences. With your consent, we also use Google Analytics to measure site performance and game stability. Read our <a href="javascript:void(0)" id="link-open-privacy" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+        <button id="btn-cookie-decline" style="background: transparent; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.35); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+          Necessary Only
+        </button>
+        <button id="btn-cookie-accept" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); transition: all 0.2s ease;">
+          Accept All
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var banner = document.getElementById('cookie-consent-banner');
+        var btnAccept = document.getElementById('btn-cookie-accept');
+        var btnDecline = document.getElementById('btn-cookie-decline');
+        var linkPrivacy = document.getElementById('link-open-privacy');
+        
+        var existingConsent = null;
+        try {
+          existingConsent = localStorage.getItem('7cards_cookie_consent');
+        } catch (e) {}
+
+        if (!existingConsent && banner) {
+          banner.style.display = 'block';
+        }
+
+        if (btnAccept) {
+          btnAccept.addEventListener('click', function() {
+            try {
+              localStorage.setItem('7cards_cookie_consent', 'granted');
+            } catch (e) {}
+            if (typeof gtag === 'function') {
+              gtag('consent', 'update', {
+                'analytics_storage': 'granted'
+              });
+            }
+            if (banner) banner.style.display = 'none';
+          });
+        }
+
+        if (btnDecline) {
+          btnDecline.addEventListener('click', function() {
+            try {
+              localStorage.setItem('7cards_cookie_consent', 'denied');
+            } catch (e) {}
+            if (typeof gtag === 'function') {
+              gtag('consent', 'update', {
+                'analytics_storage': 'denied'
+              });
+            }
+            if (banner) banner.style.display = 'none';
+          });
+        }
+
+        if (linkPrivacy) {
+          linkPrivacy.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.dispatchEvent(new CustomEvent('open-7cards-privacy-modal'));
+          });
+        }
+
+        window.addEventListener('reopen-7cards-cookie-banner', function() {
+          if (banner) banner.style.display = 'block';
+        });
+      })();
+    </script>
+  <script src="/_expo/static/js/web/index-45148c002053e996d78b585b8c43cb0e.js" defer></script>
 </body>
 </html>
 
