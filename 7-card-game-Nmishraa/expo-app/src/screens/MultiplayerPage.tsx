@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView, TextInput, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView, TextInput, Linking, Image } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
 import { SeoLink } from '../components/SeoLink';
+import { UserHeaderBadge } from '../components/UserHeaderBadge';
 
 interface Props {
   onNavigate: (route: string) => void;
+  user?: any;
+  onLogout?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -19,7 +22,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  brandTitle: { color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginRight: 16 },
+  brandLink: { flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 16 },
+  navLogoBadge: { width: 32, height: 32 },
+  brandTitle: { color: '#ffffff', fontSize: 18, fontWeight: 'bold' },
+  navScroll: { flex: 1, marginHorizontal: 8 },
   navLinks: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   navBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   activeNavBtn: { backgroundColor: '#0275d8' },
@@ -254,7 +260,7 @@ const CAROUSEL_SLIDES = [
   },
 ];
 
-export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
+export const MultiplayerPage: React.FC<Props> = ({ onNavigate, user, onLogout }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
 
@@ -298,19 +304,24 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate }) => {
     <SafeAreaView style={styles.root}>
       {/* ─── SITE NAVBAR ─── */}
       <View style={styles.navbar}>
-        <SeoLink href="/" onNavigate={onNavigate} accessibilityLabel="Home">
-          <Text style={styles.brandTitle}>🃏 7 Cards Least</Text>
+        <SeoLink href="/" onNavigate={onNavigate} style={styles.brandLink} accessibilityLabel="Home">
+          <Image source={require('../../assets/logo-badge.png')} style={styles.navLogoBadge} resizeMode="contain" />
+          <Text style={styles.brandTitle}>7 Cards Least</Text>
         </SeoLink>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navLinks}>
-          <SeoLink href="/" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Home</Text></SeoLink>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.navScroll} contentContainerStyle={styles.navLinks}>
+          <SeoLink href="/" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play</Text></SeoLink>
           <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>7 Cards Least</Text></SeoLink>
           <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></SeoLink>
           <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></SeoLink>
           <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></SeoLink>
           <SeoLink href="/multiplayer" onNavigate={onNavigate} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Multiplayer</Text></SeoLink>
+          <SeoLink href="/daily-challenge" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>🔥 Daily Challenge</Text></SeoLink>
+          <SeoLink href="/strategy-lab" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>💡 Strategy Lab</Text></SeoLink>
+          <SeoLink href="/score-calculator" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>🧮 Calculator</Text></SeoLink>
           <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>Play Against AI</Text></SeoLink>
           <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></SeoLink>
         </ScrollView>
+        <UserHeaderBadge user={user} onLogout={onLogout} onNavigate={onNavigate} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

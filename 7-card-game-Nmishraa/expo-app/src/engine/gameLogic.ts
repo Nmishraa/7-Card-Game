@@ -320,7 +320,18 @@ export const drawCard = (
   if (source === 'deck') {
     if (newDeck.length === 0) {
       if (newDiscardPile.length <= 1) {
-        return room;
+        // No cards available anywhere: commit pending discard and pass the turn instead of freezing.
+        const stuckNow = Date.now();
+        return {
+          ...room,
+          discardPile: [...newDiscardPile, ...(room.pendingDiscard || [])],
+          pendingDiscard: [],
+          turnIndex: getNextTurnIndex(room, room.turnIndex),
+          turnPhase: 'discarding',
+          turnStartTime: stuckNow,
+          updatedAt: stuckNow,
+          version: (room.version || 0) + 1,
+        };
       }
       const topCard = newDiscardPile[newDiscardPile.length - 1];
       const cardsToReshuffle = newDiscardPile.slice(0, newDiscardPile.length - 1);
@@ -424,7 +435,11 @@ export const handleTurnTimeout = (room: GameRoom, playerId: string): GameRoom =>
   if (currentTurnId !== playerId) return room;
 
   const player = room.players[playerId];
-  if (!player || player.isOut || !player.hand || player.hand.length === 0) return room;
+  if (!player || player.isOut) return room;
+  if (!player.hand || player.hand.length === 0) {
+    // Empty hand (e.g. whole hand dropped on a match) scores 0 – auto-call LEAST instead of stalling.
+    return room.turnPhase === 'discarding' ? callLeast(room, playerId) : room;
+  }
 
   let state = { ...room };
   const now = Date.now();
@@ -459,7 +474,19 @@ export const handleTurnTimeout = (room: GameRoom, playerId: string): GameRoom =>
 };
 
 export const callLeast = (room: GameRoom, callerId: string): GameRoom => {
-  const newPlayers = { ...room.players };
+  // Only the active player may call LEAST, at the start of their turn, while the round is in play.
+  if (
+    room.status !== 'playing' ||
+    room.turnOrder[room.turnIndex] !== callerId ||
+    room.turnPhase !== 'discarding'
+  ) {
+    return room;
+  }
+  // Clone each player so the previous room state is never mutated.
+  const newPlayers: Record<string, Player> = {};
+  Object.entries(room.players).forEach(([id, p]) => {
+    newPlayers[id] = { ...p, roundScores: [...(p.roundScores || [])] };
+  });
   let lowestScore = Infinity;
   let lowestPlayerId = '';
   
@@ -587,7 +614,10 @@ export const checkRoomExpiration = (room: GameRoom): { isExpired: boolean; expir
 export const botPlayTurn = (room: GameRoom, botId: string): GameRoom => {
   let currentState = { ...room };
   const bot = currentState.players[botId];
-  if (!bot || !bot.hand || bot.hand.length === 0) return room;
+  if (!bot) return room;
+  if (!bot.hand || bot.hand.length === 0) {
+    return currentState.turnPhase === 'discarding' ? callLeast(currentState, botId) : room;
+  }
 
   // 1. Perform Discard Phase
   if (currentState.turnPhase === 'discarding') {

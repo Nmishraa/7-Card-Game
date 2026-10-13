@@ -84,6 +84,24 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     canonical: "https://cards.gnanamai.com/7-cards-least/faq",
     h1: "7 Cards Least Frequently Asked Questions",
   },
+  "daily-challenge": {
+    title: "7 Cards Least Daily Challenge – Lowest Score Puzzle",
+    description: "Play today's 7 Cards Least Daily Challenge. Solve the seeded lowest-score puzzle, discard sets and runs, and share your score.",
+    canonical: "https://cards.gnanamai.com/daily-challenge",
+    h1: "7 Cards Least Daily Challenge",
+  },
+  "strategy-lab": {
+    title: "7 Cards Least Interactive Strategy Lab – Test Your Moves",
+    description: "Interactive 7 Cards Least strategy lab. Practice realistic hand scenarios, test discards, set/run decisions, and Least calls with instant feedback.",
+    canonical: "https://cards.gnanamai.com/strategy-lab",
+    h1: "Interactive 7 Cards Least Strategy Lab",
+  },
+  "score-calculator": {
+    title: "7 Cards Least Score Calculator – Hand Points & Least Eligibility",
+    description: "Free online 7 Cards Least score calculator. Select your hand cards and table joker to calculate points, detect valid sets/runs, and check Least call status.",
+    canonical: "https://cards.gnanamai.com/score-calculator",
+    h1: "7 Cards Least Score Calculator",
+  },
   notFound: {
     title: "Page Not Found – 7 Cards Game",
     description: "The requested card room or page was not found. Return to 7 Cards Game home, how to play guide, or rules.",

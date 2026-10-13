@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 import { updatePageSeo } from '../services/seoService';
+import { UserHeaderBadge } from '../components/UserHeaderBadge';
 
 interface Props {
   onNavigate: (route: string) => void;
+  user?: any;
+  onLogout?: () => void;
 }
 
-export const VariationsPage: React.FC<Props> = ({ onNavigate }) => {
+export const VariationsPage: React.FC<Props> = ({ onNavigate, user, onLogout }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
 
@@ -21,16 +24,20 @@ export const VariationsPage: React.FC<Props> = ({ onNavigate }) => {
         <TouchableOpacity onPress={() => onNavigate('/')} accessibilityRole="button" accessibilityLabel="Home">
           <Text style={styles.brandTitle}>🃏 7 Card Game</Text>
         </TouchableOpacity>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navLinks}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.navScroll} contentContainerStyle={styles.navLinks}>
           <TouchableOpacity onPress={() => onNavigate('/')} style={styles.navBtn}><Text style={styles.navText}>Home</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/how-to-play')} style={styles.navBtn}><Text style={styles.navText}>How to Play</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/rules')} style={styles.navBtn}><Text style={styles.navText}>Rules</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/variations')} style={[styles.navBtn, styles.activeNavBtn]}><Text style={styles.activeNavText}>Variations</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/daily-challenge')} style={styles.navBtn}><Text style={styles.navText}>🔥 Daily Challenge</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/strategy-lab')} style={styles.navBtn}><Text style={styles.navText}>💡 Strategy Lab</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/score-calculator')} style={styles.navBtn}><Text style={styles.navText}>🧮 Calculator</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/solo')} style={styles.navBtn}><Text style={styles.navText}>Solo</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
         </ScrollView>
+        <UserHeaderBadge user={user} onLogout={onLogout} onNavigate={onNavigate} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -100,6 +107,7 @@ const styles = StyleSheet.create({
   },
   brandTitle: { color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginRight: 16 },
   navLinks: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  navScroll: { flex: 1, marginHorizontal: 8 },
   navBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   activeNavBtn: { backgroundColor: '#0275d8' },
   navText: { color: '#cbd5e1', fontSize: 14, fontWeight: '600' },

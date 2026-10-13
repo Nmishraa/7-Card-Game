@@ -18,7 +18,7 @@ export const SeoLink: React.FC<SeoLinkProps> = ({
 }) => {
   return (
     <TouchableOpacity
-      href={href}
+      {...({ href } as any)}
       accessibilityRole="link"
       onPress={(e: any) => {
         if (e && typeof e.preventDefault === 'function') {
