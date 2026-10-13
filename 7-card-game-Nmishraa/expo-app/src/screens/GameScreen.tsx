@@ -342,14 +342,14 @@ const AnimatedRevealedHandOnTable: React.FC<{
   let targetLeft = `${coords.x}%`;
 
   if (coords.y === 100) {
-    // Bottom seats: Place near bottom edge of table, giving clear clearance from center popup
-    targetTop = totalSeats >= 6 ? '70%' : '75%';
+    // Bottom seats: Place inside green felt, well above bottom rail and avatar
+    targetTop = totalSeats >= 6 ? '56%' : '58%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
   } else if (coords.y === 0) {
-    // Top seats: Place near top edge of table, giving clear clearance from center popup
-    targetTop = totalSeats >= 6 ? '7%' : '4%';
+    // Top seats: Place inside green felt, below top rail
+    targetTop = totalSeats >= 6 ? '8%' : '6%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
@@ -570,6 +570,8 @@ export const GameScreen: React.FC<Props> = ({
   const revealEndTimeRef = useRef<number | null>(null);
   const lastRevealKeyRef = useRef<string | null>(null);
   const capturedPlayersRef = useRef<Record<string, Player> | null>(null);
+  const [showLeastPopup, setShowLeastPopup] = useState<boolean>(false);
+  const popupAnimOpacity = useRef(new Animated.Value(0)).current;
   
   const seenMsgIdsRef = useRef<Set<string>>(new Set());
   const isInitialMsgLoadRef = useRef<boolean>(true);
@@ -986,6 +988,26 @@ export const GameScreen: React.FC<Props> = ({
   const currentTurnId = turnOrder[room.turnIndex];
   const isMyTurn = currentTurnId === currentPlayerId && room.status === 'playing';
   const isRevealingMode = (room.status === 'round-end' || room.status === 'game-over') && !revealCompleted;
+
+  useEffect(() => {
+    if (isRevealingMode) {
+      setShowLeastPopup(false);
+      popupAnimOpacity.setValue(0);
+      // Give players 3.5 seconds to inspect all revealed cards on the table first with zero obstruction
+      const timer = setTimeout(() => {
+        setShowLeastPopup(true);
+        Animated.timing(popupAnimOpacity, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: false,
+        }).start();
+      }, 3500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLeastPopup(false);
+      popupAnimOpacity.setValue(0);
+    }
+  }, [isRevealingMode]);
 
   // Rotate players so logged-in player is always at index 0 (Bottom Center)
   const myIndex = turnOrder.indexOf(currentPlayerId);
@@ -1958,37 +1980,39 @@ export const GameScreen: React.FC<Props> = ({
                       </View>
                     )}
 
-                    {/* Center Info / Reveal Banner Box */}
+                    {/* Center Info / Reveal Banner Box (Appears smoothly 3.5s after cards reveal) */}
                     {isRevealingMode ? (
-                      <View style={styles.centerRevealBannerBox}>
-                        <Text style={styles.centerRevealTitleText}>⚡ LEAST CALLED!</Text>
-                        <Text style={styles.centerRevealSubtitleText}>A player called Least!</Text>
-                        
-                        <View style={styles.leastCountdownRow}>
-                          <Text style={styles.leastClockIcon}>⏱️</Text>
-                          <Text style={styles.leastCountdownText}>
-                            Scoreboard in{' '}
-                            <Text style={styles.leastCountdownNum}>{revealCountdown}</Text>{' '}
-                            {revealCountdown === 1 ? 'second' : 'seconds'}
-                          </Text>
-                        </View>
+                      showLeastPopup && (
+                        <Animated.View style={[styles.centerRevealBannerBox, { opacity: popupAnimOpacity }]}>
+                          <Text style={styles.centerRevealTitleText}>⚡ LEAST CALLED!</Text>
+                          <Text style={styles.centerRevealSubtitleText}>A player called Least!</Text>
+                          
+                          <View style={styles.leastCountdownRow}>
+                            <Text style={styles.leastClockIcon}>⏱️</Text>
+                            <Text style={styles.leastCountdownText}>
+                              Scoreboard in{' '}
+                              <Text style={styles.leastCountdownNum}>{revealCountdown}</Text>{' '}
+                              {revealCountdown === 1 ? 'second' : 'seconds'}
+                            </Text>
+                          </View>
 
-                        <Pressable 
-                          style={({ pressed, hovered }: any) => [
-                            styles.skipToScoreboardBtn,
-                            hovered && styles.skipToScoreboardBtnHover,
-                            pressed && styles.skipToScoreboardBtnPressed,
-                          ]}
-                          onPress={() => {
-                            setIsRevealingCards(false);
-                            setRevealCompleted(true);
-                          }}
-                          accessibilityRole="button"
-                          accessibilityLabel="View Scoreboard"
-                        >
-                          <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard</Text>
-                        </Pressable>
-                      </View>
+                          <Pressable 
+                            style={({ pressed, hovered }: any) => [
+                              styles.skipToScoreboardBtn,
+                              hovered && styles.skipToScoreboardBtnHover,
+                              pressed && styles.skipToScoreboardBtnPressed,
+                            ]}
+                            onPress={() => {
+                              setIsRevealingCards(false);
+                              setRevealCompleted(true);
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel="View Scoreboard"
+                          >
+                            <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard</Text>
+                          </Pressable>
+                        </Animated.View>
+                      )
                     ) : (
                       <View style={styles.centerBoardInfoBox}>
                         <View style={styles.centerMetaRow}>
