@@ -124,16 +124,18 @@ export const UserHeaderBadge: React.FC<Props> = ({
         </View>
       )}
 
-      <View style={styles.detailsContainer}>
-        <Text style={styles.nameText} numberOfLines={1}>
-          {displayName}
-        </Text>
-        {isWide && displayEmail ? (
-          <Text style={styles.emailText} numberOfLines={1}>
-            {displayEmail}
+      {width >= 560 && (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.nameText} numberOfLines={1}>
+            {displayName}
           </Text>
-        ) : null}
-      </View>
+          {isWide && displayEmail ? (
+            <Text style={styles.emailText} numberOfLines={1}>
+              {displayEmail}
+            </Text>
+          ) : null}
+        </View>
+      )}
 
       <TouchableOpacity
         style={[styles.actionBtn, isLoggedIn ? styles.logoutBtn : styles.loginBtn]}
