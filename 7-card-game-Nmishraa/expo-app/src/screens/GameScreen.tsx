@@ -323,9 +323,6 @@ const getPerimeterCoords = (index: number, n: number) => {
   return index === 0 ? { x: 50, y: 100 } : { x: 50, y: 0 };
 };
 
-// Feature Flag: Toggle to true to re-enable physical card-throw motion & bounce animations
-const ENABLE_CARD_THROW_ANIMATION = true;
-
 const AnimatedRevealedHandOnTable: React.FC<{
   player: Player;
   seatIndex: number;
@@ -339,103 +336,62 @@ const AnimatedRevealedHandOnTable: React.FC<{
 }> = React.memo(({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles, isMobile }) => {
   const coords = getPerimeterCoords(seatIndex, totalSeats);
 
-  let startX = 0;
-  let startY = 0;
-  let initialRotate = (seatIndex % 2 === 0 ? 1 : -1) * (10 + (seatIndex * 7) % 12);
-
-  // Directional throwing vectors: Cards launch from the player's actual side towards table felt
-  if (coords.y === 100) {
-    // Bottom side: throw UPWARDS towards center
-    startY = 140;
-    startX = (coords.x - 50) * 1.5;
-  } else if (coords.y === 0) {
-    // Top side: throw DOWNWARDS towards center
-    startY = -140;
-    startX = (coords.x - 50) * 1.5;
-  } else if (coords.x >= 80) {
-    // Right side: throw LEFTWARDS towards center
-    startX = 150;
-    startY = 0;
-  } else if (coords.x <= 20) {
-    // Left side: throw RIGHTWARDS towards center
-    startX = -150;
-    startY = 0;
-  }
-
   // Target landing spot on green felt forming an exact non-overlapping ring by seat
   let targetTop = '50%';
   let targetLeft = `${coords.x}%`;
 
   if (coords.y === 100) {
-    // Bottom seats
-    targetTop = totalSeats >= 6 ? '64%' : '67%';
+    // Bottom seats: Place comfortably near bottom of table, giving clear clearance from center popup
+    targetTop = totalSeats >= 6 ? '68%' : '72%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
   } else if (coords.y === 0) {
-    // Top seats
-    targetTop = totalSeats >= 6 ? '16%' : '15%';
+    // Top seats: Place near top of table
+    targetTop = totalSeats >= 6 ? '15%' : '14%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
   } else {
     // Side seats (Far Left / Far Right)
-    targetTop = '46%';
+    targetTop = '48%';
     if (coords.x >= 75) targetLeft = '84%';
     else if (coords.x <= 25) targetLeft = '16%';
   }
 
-  const [hasLanded, setHasLanded] = useState(false);
-
-  const animPos = useRef(new Animated.ValueXY({ x: startX, y: startY })).current;
-  const animScale = useRef(new Animated.Value(1.15)).current;
-  const animOpacity = useRef(new Animated.Value(0.15)).current;
-  const animRotate = useRef(new Animated.Value(initialRotate)).current;
+  // Smooth, subtle reveal animation: cards rise smoothly by 12px with a gentle fade-in
+  const animOffset = useRef(new Animated.Value(12)).current;
+  const animOpacity = useRef(new Animated.Value(0)).current;
+  const animScale = useRef(new Animated.Value(0.96)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(animPos, {
-        toValue: { x: 0, y: 0 },
-        duration: 1000,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-      Animated.sequence([
-        Animated.timing(animScale, {
-          toValue: 1.2,
+    // Stagger reveal slightly by seat (80ms per seat) for an elegant casino deal reveal
+    const delay = Math.min(seatIndex * 80, 400);
+    const timer = setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(animOffset, {
+          toValue: 0,
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animOpacity, {
+          toValue: 1,
           duration: 300,
           easing: Easing.out(Easing.quad),
           useNativeDriver: false,
         }),
         Animated.timing(animScale, {
-          toValue: 0.95,
-          duration: 500,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: false,
-        }),
-        Animated.timing(animScale, {
           toValue: 1.0,
-          duration: 200,
+          duration: 350,
           easing: Easing.out(Easing.quad),
           useNativeDriver: false,
         }),
-      ]),
-      Animated.timing(animOpacity, {
-        toValue: 1,
-        duration: 350,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: false,
-      }),
-      Animated.timing(animRotate, {
-        toValue: 0,
-        duration: 1000,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-    ]).start(() => {
-      setHasLanded(true);
-    });
-  }, []);
+      ]).start();
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [seatIndex]);
 
   const hand = player.hand || [];
 
@@ -504,48 +460,22 @@ const AnimatedRevealedHandOnTable: React.FC<{
     </View>
   );
 
-  const containerStyle: any = {
-    position: 'absolute',
-    top: targetTop,
-    left: targetLeft,
-    transform: [
-      { translateX: isMobile ? -38 : -48 },
-      { translateY: isMobile ? -16 : -22 }
-    ],
-    zIndex: 220,
-    alignItems: 'center',
-  };
-
-  if (!ENABLE_CARD_THROW_ANIMATION || hasLanded) {
-    return (
-      <View style={containerStyle}>
-        {handContent}
-      </View>
-    );
-  }
-
   return (
     <Animated.View
-      style={[
-        containerStyle,
-        {
-          opacity: animOpacity,
-          zIndex: 220,
-          transform: [
-            { translateX: isMobile ? -45 : -55 },
-            { translateY: isMobile ? -18 : -25 },
-            { translateX: animPos.x },
-            { translateY: animPos.y },
-            { scale: animScale },
-            {
-              rotate: animRotate.interpolate({
-                inputRange: [-360, 360],
-                outputRange: ['-360deg', '360deg'],
-              }),
-            },
-          ],
-        },
-      ]}
+      style={{
+        position: 'absolute',
+        top: targetTop,
+        left: targetLeft,
+        zIndex: 220,
+        alignItems: 'center',
+        opacity: animOpacity,
+        transform: [
+          { translateX: isMobile ? -42 : -52 },
+          { translateY: isMobile ? -18 : -24 },
+          { translateY: animOffset },
+          { scale: animScale },
+        ],
+      }}
     >
       {handContent}
     </Animated.View>
@@ -879,13 +809,6 @@ export const GameScreen: React.FC<Props> = ({
     }
   }, [room?.id, room?.currentRound, room?.turnIndex, room?.turnPhase, room?.turnStartTime, room?.status, currentPlayerId]);
 
-  const prevStatusRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (room?.status === 'round-end' && prevStatusRef.current && prevStatusRef.current !== 'round-end') {
-      playCallLeast();
-    }
-    prevStatusRef.current = room?.status || null;
-  }, [room?.status]);
 
   // Trigger Card Reveal Animation on Round End / Game Over when Least is called
   useEffect(() => {
