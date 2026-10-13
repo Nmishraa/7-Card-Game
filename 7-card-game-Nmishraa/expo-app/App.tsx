@@ -21,6 +21,9 @@ import { SevenCardsLeastStrategyPage } from './src/screens/SevenCardsLeastStrate
 import { SevenCardsLeastFaqPage } from './src/screens/SevenCardsLeastFaqPage';
 import { NotFoundPage } from './src/screens/NotFoundPage';
 import { DemoScreen } from './src/screens/DemoScreen';
+import { DailyChallengePage } from './src/screens/DailyChallengePage';
+import { StrategyLabPage } from './src/screens/StrategyLabPage';
+import { ScoreCalculatorPage } from './src/screens/ScoreCalculatorPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
   startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout, checkRoomExpiration
@@ -56,6 +59,8 @@ export default function App() {
     if (p.startsWith('/preview') || p.startsWith('/crazygames') || p.includes('crazygames')) {
       return '/';
     }
+    // Normalize multiple consecutive slashes (e.g. "//" -> "/")
+    p = p.replace(/\/+/g, '/');
     if (p.length > 1 && p.endsWith('/')) {
       p = p.slice(0, -1);
     }
@@ -318,10 +323,18 @@ export default function App() {
         const turnId = latestRoom.turnOrder[latestRoom.turnIndex];
         if (!latestRoom.players[turnId]?.isBot) return;
 
-        const updatedRoom = botPlayTurn(latestRoom, turnId);
+        let updatedRoom = botPlayTurn(latestRoom, turnId);
+        if (updatedRoom === latestRoom) {
+          // Bot could not act (no legal move) – force the timeout path so the game never stalls.
+          updatedRoom = handleTurnTimeout(latestRoom, turnId);
+          if (updatedRoom === latestRoom) return;
+        }
         updatedRoom.updatedAt = Date.now();
         setCurrentRoom(updatedRoom);
         await updateDbRoom(updatedRoom);
+        if (updatedRoom.status === 'game-over') {
+          saveCompletedGameToHistory(updatedRoom);
+        }
       } catch (e) {
         console.error('Bot Error:', e);
       }
@@ -680,9 +693,11 @@ export default function App() {
   };
 
   const handleDiscardAndDraw = async (cardIds: string[]) => {
-    if (!currentRoom || !user) return;
+    const latest = currentRoomRef.current;
+    if (!latest || !user) return;
     console.log(`[DEBUG TURN ENGINE] 🃏 Player ${user.displayName} (${user.uid}) discarding cards:`, cardIds);
-    const updated = playTurn(currentRoom, user.uid, cardIds);
+    const updated = playTurn(latest, user.uid, cardIds);
+    if (updated === latest) return; // rejected: out of turn, wrong phase, or invalid set
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
@@ -690,17 +705,21 @@ export default function App() {
   };
 
   const handleDrawCard = async (source: 'deck' | 'discard') => {
-    if (!currentRoom || !user) return;
+    const latest = currentRoomRef.current;
+    if (!latest || !user) return;
     console.log(`[DEBUG TURN ENGINE] 📥 Player ${user.displayName} (${user.uid}) picking up card from source: ${source}`);
-    const updated = drawCard(currentRoom, user.uid, source);
+    const updated = drawCard(latest, user.uid, source);
+    if (updated === latest) return;
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
   };
 
   const handleCallLeast = async () => {
-    if (!currentRoom || !user) return;
-    const updated = callLeast(currentRoom, user.uid);
+    const latest = currentRoomRef.current;
+    if (!latest || !user) return;
+    const updated = callLeast(latest, user.uid);
+    if (updated === latest) return;
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
@@ -781,12 +800,14 @@ export default function App() {
   };
 
   const handleTimeoutTurn = async (playerId: string) => {
-    if (!currentRoom) return;
-    const currentTurnId = currentRoom.turnOrder[currentRoom.turnIndex];
+    const latest = currentRoomRef.current;
+    if (!latest) return;
+    const currentTurnId = latest.turnOrder[latest.turnIndex];
     if (currentTurnId !== playerId) return;
 
-    console.log(`[DEBUG TURN ENGINE] ⚠️ Handling turn timeout for player: ${playerId}, currentPhase: ${currentRoom.turnPhase}`);
-    const updated = handleTurnTimeout(currentRoom, playerId);
+    console.log(`[DEBUG TURN ENGINE] ⚠️ Handling turn timeout for player: ${playerId}, currentPhase: ${latest.turnPhase}`);
+    const updated = handleTurnTimeout(latest, playerId);
+    if (updated === latest) return;
     updated.updatedAt = Date.now();
     setCurrentRoom(updated);
     await updateDbRoom(updated);
@@ -869,39 +890,51 @@ export default function App() {
 
     // 2. SEO Content Routes
     if (currentPath === '/7-cards-least' || currentPath === '/7cards-least' || currentPath === '/7cards-least-') {
-      return <SevenCardsLeastMainPage onNavigate={handleNavigate} />;
+      return <SevenCardsLeastMainPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/7-cards-least/rules' || currentPath === '/rules') {
-      return <SevenCardsLeastRulesPage onNavigate={handleNavigate} />;
+      return <SevenCardsLeastRulesPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/7-cards-least/how-to-play' || currentPath === '/how-to-play') {
-      return <SevenCardsLeastHowToPlayPage onNavigate={handleNavigate} />;
+      return <SevenCardsLeastHowToPlayPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/7-cards-least/strategy' || currentPath === '/strategy') {
-      return <SevenCardsLeastStrategyPage onNavigate={handleNavigate} />;
+      return <SevenCardsLeastStrategyPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/7-cards-least/faq' || currentPath === '/faq') {
-      return <SevenCardsLeastFaqPage onNavigate={handleNavigate} />;
+      return <SevenCardsLeastFaqPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/variations') {
-      return <VariationsPage onNavigate={handleNavigate} />;
+      return <VariationsPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/multiplayer') {
-      return <MultiplayerPage onNavigate={handleNavigate} />;
+      return <MultiplayerPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/play-against-ai' || currentPath === '/solo') {
-      return <PlayAgainstAiPage onNavigate={handleNavigate} />;
+      return <PlayAgainstAiPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     if (currentPath === '/demo' || currentPath === '/preview') {
       return <DemoScreen onNavigate={handleNavigate} />;
+    }
+
+    if (currentPath === '/daily-challenge') {
+      return <DailyChallengePage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
+    }
+
+    if (currentPath === '/strategy-lab') {
+      return <StrategyLabPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
+    }
+
+    if (currentPath === '/score-calculator') {
+      return <ScoreCalculatorPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     const validPaths = [
@@ -923,11 +956,14 @@ export default function App() {
       '/faq',
       '/demo',
       '/preview',
+      '/daily-challenge',
+      '/strategy-lab',
+      '/score-calculator',
       '/index.html'
     ];
 
     if (!validPaths.includes(currentPath)) {
-      return <NotFoundPage onNavigate={handleNavigate} />;
+      return <NotFoundPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
     // Default: Main Home Screen

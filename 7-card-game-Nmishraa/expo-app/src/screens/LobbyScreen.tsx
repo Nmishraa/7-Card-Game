@@ -112,7 +112,7 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContentWrapper} showsVerticalScrollIndicator={false}>
           <View style={styles.brandContainer}>
             <Image 
-              source={require('../../assets/logo.png')} 
+              source={require('../../assets/logo-badge.png')} 
               style={styles.logoLarge} 
               resizeMode="contain" 
             />
@@ -358,9 +358,9 @@ const createStyles = (width: number, height: number) => {
       marginTop: 4,
     },
     logoLarge: {
-      width: isSmall ? 150 : 180,
-      height: isSmall ? 60 : 75,
-      marginBottom: 4,
+      width: isSmall ? 96 : 120,
+      height: isSmall ? 96 : 120,
+      marginBottom: 8,
     },
     welcomeTagline: {
       color: '#cbd5e1',

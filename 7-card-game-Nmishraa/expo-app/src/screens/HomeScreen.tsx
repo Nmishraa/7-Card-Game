@@ -174,6 +174,24 @@ export const HomeScreen: React.FC<Props> = ({
                 <Text style={styles.mobileMenuToggleText}>Menu</Text>
               </TouchableOpacity>
 
+              {/* Mobile Center Brand Logo */}
+              <TouchableOpacity
+                style={styles.mobileHeaderBrand}
+                onPress={() => handleNav('/')}
+                activeOpacity={0.8}
+                accessibilityRole="link"
+                accessibilityLabel="7 Cards Least Home"
+              >
+                <Image
+                  source={require('../../assets/logo-badge.png')}
+                  style={styles.mobileNavLogoBadge}
+                  resizeMode="contain"
+                />
+                {width >= 420 && (
+                  <Text style={styles.mobileNavBrandTitle} numberOfLines={1}>7 Cards Least</Text>
+                )}
+              </TouchableOpacity>
+
               {/* User Profile Badge */}
               <View style={styles.userHeaderBadge}>
                 {userPhoto ? (
@@ -183,17 +201,35 @@ export const HomeScreen: React.FC<Props> = ({
                     <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
                   </View>
                 )}
-                <View style={styles.userHeaderDetails}>
-                  <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
-                </View>
+                {width >= 480 && (
+                  <View style={styles.userHeaderDetails}>
+                    <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+                  </View>
+                )}
                 <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
                   <Text style={styles.logoutBtnText}>Sign Out</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ) : (
-            /* 🖥️ DESKTOP UNTOUCHED HORIZONTAL NAVBAR 🖥️ */
-            <>
+            /* 🖥️ DESKTOP HORIZONTAL NAVBAR 🖥️ */
+            <View style={styles.desktopHeaderBar}>
+              {/* Desktop Left Brand Logo */}
+              <TouchableOpacity
+                style={styles.headerBrand}
+                onPress={() => handleNav('/')}
+                activeOpacity={0.8}
+                accessibilityRole="link"
+                accessibilityLabel="7 Cards Least Home"
+              >
+                <Image
+                  source={require('../../assets/logo-badge.png')}
+                  style={styles.navLogoBadge}
+                  resizeMode="contain"
+                />
+                <Text style={styles.navBrandTitle}>7 Cards Least</Text>
+              </TouchableOpacity>
+
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerNavScroll} contentContainerStyle={styles.headerNav}>
                 <SeoLink href="/" onNavigate={onNavigate} style={styles.siteNavBtnActive}>
                   <Text style={styles.siteNavTextActive}>Play</Text>
@@ -212,6 +248,15 @@ export const HomeScreen: React.FC<Props> = ({
                 </SeoLink>
                 <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Multiplayer</Text>
+                </SeoLink>
+                <SeoLink href="/daily-challenge" onNavigate={onNavigate} style={styles.siteNavBtn}>
+                  <Text style={styles.siteNavText}>🔥 Daily Challenge</Text>
+                </SeoLink>
+                <SeoLink href="/strategy-lab" onNavigate={onNavigate} style={styles.siteNavBtn}>
+                  <Text style={styles.siteNavText}>💡 Strategy Lab</Text>
+                </SeoLink>
+                <SeoLink href="/score-calculator" onNavigate={onNavigate} style={styles.siteNavBtn}>
+                  <Text style={styles.siteNavText}>🧮 Calculator</Text>
                 </SeoLink>
                 <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.siteNavBtn}>
                   <Text style={styles.siteNavText}>Play Against AI</Text>
@@ -253,12 +298,23 @@ export const HomeScreen: React.FC<Props> = ({
                   <Text style={styles.logoutBtnText}>Sign Out</Text>
                 </TouchableOpacity>
               </View>
-            </>
+            </View>
           )}
 
           {/* 📱 MOBILE HAMBURGER MENU DROPDOWN 📱 */}
           {!isWide && mobileMenuOpen && (
             <View style={styles.mobileMenuDropdown}>
+              <View style={styles.mobileDropdownHeader}>
+                <Image
+                  source={require('../../assets/logo-badge.png')}
+                  style={styles.mobileDropdownLogo}
+                  resizeMode="contain"
+                />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.mobileDropdownTitle}>7 CARDS LEAST</Text>
+                  <Text style={styles.mobileDropdownSubtitle}>Online Multiplayer &amp; Solo AI</Text>
+                </View>
+              </View>
               <SeoLink href="/" onNavigate={onNavigate} style={styles.mobileNavItemActive} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavTextActive}>🎮 Play Game</Text>
               </SeoLink>
@@ -276,6 +332,15 @@ export const HomeScreen: React.FC<Props> = ({
               </SeoLink>
               <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>👥 Multiplayer Mode</Text>
+              </SeoLink>
+              <SeoLink href="/daily-challenge" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
+                <Text style={styles.mobileNavText}>🔥 Daily Challenge</Text>
+              </SeoLink>
+              <SeoLink href="/strategy-lab" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
+                <Text style={styles.mobileNavText}>💡 Interactive Strategy Lab</Text>
+              </SeoLink>
+              <SeoLink href="/score-calculator" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
+                <Text style={styles.mobileNavText}>🧮 Quick Score Calculator</Text>
               </SeoLink>
               <SeoLink href="/play-against-ai" onNavigate={onNavigate} style={styles.mobileNavItem} onPress={() => setMobileMenuOpen(false)}>
                 <Text style={styles.mobileNavText}>🤖 Play vs Computer AI</Text>
@@ -315,12 +380,14 @@ export const HomeScreen: React.FC<Props> = ({
         >
           {/* Brand Logo & H1 Title at top */}
           <View style={styles.brandContainer}>
-            <Image
-              source={require('../../assets/logo.png')}
-              style={styles.logoLarge}
-              resizeMode="contain"
-              accessibilityLabel="7 Card Game Logo"
-            />
+            <View style={styles.heroLogoWrapper}>
+              <Image
+                source={require('../../assets/logo-badge.png')}
+                style={styles.logoLarge}
+                resizeMode="contain"
+                accessibilityLabel="7 Cards Least Logo"
+              />
+            </View>
             {/* H1 for Search Engine Discoverability */}
             <Text style={styles.h1Title} accessibilityRole="header" aria-level={1}>7 Cards Least Game Online – Play Free With Friends &amp; AI</Text>
             <Text style={styles.introParagraph}>
@@ -584,11 +651,20 @@ export const HomeScreen: React.FC<Props> = ({
                 <SeoLink href="/7-cards-least" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
                   <Text style={styles.inlineLinkText}>📖 Learn 7 Cards Least Guide ➔</Text>
                 </SeoLink>
+                <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
+                  <Text style={styles.inlineLinkText}>📜 Read Game Rules &amp; Scoring ➔</Text>
+                </SeoLink>
                 <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
                   <Text style={styles.inlineLinkText}>🎮 Play Multiplayer Online ➔</Text>
                 </SeoLink>
-                <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
-                  <Text style={styles.inlineLinkText}>📜 Read Game Rules &amp; Scoring ➔</Text>
+                <SeoLink href="/daily-challenge" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
+                  <Text style={styles.inlineLinkText}>🔥 Play Daily Challenge ➔</Text>
+                </SeoLink>
+                <SeoLink href="/strategy-lab" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
+                  <Text style={styles.inlineLinkText}>💡 Interactive Strategy Lab ➔</Text>
+                </SeoLink>
+                <SeoLink href="/score-calculator" onNavigate={onNavigate} style={styles.inlineLinkBtn}>
+                  <Text style={styles.inlineLinkText}>🧮 Quick Score Calculator ➔</Text>
                 </SeoLink>
               </View>
             </View>
@@ -766,6 +842,12 @@ export const HomeScreen: React.FC<Props> = ({
               <Text style={styles.footerDot}>•</Text>
               <SeoLink href="/multiplayer" onNavigate={onNavigate}><Text style={styles.footerLink}>Multiplayer</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/daily-challenge" onNavigate={onNavigate}><Text style={styles.footerLink}>Daily Challenge</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/strategy-lab" onNavigate={onNavigate}><Text style={styles.footerLink}>Strategy Lab</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/score-calculator" onNavigate={onNavigate}><Text style={styles.footerLink}>Score Calculator</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
               <SeoLink href="/play-against-ai" onNavigate={onNavigate}><Text style={styles.footerLink}>Play Against AI</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
               <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate}><Text style={styles.footerLink}>FAQ</Text></SeoLink>
@@ -902,16 +984,18 @@ const createStyles = (width: number, height: number) => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: 12,
+      paddingHorizontal: 10,
       paddingVertical: 8,
       width: '100%',
+      gap: 8,
     },
     mobileMenuToggleBtn: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
+      flexShrink: 0,
       backgroundColor: 'rgba(56, 189, 248, 0.15)',
-      paddingHorizontal: 12,
+      paddingHorizontal: 10,
       paddingVertical: 7,
       borderRadius: 10,
       borderWidth: 1.5,
@@ -990,6 +1074,32 @@ const createStyles = (width: number, height: number) => {
       fontSize: 14,
       fontWeight: 'bold',
     },
+    /* Desktop Navbar Bar */
+    desktopHeaderBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      width: '100%',
+    },
+    headerBrand: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginRight: 16,
+      paddingVertical: 2,
+    },
+    navLogoBadge: {
+      width: 38,
+      height: 38,
+    },
+    navBrandTitle: {
+      color: '#ffffff',
+      fontSize: 17,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
     headerNavScroll: {
       flex: 1,
       marginRight: 12,
@@ -998,6 +1108,50 @@ const createStyles = (width: number, height: number) => {
       flexDirection: 'row',
       gap: 10,
       alignItems: 'center',
+    },
+    /* Mobile Header Brand & Dropdown Header */
+    mobileHeaderBrand: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingVertical: 2,
+      flexShrink: 1,
+      minWidth: 0,
+    },
+    mobileNavLogoBadge: {
+      width: 32,
+      height: 32,
+    },
+    mobileNavBrandTitle: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: 'bold',
+      letterSpacing: 0.3,
+    },
+    mobileDropdownHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingHorizontal: 8,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(255,255,255,0.1)',
+      marginBottom: 8,
+    },
+    mobileDropdownLogo: {
+      width: 42,
+      height: 42,
+    },
+    mobileDropdownTitle: {
+      color: '#ffffff',
+      fontSize: 15,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+    mobileDropdownSubtitle: {
+      color: '#38bdf8',
+      fontSize: 11,
+      fontWeight: '600',
     },
     /* Site Navbar Links */
     siteNavBtn: {
@@ -1040,10 +1194,19 @@ const createStyles = (width: number, height: number) => {
       marginBottom: 24,
       maxWidth: 720,
     },
+    heroLogoWrapper: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 12,
+      shadowColor: '#34d399',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.45,
+      shadowRadius: 24,
+      elevation: 10,
+    },
     logoLarge: {
-      width: isSmall ? 180 : 240,
-      height: isSmall ? 80 : 108,
-      marginBottom: 8,
+      width: isSmall ? 104 : 132,
+      height: isSmall ? 104 : 132,
     },
     h1Title: {
       color: '#ffffff',
@@ -1343,15 +1506,14 @@ const createStyles = (width: number, height: number) => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 8,
+      gap: width >= 480 ? 8 : 6,
       backgroundColor: 'rgba(30, 41, 59, 0.8)',
-      paddingHorizontal: 10,
+      paddingHorizontal: width >= 480 ? 10 : 6,
       paddingVertical: 5,
       borderRadius: 16,
       borderWidth: 1,
       borderColor: 'rgba(255,255,255,0.15)',
-      alignSelf: width >= 640 ? 'auto' : 'flex-end',
-      marginTop: width >= 640 ? 0 : 4,
+      flexShrink: 0,
     },
     userHeaderAvatar: {
       width: 32,
@@ -1388,7 +1550,7 @@ const createStyles = (width: number, height: number) => {
     },
     logoutBtn: {
       backgroundColor: '#ef4444',
-      paddingHorizontal: 12,
+      paddingHorizontal: width >= 480 ? 12 : 9,
       paddingVertical: 6,
       borderRadius: 8,
       alignItems: 'center',

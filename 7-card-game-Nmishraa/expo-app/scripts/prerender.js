@@ -19,6 +19,9 @@ const navHtml = `
     <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">How to Play</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy &amp; Tips</a> |
     <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Multiplayer Mode</a> |
+    <a href="https://cards.gnanamai.com/daily-challenge" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Daily Challenge</a> |
+    <a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy Lab</a> |
+    <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Score Calculator</a> |
     <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Against AI</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a>
   </nav>
@@ -882,6 +885,191 @@ const routes = [
         ${navHtml}
       </article>
     `
+  },
+  {
+    path: '/daily-challenge',
+    dir: path.join(distDir, 'daily-challenge'),
+    title: '7 Cards Least Daily Challenge – Play Today\'s Puzzle Online',
+    description: 'Play the official daily 7 Cards Least lowest-score challenge. Identical 7-card starting hands and joker wildcards for all players. Solve in 3 turns and share your score!',
+    canonical: 'https://cards.gnanamai.com/daily-challenge',
+    h1: '7 Cards Least Daily Challenge',
+    h2: 'Solve today\'s deterministic lowest-score puzzle with 3 strategic card-shedding turns.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Daily Challenge", "item": "https://cards.gnanamai.com/daily-challenge" }
+    ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/daily-challenge#webapp",
+          "name": "7 Cards Least Daily Challenge",
+          "url": "https://cards.gnanamai.com/daily-challenge",
+          "description": "Daily lowest-score card game challenge with reproducible seeded starting hands, table wildcards, and score sharing.",
+          "applicationCategory": "GameApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/daily-challenge#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Daily Challenge", "item": "https://cards.gnanamai.com/daily-challenge" }
+          ]
+        }
+      ]
+    },
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Daily Challenge</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Solve today's deterministic lowest-score puzzle with 3 strategic card-shedding turns.</h2>
+        
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
+          Welcome to the official <strong>7 Cards Least Daily Challenge</strong>! Every calendar day, a brand new puzzle is generated using a deterministic date seed. Every player globally receives the exact same starting 7 cards, the exact same zero-point Table Joker rank, and the exact same top discard card.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎯 How the Daily Challenge Works</h3>
+        <ul style="line-height: 1.8; color: #cbd5e1; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong>3 Strategic Turns:</strong> You have 3 discard and pickup decisions to reduce your hand's point liability as much as possible.</li>
+          <li><strong>Zero-Point Jokers:</strong> Any card in your hand matching the day's Table Joker rank counts as 0 points.</li>
+          <li><strong>Match &amp; Skip:</strong> If your discarded card matches the rank of the top card on the discard pile, you trigger Match &amp; Skip—bypassing the pickup step and permanently shrinking your hand.</li>
+          <li><strong>Reproducible &amp; Fair:</strong> Your final score is saved in your browser and verified against the daily seed. Share your score summary with friends to see who sheds best!</li>
+        </ul>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="https://cards.gnanamai.com/daily-challenge" style="display: inline-block; background: #059669; color: #ffffff; padding: 12px 28px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.05rem;">▶️ Play Today's Daily Challenge</a>
+        </div>
+
+        ${navHtml}
+      </article>
+    `
+  },
+  {
+    path: '/strategy-lab',
+    dir: path.join(distDir, 'strategy-lab'),
+    title: '7 Cards Least Strategy Lab – Interactive Tactical Scenarios',
+    description: 'Master 7 Cards Least with realistic interactive scenarios. Learn when to shed face cards, preserve pairs, break runs, and calculate 80-point penalty risks.',
+    canonical: 'https://cards.gnanamai.com/strategy-lab',
+    h1: '7 Cards Least Interactive Strategy Lab',
+    h2: 'Test real-game card decisions with instant strategic feedback, penalty risk evaluations, and optimal move analyses.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Strategy Lab", "item": "https://cards.gnanamai.com/strategy-lab" }
+    ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/strategy-lab#webapp",
+          "name": "7 Cards Least Strategy Lab",
+          "url": "https://cards.gnanamai.com/strategy-lab",
+          "description": "Interactive card game laboratory featuring tactical scenarios, point calculations, and strategy explanations.",
+          "applicationCategory": "EducationalApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/strategy-lab#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Strategy Lab", "item": "https://cards.gnanamai.com/strategy-lab" }
+          ]
+        }
+      ]
+    },
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Interactive Strategy Lab</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Test real-game card decisions with instant strategic feedback, penalty risk evaluations, and optimal move analyses.</h2>
+        
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
+          The <strong>7 Cards Least Strategy Lab</strong> is an interactive training ground designed to elevate your decision-making in competitive matches. Work through curated, realistic card situations modeled directly on the official game rules.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🧪 What You Can Practice in the Lab</h3>
+        <ul style="line-height: 1.8; color: #cbd5e1; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong>High Face-Card Dumps:</strong> Why discarding heavy 10-point face cards (K, Q, J) on Turn 1 protects you against sudden opponent Least declarations.</li>
+          <li><strong>Matching Sets vs. Suited Runs:</strong> Evaluating whether shedding a pair of 9s (18 pts) immediately is superior to holding them for a speculative straight run.</li>
+          <li><strong>The 80-Point Least Call Risk:</strong> Calculating opponent hand distributions before calling Least with 7 points versus waiting one more cycle to guarantee victory.</li>
+          <li><strong>Joker Wildcard Manipulation:</strong> Capitalizing on the zero-point table wildcard while dumping high collateral cards.</li>
+          <li><strong>Match &amp; Skip Exploits:</strong> Recognizing opportunities to match the top discard rank to shed without taking an additional card.</li>
+        </ul>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="https://cards.gnanamai.com/strategy-lab" style="display: inline-block; background: #0284c7; color: #ffffff; padding: 12px 28px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.05rem;">🔬 Enter the Interactive Strategy Lab</a>
+        </div>
+
+        ${navHtml}
+      </article>
+    `
+  },
+  {
+    path: '/score-calculator',
+    dir: path.join(distDir, 'score-calculator'),
+    title: '7 Cards Least Score Calculator – Hand Points & Least Eligibility',
+    description: 'Calculate your 7 Cards Least hand score instantly. Check wild Joker values, assess Least declaration eligibility (≤10 pts), and simulate discard strategies.',
+    canonical: 'https://cards.gnanamai.com/score-calculator',
+    h1: '7 Cards Least Quick Score Calculator',
+    h2: 'Instant card point evaluation, zero-point Joker calculation, and Least call eligibility checker.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Score Calculator", "item": "https://cards.gnanamai.com/score-calculator" }
+    ],
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://cards.gnanamai.com/score-calculator#webapp",
+          "name": "7 Cards Least Score Calculator",
+          "url": "https://cards.gnanamai.com/score-calculator",
+          "description": "Visual card score calculator for 7 Cards Least with zero-point wild Joker selection and Least call threshold verification.",
+          "applicationCategory": "UtilitiesApplication",
+          "gamePlatform": "Web Browser",
+          "operatingSystem": "All",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://cards.gnanamai.com/score-calculator#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Score Calculator", "item": "https://cards.gnanamai.com/score-calculator" }
+          ]
+        }
+      ]
+    },
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Quick Score Calculator</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Instant card point evaluation, zero-point Joker calculation, and Least call eligibility checker.</h2>
+        
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
+          The <strong>7 Cards Least Score Calculator</strong> provides instantaneous, accurate point calculations for any custom 1 to 7 card hand. Validate your in-game calculations, discover your exact distance from the ≤10 point Least threshold, and test what-if discard outcomes.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📊 Official Point Evaluation Rules</h3>
+        <ul style="line-height: 1.8; color: #cbd5e1; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong>Aces (A):</strong> 1 point each.</li>
+          <li><strong>Number Cards (2–10):</strong> Face value (e.g. 7 of Diamonds = 7 points).</li>
+          <li><strong>Face Cards (J, Q, K):</strong> 10 points each.</li>
+          <li><strong>Wild Joker Rank:</strong> Any card matching the table's designated Joker rank counts as exactly <strong>0 points</strong>.</li>
+          <li><strong>Least Eligibility:</strong> A player may declare "Least!" only when their total hand score is <strong>10 points or less</strong>.</li>
+        </ul>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="https://cards.gnanamai.com/score-calculator" style="display: inline-block; background: #7c3aed; color: #ffffff; padding: 12px 28px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.05rem;">🧮 Open Interactive Score Calculator</a>
+        </div>
+
+        ${navHtml}
+      </article>
+    `
   }
 ];
 
@@ -939,7 +1127,7 @@ routes.forEach(route => {
 
   const fallbackHtml = `
     <div id="root">
-      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background-color: #062d12; color: #ffffff; text-align: center; padding: 20px; box-sizing: border-box; flex: 1;">
+      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 20px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
         ${bodyContent}
       </main>
     </div>`;
@@ -961,6 +1149,54 @@ if (fs.existsSync(path.join(publicDir, 'robots.txt'))) {
   fs.copyFileSync(path.join(publicDir, 'robots.txt'), path.join(distDir, 'robots.txt'));
   console.log('[SEO Prerender] Synced: public/robots.txt -> dist/robots.txt');
 }
+
+// Ensure logo assets are synced to /assets/logo.png and /logo.png
+const publicAssetsDir = path.join(publicDir, 'assets');
+const distAssetsDir = path.join(distDir, 'assets');
+if (!fs.existsSync(publicAssetsDir)) fs.mkdirSync(publicAssetsDir, { recursive: true });
+if (!fs.existsSync(distAssetsDir)) fs.mkdirSync(distAssetsDir, { recursive: true });
+
+const sourceLogo = path.join(publicDir, 'logo-badge.png');
+if (fs.existsSync(sourceLogo)) {
+  fs.copyFileSync(sourceLogo, path.join(publicAssetsDir, 'logo.png'));
+  fs.copyFileSync(sourceLogo, path.join(distAssetsDir, 'logo.png'));
+  fs.copyFileSync(sourceLogo, path.join(distDir, 'logo-badge.png'));
+  fs.copyFileSync(sourceLogo, path.join(distDir, 'logo.png'));
+  console.log('[SEO Prerender] Synced: logo assets -> dist/assets/logo.png & dist/logo.png');
+}
+
+// Generate static 404.html with noindex to prevent Soft 404 penalties
+const html404 = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>404 Page Not Found – 7 Cards Least</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box; }
+    .box { max-width: 520px; background: rgba(15, 23, 42, 0.95); padding: 40px 32px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 16px 32px rgba(0,0,0,0.5); }
+    h1 { font-size: 3.5rem; margin: 0 0 8px; color: #38bdf8; font-weight: 800; }
+    h2 { font-size: 1.4rem; margin: 0 0 16px; color: #fff; }
+    p { color: #cbd5e1; font-size: 1rem; line-height: 1.6; margin-bottom: 24px; }
+    a { display: inline-block; background: #0284c7; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: bold; transition: background 0.2s; }
+    a:hover { background: #0369a1; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>The page or resource you are looking for does not exist on 7 Cards Least.</p>
+    <a href="https://cards.gnanamai.com/">Return to 7 Cards Least Home</a>
+  </div>
+</body>
+</html>`;
+
+fs.writeFileSync(path.join(distDir, '404.html'), html404, 'utf-8');
+fs.writeFileSync(path.join(publicDir, '404.html'), html404, 'utf-8');
+console.log('[SEO Prerender] Generated: dist/404.html & public/404.html');
 
 console.log('[SEO Prerender] Successfully pre-rendered static HTML for all 7 Cards Least cluster routes!');
 

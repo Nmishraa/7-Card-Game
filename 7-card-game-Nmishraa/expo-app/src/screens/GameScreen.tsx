@@ -817,7 +817,7 @@ export const GameScreen: React.FC<Props> = ({
       const isTurnPlayer = currentTurnIdEarly === currentPlayerId;
       const isHost = room.hostId === currentPlayerId;
       // Primary trigger: Turn player. Fallback trigger: Host (only if turn player is remote/AFK)
-      if (isTurnPlayer || (!isTurnPlayer && isHost)) {
+      if (isTurnPlayer || (isHost && elapsedMs >= turnTimeLimit * 1000 + 5000)) {
         timeoutTriggeredRef.current = timeoutKey;
         console.log(`[DEBUG TIMEOUT] ⏱️ Firing timeout for Player ${currentTurnIdEarly}, Round ${room.currentRound}, TurnIndex ${room.turnIndex}, Phase ${room.turnPhase}, Elapsed: ${elapsedMs}ms`);
         onTimeoutTurn(currentTurnIdEarly);
@@ -1483,11 +1483,38 @@ export const GameScreen: React.FC<Props> = ({
 
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <TouchableOpacity 
+                  style={[styles.summaryBtn, { backgroundColor: '#10b981', flex: 1, minWidth: 140 }]} 
+                  onPress={async () => {
+                    const winner = playersList[0];
+                    const standings = playersList.slice(0, 4).map((p, i) => `${i === 0 ? '🏆' : '•'} ${p.name}: ${p.totalScore} pts`).join('\n');
+                    const shareText = `🃏 7 Cards Least Match Summary!\n${winner ? `👑 Winner: ${winner.name} (${winner.totalScore} pts)\n` : ''}📊 Scores:\n${standings}\n🎮 Can you beat my score? Play free: https://cards.gnanamai.com/`;
+                    
+                    let shared = false;
+                    if (typeof navigator !== 'undefined' && navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: '7 Cards Least Match Results',
+                          text: shareText,
+                          url: 'https://cards.gnanamai.com/'
+                        });
+                        shared = true;
+                      } catch (e) {}
+                    }
+                    if (!shared) {
+                      const copied = await copyToClipboard(shareText);
+                      showShareToastMsg(copied ? '📋 Match summary copied to clipboard!' : 'Copied!');
+                    }
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.summaryBtnText}>🏆 Share Results</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
                   style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
                   onPress={async () => {
-                    const myScore = players[currentPlayerId]?.totalScore ?? 0;
-                    const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                    const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nMy score: ${myScore} pts\nClick to play: ${shareUrl}`;
+                    const winner = playersList[0];
+                    const shareText = `🎴 7 Cards Least Card Game\n${winner ? `🏆 Winner: ${winner.name} with ${winner.totalScore} points!\n` : ''}🎮 Play 7 Cards Least free with me online: https://cards.gnanamai.com/`;
                     await copyToClipboard(shareText);
                     if (typeof window !== 'undefined') {
                       window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -1497,21 +1524,6 @@ export const GameScreen: React.FC<Props> = ({
                   activeOpacity={0.8}
                 >
                   <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', flex: 1, minWidth: 130 }]} 
-                  onPress={async () => {
-                    const myScore = players[currentPlayerId]?.totalScore ?? 0;
-                    const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                    const shareText = `🎴 Come play 7 Cards Least with me! Room Code: ${room.id}\nScore: ${myScore} pts\nPlay now: ${shareUrl}`;
-                    const copied = await copyToClipboard(shareText);
-                    showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Link: ${shareUrl}`);
-                    Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.summaryBtnText}>📋 Copy Link</Text>
                 </TouchableOpacity>
               </View>
 
@@ -1814,7 +1826,7 @@ export const GameScreen: React.FC<Props> = ({
 
           {width >= 550 && (
             <Image 
-              source={require('../../assets/logo.png')} 
+              source={require('../../assets/logo-badge.png')} 
               style={styles.logoSmall} 
               resizeMode="contain" 
             />
@@ -2321,8 +2333,8 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     headerLeft: { flexDirection: 'row', alignItems: 'center', gap: isSmall ? 6 : 10 },
     logoSmall: { 
-      width: isSmall ? 90 : 130, 
-      height: isSmall ? 28 : 38 
+      width: isSmall ? 32 : 40, 
+      height: isSmall ? 32 : 40,
     },
     roundInfo: { color: '#facc15', fontSize: isSmall ? 11 : 16, fontWeight: '900', letterSpacing: 0.5 },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: isSmall ? 4 : 8 },

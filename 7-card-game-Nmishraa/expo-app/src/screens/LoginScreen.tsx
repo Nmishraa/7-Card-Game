@@ -216,7 +216,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     <View style={styles.contentWrapper}>
       <View style={styles.brandContainer}>
         <Image 
-          source={require('../../assets/logo.png')} 
+          source={require('../../assets/logo-badge.png')} 
           style={styles.logoLarge}
           resizeMode="contain"
         />
@@ -363,9 +363,9 @@ const createStyles = (width: number, height: number) => {
       marginBottom: 20,
     },
     logoLarge: {
-      width: isSmall ? 180 : 220,
-      height: isSmall ? 80 : 100,
-      marginBottom: 5,
+      width: isSmall ? 104 : 124,
+      height: isSmall ? 104 : 124,
+      marginBottom: 10,
     },
     welcomeTagline: {
       color: '#cbd5e1',

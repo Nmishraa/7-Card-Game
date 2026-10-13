@@ -28,6 +28,9 @@ export const HowToPlayPage: React.FC<Props> = ({ onNavigate }) => {
           <TouchableOpacity onPress={() => onNavigate('/strategy')} style={styles.navBtn}><Text style={styles.navText}>Strategy</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/variations')} style={styles.navBtn}><Text style={styles.navText}>Variations</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/multiplayer')} style={styles.navBtn}><Text style={styles.navText}>Multiplayer</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/daily-challenge')} style={styles.navBtn}><Text style={styles.navText}>🔥 Daily Challenge</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/strategy-lab')} style={styles.navBtn}><Text style={styles.navText}>💡 Strategy Lab</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate('/score-calculator')} style={styles.navBtn}><Text style={styles.navText}>🧮 Calculator</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/solo')} style={styles.navBtn}><Text style={styles.navText}>Solo</Text></TouchableOpacity>
           <TouchableOpacity onPress={() => onNavigate('/faq')} style={styles.navBtn}><Text style={styles.navText}>FAQ</Text></TouchableOpacity>
         </ScrollView>

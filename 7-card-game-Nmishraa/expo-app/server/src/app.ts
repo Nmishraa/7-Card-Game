@@ -61,6 +61,8 @@ import fs from 'fs';
 
 const webDistPath = path.join(__dirname, '../../dist');
 if (fs.existsSync(webDistPath)) {
+  const CANONICAL_ORIGIN = 'https://cards.gnanamai.com';
+
   // SEO 301 Permanent Redirect Map for legacy/duplicate alias URLs
   const redirects301: Record<string, string> = {
     '/rules': '/7-cards-least/rules',
@@ -81,14 +83,14 @@ if (fs.existsSync(webDistPath)) {
 
     // 1. Check direct 301 Permanent Redirects for legacy/duplicate alias paths (with or without trailing slash)
     if (redirects301[cleanSlashPath]) {
-      return res.redirect(301, redirects301[cleanSlashPath]);
+      return res.redirect(301, `${CANONICAL_ORIGIN}${redirects301[cleanSlashPath]}`);
     }
 
     // 2. Trailing slash 301 redirect to non-trailing slash (e.g. /7-cards-least/ -> 301 -> /7-cards-least)
     if (req.path.length > 1 && req.path.endsWith('/')) {
       const safePath = req.path.slice(0, -1);
       const query = req.url.slice(req.path.length);
-      return res.redirect(301, safePath + query);
+      return res.redirect(301, `${CANONICAL_ORIGIN}${safePath}${query}`);
     }
 
     // 3. Serve pre-rendered static HTML file with 200 OK for canonical pages
@@ -135,10 +137,47 @@ if (fs.existsSync(webDistPath)) {
 app.use('/api/v1', v1Router);
 
 if (fs.existsSync(webDistPath)) {
-  app.get('*', (req: Request, res: Response, next) => {
+  const validClientRoutes = new Set([
+    '',
+    '/',
+    '/7-cards-least',
+    '/7-cards-least/rules',
+    '/7-cards-least/how-to-play',
+    '/7-cards-least/strategy',
+    '/7-cards-least/faq',
+    '/multiplayer',
+    '/play-against-ai',
+    '/daily-challenge',
+    '/strategy-lab',
+    '/score-calculator',
+    '/demo',
+    '/variations'
+  ]);
+
+  app.use((req: Request, res: Response, next) => {
     if (req.path.startsWith('/api') || req.path === '/health') return next();
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(path.join(webDistPath, 'index.html'));
+
+    const cleanPath = req.path.replace(/\/$/, '') || '/';
+    if (validClientRoutes.has(cleanPath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+      const targetHtml = cleanPath === '/' 
+        ? path.join(webDistPath, 'index.html') 
+        : path.join(webDistPath, cleanPath, 'index.html');
+      if (fs.existsSync(targetHtml)) {
+        return res.sendFile(targetHtml);
+      }
+      return res.sendFile(path.join(webDistPath, 'index.html'));
+    }
+
+    // Truly unmapped route / non-existent asset -> Send 404 Not Found with noindex to prevent Soft 404 penalties
+    res.status(404);
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    const notFoundHtmlPath = path.join(webDistPath, '404.html');
+    if (fs.existsSync(notFoundHtmlPath)) {
+      return res.sendFile(notFoundHtmlPath);
+    }
+    return res.send(`<!DOCTYPE html><html><head><title>404 Not Found</title><meta name="robots" content="noindex, nofollow" /></head><body style="background:#062d12;color:#fff;text-align:center;padding:50px;"><h1>404 Not Found</h1><p>The page requested was not found.</p><a href="/" style="color:#38bdf8;">Return Home</a></body></html>`);
   });
 }
 
