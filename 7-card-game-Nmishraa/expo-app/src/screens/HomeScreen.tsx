@@ -187,7 +187,7 @@ export const HomeScreen: React.FC<Props> = ({
                   style={styles.mobileNavLogoBadge}
                   resizeMode="contain"
                 />
-                {width >= 420 && (
+                {width >= 600 && (
                   <Text style={styles.mobileNavBrandTitle} numberOfLines={1}>7 Cards Least</Text>
                 )}
               </TouchableOpacity>
@@ -201,13 +201,20 @@ export const HomeScreen: React.FC<Props> = ({
                     <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
                   </View>
                 )}
-                {width >= 480 && (
+                {width >= 600 && (
                   <View style={styles.userHeaderDetails}>
                     <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
                   </View>
                 )}
-                <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
-                  <Text style={styles.logoutBtnText}>Sign Out</Text>
+                <TouchableOpacity
+                  style={[styles.logoutBtn, (!userId || userName === 'Player') ? styles.loginBtn : styles.logoutBtnActive]}
+                  onPress={onLogout}
+                  accessibilityRole="button"
+                  accessibilityLabel={(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
+                >
+                  <Text style={styles.logoutBtnText}>
+                    {(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -1521,10 +1528,10 @@ const createStyles = (width: number, height: number) => {
     userHeaderBadge: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: width >= 480 ? 8 : 6,
-      backgroundColor: 'rgba(30, 41, 59, 0.8)',
-      paddingHorizontal: width >= 480 ? 10 : 6,
+      justifyContent: 'flex-end',
+      gap: width >= 600 ? 8 : 6,
+      backgroundColor: 'rgba(30, 41, 59, 0.85)',
+      paddingHorizontal: width >= 600 ? 10 : 8,
       paddingVertical: 5,
       borderRadius: 16,
       borderWidth: 1,
@@ -1532,16 +1539,16 @@ const createStyles = (width: number, height: number) => {
       flexShrink: 0,
     },
     userHeaderAvatar: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
       borderWidth: 1,
       borderColor: '#38bdf8',
     },
     userHeaderAvatarFallback: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
       backgroundColor: '#0284c7',
       alignItems: 'center',
       justifyContent: 'center',
@@ -1549,30 +1556,36 @@ const createStyles = (width: number, height: number) => {
     userHeaderAvatarText: {
       color: '#fff',
       fontWeight: 'bold',
-      fontSize: 14,
+      fontSize: 13,
     },
     userHeaderDetails: {
       justifyContent: 'center',
-      maxWidth: 120,
+      maxWidth: 110,
     },
     userHeaderName: {
       color: '#ffffff',
       fontWeight: 'bold',
-      fontSize: 13,
+      fontSize: 12,
     },
     userHeaderEmail: {
       color: '#94a3b8',
       fontSize: 10,
     },
     logoutBtn: {
-      backgroundColor: '#ef4444',
-      paddingHorizontal: width >= 480 ? 12 : 9,
+      paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
+      flexShrink: 0,
     },
-    logoutBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 12 },
+    logoutBtnActive: {
+      backgroundColor: '#ef4444',
+    },
+    loginBtn: {
+      backgroundColor: '#0284c7',
+    },
+    logoutBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 12, letterSpacing: 0.2 },
     historyBtn: {
       backgroundColor: 'rgba(56, 189, 248, 0.15)',
       paddingHorizontal: 14,
