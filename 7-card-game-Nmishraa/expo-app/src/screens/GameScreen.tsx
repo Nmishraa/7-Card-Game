@@ -570,8 +570,6 @@ export const GameScreen: React.FC<Props> = ({
   const revealEndTimeRef = useRef<number | null>(null);
   const lastRevealKeyRef = useRef<string | null>(null);
   const capturedPlayersRef = useRef<Record<string, Player> | null>(null);
-  const [showLeastPopup, setShowLeastPopup] = useState<boolean>(false);
-  const popupAnimOpacity = useRef(new Animated.Value(0)).current;
   
   const seenMsgIdsRef = useRef<Set<string>>(new Set());
   const isInitialMsgLoadRef = useRef<boolean>(true);
@@ -983,28 +981,11 @@ export const GameScreen: React.FC<Props> = ({
 
   const players = room.players || {};
   const me = players[currentPlayerId];
+  
   const turnOrder = room.turnOrder || [];
   const currentTurnId = turnOrder[room.turnIndex];
   const isMyTurn = currentTurnId === currentPlayerId && room.status === 'playing';
   const isRevealingMode = (room.status === 'round-end' || room.status === 'game-over') && !revealCompleted;
-
-  useEffect(() => {
-    if (isRevealingMode) {
-      // Delay popup appearance by 2.5 seconds so players clearly see all revealed cards first with zero obstruction
-      const timer = setTimeout(() => {
-        setShowLeastPopup(true);
-        Animated.timing(popupAnimOpacity, {
-          toValue: 1,
-          duration: 350,
-          useNativeDriver: false,
-        }).start();
-      }, 2500);
-      return () => clearTimeout(timer);
-    } else {
-      setShowLeastPopup(false);
-      popupAnimOpacity.setValue(0);
-    }
-  }, [isRevealingMode]);
 
   // Rotate players so logged-in player is always at index 0 (Bottom Center)
   const myIndex = turnOrder.indexOf(currentPlayerId);
@@ -1977,39 +1958,37 @@ export const GameScreen: React.FC<Props> = ({
                       </View>
                     )}
 
-                    {/* Center Info / Reveal Banner Box (Appears smoothly a few seconds after cards reveal) */}
+                    {/* Center Info / Reveal Banner Box */}
                     {isRevealingMode ? (
-                      showLeastPopup && (
-                        <Animated.View style={[styles.centerRevealBannerBox, { opacity: popupAnimOpacity }]}>
-                          <Text style={styles.centerRevealTitleText}>⚡ LEAST CALLED!</Text>
-                          <Text style={styles.centerRevealSubtitleText}>A player called Least!</Text>
-                          
-                          <View style={styles.leastCountdownRow}>
-                            <Text style={styles.leastClockIcon}>⏱️</Text>
-                            <Text style={styles.leastCountdownText}>
-                              Scoreboard in{' '}
-                              <Text style={styles.leastCountdownNum}>{revealCountdown}</Text>{' '}
-                              {revealCountdown === 1 ? 'second' : 'seconds'}
-                            </Text>
-                          </View>
+                      <View style={styles.centerRevealBannerBox}>
+                        <Text style={styles.centerRevealTitleText}>⚡ LEAST CALLED!</Text>
+                        <Text style={styles.centerRevealSubtitleText}>A player called Least!</Text>
+                        
+                        <View style={styles.leastCountdownRow}>
+                          <Text style={styles.leastClockIcon}>⏱️</Text>
+                          <Text style={styles.leastCountdownText}>
+                            Scoreboard in{' '}
+                            <Text style={styles.leastCountdownNum}>{revealCountdown}</Text>{' '}
+                            {revealCountdown === 1 ? 'second' : 'seconds'}
+                          </Text>
+                        </View>
 
-                          <Pressable 
-                            style={({ pressed, hovered }: any) => [
-                              styles.skipToScoreboardBtn,
-                              hovered && styles.skipToScoreboardBtnHover,
-                              pressed && styles.skipToScoreboardBtnPressed,
-                            ]}
-                            onPress={() => {
-                              setIsRevealingCards(false);
-                              setRevealCompleted(true);
-                            }}
-                            accessibilityRole="button"
-                            accessibilityLabel="View Scoreboard"
-                          >
-                            <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard</Text>
-                          </Pressable>
-                        </Animated.View>
-                      )
+                        <Pressable 
+                          style={({ pressed, hovered }: any) => [
+                            styles.skipToScoreboardBtn,
+                            hovered && styles.skipToScoreboardBtnHover,
+                            pressed && styles.skipToScoreboardBtnPressed,
+                          ]}
+                          onPress={() => {
+                            setIsRevealingCards(false);
+                            setRevealCompleted(true);
+                          }}
+                          accessibilityRole="button"
+                          accessibilityLabel="View Scoreboard"
+                        >
+                          <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard</Text>
+                        </Pressable>
+                      </View>
                     ) : (
                       <View style={styles.centerBoardInfoBox}>
                         <View style={styles.centerMetaRow}>
