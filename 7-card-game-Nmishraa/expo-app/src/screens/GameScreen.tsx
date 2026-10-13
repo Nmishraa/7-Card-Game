@@ -335,20 +335,21 @@ const AnimatedRevealedHandOnTable: React.FC<{
   isMobile: boolean;
 }> = React.memo(({ player, seatIndex, totalSeats, isCaller, currentPlayerId, jokerRank, renderCard, styles, isMobile }) => {
   const coords = getPerimeterCoords(seatIndex, totalSeats);
+  const isCenter = coords.x === 50;
 
   // Target landing spot on green felt forming an exact non-overlapping ring by seat
   let targetTop = '50%';
   let targetLeft = `${coords.x}%`;
 
   if (coords.y === 100) {
-    // Bottom seats: Place comfortably near bottom of table, giving clear clearance from center popup
-    targetTop = totalSeats >= 6 ? '68%' : '72%';
+    // Bottom seats: Place near bottom edge of table, giving clear clearance from center popup
+    targetTop = totalSeats >= 6 ? '70%' : '75%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
   } else if (coords.y === 0) {
-    // Top seats: Place near top of table
-    targetTop = totalSeats >= 6 ? '15%' : '14%';
+    // Top seats: Place near top edge of table, giving clear clearance from center popup
+    targetTop = totalSeats >= 6 ? '7%' : '4%';
     if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
     else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
     else targetLeft = '50%';
@@ -460,9 +461,21 @@ const AnimatedRevealedHandOnTable: React.FC<{
     </View>
   );
 
-  return (
-    <Animated.View
-      style={{
+  const animatedContainerStyle: any = isCenter
+    ? {
+        position: 'absolute',
+        top: targetTop,
+        left: 0,
+        right: 0,
+        zIndex: 220,
+        alignItems: 'center',
+        opacity: animOpacity,
+        transform: [
+          { translateY: animOffset },
+          { scale: animScale },
+        ],
+      }
+    : {
         position: 'absolute',
         top: targetTop,
         left: targetLeft,
@@ -470,13 +483,15 @@ const AnimatedRevealedHandOnTable: React.FC<{
         alignItems: 'center',
         opacity: animOpacity,
         transform: [
-          { translateX: isMobile ? -42 : -52 },
-          { translateY: isMobile ? -18 : -24 },
+          { translateX: coords.x > 50 ? -50 : -20 },
+          { translateY: isMobile ? -14 : -18 },
           { translateY: animOffset },
           { scale: animScale },
         ],
-      }}
-    >
+      };
+
+  return (
+    <Animated.View style={animatedContainerStyle}>
       {handContent}
     </Animated.View>
   );
@@ -3287,10 +3302,10 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       flexDirection: 'row',
       alignItems: 'center',
       gap: 5,
-      marginBottom: 5,
+      marginBottom: 3,
       backgroundColor: 'rgba(6, 30, 15, 0.95)',
-      paddingHorizontal: isMobile ? 10 : 12,
-      paddingVertical: isMobile ? 3 : 4,
+      paddingHorizontal: isMobile ? 8 : 12,
+      paddingVertical: isMobile ? 2 : 4,
       borderRadius: 12,
       borderWidth: 1.5,
       borderColor: '#fbbf24',
@@ -3326,7 +3341,7 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginTop: isMobile ? -16 : -24,
+      marginTop: isMobile ? -8 : -14,
     },
     pureCardWrapper: {
       transform: [{ scale: isMobile ? 0.44 : 0.52 }],
@@ -3380,15 +3395,15 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     centerRevealBannerBox: {
       backgroundColor: 'rgba(5, 38, 18, 0.96)',
-      paddingHorizontal: isSmall ? 14 : 20,
-      paddingVertical: isSmall ? 12 : 15,
-      borderRadius: 14,
+      paddingHorizontal: isSmall ? 12 : 20,
+      paddingVertical: isSmall ? 7 : 12,
+      borderRadius: isSmall ? 12 : 14,
       borderWidth: 1.5,
       borderColor: 'rgba(234, 179, 8, 0.55)',
       alignItems: 'center',
       justifyContent: 'center',
       width: '100%',
-      maxWidth: isSmall ? 250 : 290,
+      maxWidth: isSmall ? 210 : 270,
       shadowColor: '#000000',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.35,
@@ -3398,28 +3413,28 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     centerRevealTitleText: {
       color: '#fef08a',
-      fontSize: isSmall ? 15 : 17,
+      fontSize: isSmall ? 13 : 16,
       fontWeight: '800',
       letterSpacing: 0.5,
       textAlign: 'center',
-      marginBottom: 3,
+      marginBottom: 2,
     },
     centerRevealSubtitleText: {
       color: '#cbd5e1',
-      fontSize: isSmall ? 11 : 12,
+      fontSize: isSmall ? 10 : 12,
       fontWeight: '500',
       textAlign: 'center',
-      marginBottom: isSmall ? 8 : 10,
+      marginBottom: isSmall ? 4 : 8,
     },
     leastCountdownRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 6,
-      marginBottom: isSmall ? 10 : 12,
+      gap: 5,
+      marginBottom: isSmall ? 6 : 10,
     },
     leastClockIcon: {
-      fontSize: isSmall ? 12 : 14,
+      fontSize: isSmall ? 11 : 13,
     },
     leastCountdownText: {
       color: '#e2e8f0',
@@ -3558,9 +3573,9 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     },
     skipToScoreboardBtn: {
       backgroundColor: '#2563eb',
-      paddingHorizontal: isSmall ? 14 : 18,
-      paddingVertical: isSmall ? 8 : 10,
-      borderRadius: 10,
+      paddingHorizontal: isSmall ? 12 : 18,
+      paddingVertical: isSmall ? 6 : 9,
+      borderRadius: isSmall ? 8 : 10,
       borderWidth: 1,
       borderColor: '#60a5fa',
       width: '100%',
@@ -3584,7 +3599,7 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     skipToScoreboardBtnText: {
       color: '#ffffff',
       fontWeight: '700',
-      fontSize: isSmall ? 12 : 14,
+      fontSize: isSmall ? 11 : 13,
       letterSpacing: 0.3,
       textAlign: 'center',
     },
