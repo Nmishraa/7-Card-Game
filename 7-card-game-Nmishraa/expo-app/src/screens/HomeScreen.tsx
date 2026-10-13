@@ -303,7 +303,14 @@ export const HomeScreen: React.FC<Props> = ({
 
           {/* 📱 MOBILE HAMBURGER MENU DROPDOWN 📱 */}
           {!isWide && mobileMenuOpen && (
-            <View style={styles.mobileMenuDropdown}>
+            <ScrollView
+              style={styles.mobileMenuDropdown}
+              contentContainerStyle={styles.mobileMenuDropdownContent}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true}
+              bounces={true}
+              keyboardShouldPersistTaps="handled"
+            >
               <View style={styles.mobileDropdownHeader}>
                 <Image
                   source={require('../../assets/logo-badge.png')}
@@ -364,7 +371,7 @@ export const HomeScreen: React.FC<Props> = ({
               }}>
                 <Text style={styles.mobileAdminText}>🛡️ Master Dashboard</Text>
               </TouchableOpacity>
-            </View>
+            </ScrollView>
           )}
         </View>
 
@@ -1013,11 +1020,20 @@ const createStyles = (width: number, height: number) => {
     },
     mobileMenuDropdown: {
       width: '100%',
+      maxHeight: height > 100 ? height - 70 : 540,
       backgroundColor: '#0f172a',
       borderTopWidth: 1,
       borderTopColor: 'rgba(255,255,255,0.1)',
+      ...(Platform.OS === 'web' ? {
+        overflowY: 'auto' as any,
+        WebkitOverflowScrolling: 'touch' as any,
+        overscrollBehavior: 'contain' as any,
+      } : {}),
+    },
+    mobileMenuDropdownContent: {
       paddingVertical: 8,
       paddingHorizontal: 12,
+      paddingBottom: 48,
       gap: 4,
     },
     mobileNavItem: {
