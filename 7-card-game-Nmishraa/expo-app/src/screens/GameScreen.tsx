@@ -15,7 +15,8 @@ import {
   Animated,
   Easing,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  Pressable
 } from 'react-native';
 import { GameRoom, Card as CardType, ChatMessage, Player } from '../engine/types';
 import { isValidSetOrRun, getSequenceValue } from '../engine/gameLogic';
@@ -620,7 +621,8 @@ export const GameScreen: React.FC<Props> = ({
   const [revealCompleted, setRevealCompleted] = useState<boolean>(false);
   const [revealStage, setRevealStage] = useState<'spotlight' | 'combined'>('spotlight');
   const [spotlightIndex, setSpotlightIndex] = useState<number>(0);
-  const [revealCountdown, setRevealCountdown] = useState<number>(20);
+  const [revealCountdown, setRevealCountdown] = useState<number>(15);
+  const revealEndTimeRef = useRef<number | null>(null);
   const lastRevealKeyRef = useRef<string | null>(null);
   const capturedPlayersRef = useRef<Record<string, Player> | null>(null);
   
@@ -895,69 +897,51 @@ export const GameScreen: React.FC<Props> = ({
         capturedPlayersRef.current = room.players ? JSON.parse(JSON.stringify(room.players)) : null;
         setIsRevealingCards(true);
         setRevealCompleted(false);
-        setRevealStage('spotlight');
+        setRevealStage('combined');
         setSpotlightIndex(0);
-        setRevealCountdown(20);
+        setRevealCountdown(15);
+        revealEndTimeRef.current = Date.now() + 15000;
         playCallLeast();
       }
     } else if (room.status === 'playing') {
       setIsRevealingCards(false);
       setRevealCompleted(false);
-      setRevealStage('spotlight');
+      setRevealStage('combined');
       setSpotlightIndex(0);
-      setRevealCountdown(20);
+      setRevealCountdown(15);
+      revealEndTimeRef.current = null;
       lastRevealKeyRef.current = null;
       capturedPlayersRef.current = null;
     }
   }, [room?.status, room?.currentRound, room?.id]);
 
-  // Phase 1: Sequential Spotlight Reveal (1200ms spotlight per player)
+  // Accurate 15-Second Viewing Countdown Timer (Calculates exact seconds from deadline, never drifts or resets on re-render)
   useEffect(() => {
-    if (!isRevealingCards || !room || revealStage !== 'spotlight') return;
-
-    const playersMap = capturedPlayersRef.current || room.players || {};
-    const turnOrderList = (room.turnOrder && room.turnOrder.length > 0) ? room.turnOrder : Object.keys(playersMap);
-    const totalPlayers = turnOrderList.length;
-
-    if (spotlightIndex < totalPlayers) {
-      const delay = spotlightIndex === 0 ? 500 : 1200;
-      const timer = setTimeout(() => {
-        playDiscard();
-        setSpotlightIndex(prev => {
-          const next = prev + 1;
-          if (next >= totalPlayers) {
-            setRevealStage('combined');
-          }
-          return next;
-        });
-      }, delay);
-      return () => clearTimeout(timer);
-    } else {
-      setRevealStage('combined');
+    if (!isRevealingCards || !room || (room.status !== 'round-end' && room.status !== 'game-over')) {
+      revealEndTimeRef.current = null;
+      return;
     }
-  }, [isRevealingCards, revealStage, spotlightIndex]);
 
-  // Phase 2: 45-Second Stationary Viewing Countdown Timer (Runs when all players finish spotlight)
-  useEffect(() => {
-    if (!isRevealingCards || !room || revealStage !== 'combined') return;
-
-    if (revealCountdown > 0) {
-      const timer = setTimeout(() => {
-        setRevealCountdown(prev => {
-          if (prev <= 1) {
-            setIsRevealingCards(false);
-            setRevealCompleted(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setIsRevealingCards(false);
-      setRevealCompleted(true);
+    if (!revealEndTimeRef.current) {
+      revealEndTimeRef.current = Date.now() + 15000;
     }
-  }, [isRevealingCards, revealStage, revealCountdown]);
+
+    const interval = setInterval(() => {
+      const remainingMs = (revealEndTimeRef.current || 0) - Date.now();
+      const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
+
+      setRevealCountdown(remainingSec);
+
+      if (remainingSec <= 0) {
+        clearInterval(interval);
+        revealEndTimeRef.current = null;
+        setIsRevealingCards(false);
+        setRevealCompleted(true);
+      }
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [isRevealingCards, room?.status]);
 
   useEffect(() => {
     const rawMsgs: ChatMessage[] = room?.messages 
@@ -2039,48 +2023,33 @@ export const GameScreen: React.FC<Props> = ({
                     {/* Center Info / Reveal Banner Box */}
                     {isRevealingMode ? (
                       <View style={styles.centerRevealBannerBox}>
-                        {revealStage === 'spotlight' ? (
-                          <>
-                            <Text style={styles.centerRevealTitleText}>
-                              🔍 REVEALING {(() => {
-                                const playersMap = capturedPlayersRef.current || room.players || {};
-                                const turnOrderList = rotatedPlayers.length > 0 ? rotatedPlayers : Object.keys(playersMap);
-                                const playersList = turnOrderList.map(id => playersMap[id]).filter(Boolean);
-                                const currP = playersList[spotlightIndex];
-                                return currP ? currP.name.toUpperCase() : 'PLAYER';
-                              })()}...
-                            </Text>
-                            <Text style={styles.centerRevealSubtitleText}>
-                              Player {spotlightIndex + 1} of {(() => {
-                                const playersMap = capturedPlayersRef.current || room.players || {};
-                                const turnOrderList = rotatedPlayers.length > 0 ? rotatedPlayers : Object.keys(playersMap);
-                                return turnOrderList.length;
-                              })()}
-                            </Text>
-                          </>
-                        ) : (
-                          <>
-                            <Text style={styles.centerRevealTitleText}>
-                              ⚡ LEAST CALLED BY {(() => {
-                                const caller = Object.values(capturedPlayersRef.current || room.players || {}).find(p => p.hasCalledLeast);
-                                return caller ? caller.name.toUpperCase() : 'PLAYER';
-                              })()}!
-                            </Text>
-                            <Text style={styles.centerRevealSubtitleText}>
-                              ⏱️ Scoreboard appearing in <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>{revealCountdown}s</Text>
-                            </Text>
-                            <TouchableOpacity 
-                              style={styles.skipToScoreboardBtn} 
-                              onPress={() => {
-                                setIsRevealingCards(false);
-                                setRevealCompleted(true);
-                              }}
-                              activeOpacity={0.85}
-                            >
-                              <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard Now ➔</Text>
-                            </TouchableOpacity>
-                          </>
-                        )}
+                        <Text style={styles.centerRevealTitleText}>⚡ LEAST CALLED!</Text>
+                        <Text style={styles.centerRevealSubtitleText}>A player called Least!</Text>
+                        
+                        <View style={styles.leastCountdownRow}>
+                          <Text style={styles.leastClockIcon}>⏱️</Text>
+                          <Text style={styles.leastCountdownText}>
+                            Scoreboard in{' '}
+                            <Text style={styles.leastCountdownNum}>{revealCountdown}</Text>{' '}
+                            {revealCountdown === 1 ? 'second' : 'seconds'}
+                          </Text>
+                        </View>
+
+                        <Pressable 
+                          style={({ pressed, hovered }: any) => [
+                            styles.skipToScoreboardBtn,
+                            hovered && styles.skipToScoreboardBtnHover,
+                            pressed && styles.skipToScoreboardBtnPressed,
+                          ]}
+                          onPress={() => {
+                            setIsRevealingCards(false);
+                            setRevealCompleted(true);
+                          }}
+                          accessibilityRole="button"
+                          accessibilityLabel="View Scoreboard"
+                        >
+                          <Text style={styles.skipToScoreboardBtnText}>📊 View Scoreboard</Text>
+                        </Pressable>
                       </View>
                     ) : (
                       <View style={styles.centerBoardInfoBox}>
@@ -3487,36 +3456,58 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       borderRadius: 8,
     },
     centerRevealBannerBox: {
-      backgroundColor: 'rgba(6, 30, 15, 0.96)',
-      paddingHorizontal: isSmall ? 12 : 18,
-      paddingVertical: isSmall ? 8 : 10,
-      borderRadius: 16,
-      borderWidth: 2,
-      borderColor: '#fbbf24',
+      backgroundColor: 'rgba(5, 38, 18, 0.96)',
+      paddingHorizontal: isSmall ? 14 : 20,
+      paddingVertical: isSmall ? 12 : 15,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderColor: 'rgba(234, 179, 8, 0.55)',
       alignItems: 'center',
-      maxWidth: isSmall ? 260 : 320,
-      marginTop: -30,
-      shadowColor: '#fbbf24',
+      justifyContent: 'center',
+      width: '100%',
+      maxWidth: isSmall ? 250 : 290,
+      shadowColor: '#000000',
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.6,
+      shadowOpacity: 0.35,
       shadowRadius: 10,
       elevation: 10,
-      zIndex: 300,
+      zIndex: 400,
     },
     centerRevealTitleText: {
-      color: '#fbbf24',
-      fontSize: isSmall ? 13 : 16,
-      fontWeight: '900',
-      letterSpacing: 0.8,
+      color: '#fef08a',
+      fontSize: isSmall ? 15 : 17,
+      fontWeight: '800',
+      letterSpacing: 0.5,
       textAlign: 'center',
       marginBottom: 3,
     },
     centerRevealSubtitleText: {
+      color: '#cbd5e1',
+      fontSize: isSmall ? 11 : 12,
+      fontWeight: '500',
+      textAlign: 'center',
+      marginBottom: isSmall ? 8 : 10,
+    },
+    leastCountdownRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginBottom: isSmall ? 10 : 12,
+    },
+    leastClockIcon: {
+      fontSize: isSmall ? 12 : 14,
+    },
+    leastCountdownText: {
       color: '#e2e8f0',
       fontSize: isSmall ? 11 : 13,
-      fontWeight: '700',
+      fontWeight: '600',
       textAlign: 'center',
-      marginBottom: 6,
+    },
+    leastCountdownNum: {
+      color: '#fbbf24',
+      fontWeight: '800',
+      fontSize: isSmall ? 12 : 14,
     },
     /* Card Reveal Animation Modal Overlay */
     cardRevealContainer: {
@@ -3643,21 +3634,36 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       fontWeight: '600',
     },
     skipToScoreboardBtn: {
-      backgroundColor: '#0284c7',
+      backgroundColor: '#2563eb',
       paddingHorizontal: isSmall ? 14 : 18,
       paddingVertical: isSmall ? 8 : 10,
-      borderRadius: 12,
-      borderWidth: 1.5,
-      borderColor: '#38bdf8',
-      marginTop: 4,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#60a5fa',
       width: '100%',
       alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#1d4ed8',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 4,
+      cursor: 'pointer',
+    },
+    skipToScoreboardBtnHover: {
+      backgroundColor: '#1d4ed8',
+      borderColor: '#93c5fd',
+    },
+    skipToScoreboardBtnPressed: {
+      backgroundColor: '#1e40af',
+      transform: [{ scale: 0.98 }],
     },
     skipToScoreboardBtnText: {
       color: '#ffffff',
-      fontWeight: '900',
-      fontSize: isSmall ? 13 : 15,
-      letterSpacing: 0.5,
+      fontWeight: '700',
+      fontSize: isSmall ? 12 : 14,
+      letterSpacing: 0.3,
+      textAlign: 'center',
     },
     exitRevealBtn: {
       backgroundColor: 'rgba(239, 68, 68, 0.2)',
