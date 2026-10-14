@@ -1115,7 +1115,7 @@ routes.forEach(route => {
     routeHtml = routeHtml.replace('</head>', metaRedirect);
   }
 
-  // Update fallback Semantic HTML inside <div id="root">
+  // Route semantic content
   const bodyContent = route.fullHtml || `
     <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
       <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">${route.h1 || route.title}</h1>
@@ -1125,14 +1125,36 @@ routes.forEach(route => {
     </article>
   `;
 
-  const fallbackHtml = `
-    <div id="root">
-      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 20px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  // Inject route-specific semantic HTML into <noscript> for fallback non-JS crawlers
+  const noscriptHtml = `
+    <noscript>
+      <div style="padding: 24px; color: #ffffff; background-color: #062d12; font-family: sans-serif; max-width: 900px; margin: 0 auto; text-align: left;">
         ${bodyContent}
+      </div>
+    </noscript>`;
+
+  routeHtml = routeHtml.replace(/<noscript>[\s\S]*?<\/noscript>/, noscriptHtml);
+
+  // Inject full semantic content directly into the real DOM inside <div id="root">
+  // so Googlebot Smartphone (which executes JS and suppresses <noscript>) reads the full H1,
+  // article, rules table, FAQs, and navigation links immediately upon fetching the HTML.
+  // When React mounts, React cleanly replaces this initial content with the interactive app.
+  const prerenderedRootHtml = `
+    <div id="root">
+      <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 24px 16px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-y: auto;">
+        <header style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: center;">
+          <img src="/logo-badge.png" style="width: 76px; height: 76px; margin-bottom: 12px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));" alt="7 Cards Least Logo" />
+          <div style="width: 28px; height: 28px; border: 3px solid rgba(56, 189, 248, 0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <p style="color: #34d399; font-weight: 700; margin-top: 10px; font-size: 14px; letter-spacing: 0.5px;">Loading 7 Cards Least...</p>
+        </header>
+
+        <section id="prerendered-content" style="width: 100%; max-width: 900px; text-align: left; margin: 0 auto;">
+          ${bodyContent}
+        </section>
       </main>
     </div>`;
 
-  routeHtml = routeHtml.replace(/<div id="root">[\s\S]*?<\/div>/, fallbackHtml);
+  routeHtml = routeHtml.replace(/<div id="root">[\s\S]*?<\/div>(?=\s*<!--|\s*<script)/, prerenderedRootHtml);
 
   const targetFile = path.join(route.dir, 'index.html');
   fs.writeFileSync(targetFile, routeHtml, 'utf-8');
