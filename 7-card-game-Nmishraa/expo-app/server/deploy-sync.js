@@ -135,6 +135,10 @@ const filesToUpload = [
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/assets/logo-badge.png'
   },
   {
+    local: path.join(__dirname, '../assets/logo.png'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/assets/logo.png'
+  },
+  {
     local: path.join(__dirname, '../scripts/prerender.js'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/scripts/prerender.js'
   },
