@@ -163,6 +163,18 @@ const filesToUpload = [
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/test-game-flow.js'
   },
   {
+    local: path.join(__dirname, '../src/services/environmentService.ts'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/services/environmentService.ts'
+  },
+  {
+    local: path.join(__dirname, '../scripts/build-crazygames.js'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/scripts/build-crazygames.js'
+  },
+  {
+    local: path.join(__dirname, '../package.json'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/package.json'
+  },
+  {
     local: path.join(__dirname, 'src/app.ts'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server/src/app.ts'
   }

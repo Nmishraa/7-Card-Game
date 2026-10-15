@@ -33,6 +33,7 @@ import { trackUserEvent } from './src/history/analyticsService';
 import { syncUserProfile } from './src/history/adminService';
 import { initGA, trackGAPageView } from './src/services/googleAnalytics';
 import { PwaInstallBanner } from './src/components/PwaInstallBanner';
+import { isEmbeddedGame } from './src/services/environmentService';
 import { auth, logoutFirebase } from './src/services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -112,14 +113,18 @@ export default function App() {
   };
 
 
-  // ── Initialize Google Analytics 4 ──────────────────────────────────────────
+  // ── Initialize Google Analytics 4 (Only on public website) ───────────────
   useEffect(() => {
-    initGA();
+    if (!isEmbeddedGame()) {
+      initGA();
+    }
   }, []);
 
-  // ── Track GA4 Screen Views ────────────────────────────────────────────────
+  // ── Track GA4 Screen Views (Only on public website) ───────────────────────
   useEffect(() => {
-    trackGAPageView(screen);
+    if (!isEmbeddedGame()) {
+      trackGAPageView(screen);
+    }
   }, [screen]);
 
   // ── Sync user session to localStorage & Firebase Auth state ────────────────
@@ -371,7 +376,11 @@ export default function App() {
     }
     setCurrentRoom(null);
     setRoomId(null);
-    setScreen('auth');
+    if (isEmbeddedGame()) {
+      setScreen('home');
+    } else {
+      setScreen('auth');
+    }
   };
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -875,6 +884,8 @@ export default function App() {
                 setCurrentRoom(null);
                 if (user) {
                   handleCreateRoom(user.displayName);
+                } else if (isEmbeddedGame()) {
+                  handleCreateRoom('Player');
                 } else {
                   setScreen('auth');
                 }
@@ -973,7 +984,11 @@ export default function App() {
         userId={user ? user.uid : ''}
         userEmail={user?.email}
         userPhoto={user?.photoURL}
-        onLogout={user ? handleLogout : () => setScreen('auth')}
+        onLogout={user ? handleLogout : () => {
+          if (!isEmbeddedGame()) {
+            setScreen('auth');
+          }
+        }}
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
         onPlayWithComputer={handlePlayWithComputer}
@@ -989,7 +1004,7 @@ export default function App() {
     <ErrorBoundary>
       <View style={{ flex: 1 }}>
         {renderContent()}
-        <PwaInstallBanner />
+        {!isEmbeddedGame() && <PwaInstallBanner />}
       </View>
     </ErrorBoundary>
   );

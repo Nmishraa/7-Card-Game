@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "npx expo export --platform web && node scripts/prerender.js"
+    "build": "npx expo export --platform web && node scripts/prerender.js",
+    "build:crazygames": "node scripts/build-crazygames.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
