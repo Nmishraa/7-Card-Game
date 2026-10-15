@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, useWindowDimensions, ScrollView, Image, SafeAreaView, Modal, TextInput, Alert } from 'react-native';
 import { GameRoom } from '../engine/types';
+import { isEmbeddedGame } from '../services/environmentService';
 
 interface Props {
   room: GameRoom;
@@ -159,32 +160,35 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
               )}
 
               <View style={styles.shareRow}>
-                <TouchableOpacity 
-                  style={styles.whatsappBtn} 
-                  onPress={async () => {
-                    const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                    const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
-                    await copyToClipboard(shareText);
-                    if (typeof window !== 'undefined') {
-                      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                    }
-                    showShareToastMsg('💬 Invite link copied! Opening WhatsApp...');
-                  }}
-                >
-                  <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
-                </TouchableOpacity>
+                {!isEmbeddedGame() && (
+                  <TouchableOpacity 
+                    style={styles.whatsappBtn} 
+                    onPress={async () => {
+                      const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                      const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                      await copyToClipboard(shareText);
+                      if (typeof window !== 'undefined') {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                      }
+                      showShareToastMsg('💬 Invite link copied! Opening WhatsApp...');
+                    }}
+                  >
+                    <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity 
-                  style={styles.copyLinkBtn} 
+                  style={[styles.copyLinkBtn, isEmbeddedGame() && { flex: 1 }]} 
                   onPress={async () => {
-                    const inviteUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                    const shareText = `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: ${inviteUrl}`;
+                    const shareText = isEmbeddedGame() 
+                      ? room.id 
+                      : `Join my 7 Card Game table! 🎴 Room Code: ${room.id}\nClick to play: https://cards.gnanamai.com/?room=${room.id}`;
                     const copied = await copyToClipboard(shareText);
-                    showShareToastMsg(copied ? '📋 Room link copied to clipboard!' : `Room Link: ${inviteUrl}`);
-                    Alert.alert('Room Link Copied', `Copied to clipboard!\n\n${inviteUrl}`);
+                    showShareToastMsg(copied ? (isEmbeddedGame() ? '📋 Room code copied!' : '📋 Room link copied to clipboard!') : `Room Code: ${room.id}`);
+                    Alert.alert('Room Code Copied', `Copied room code: ${room.id}`);
                   }}
                 >
-                  <Text style={styles.copyLinkBtnText}>📋 Copy Link</Text>
+                  <Text style={styles.copyLinkBtnText}>{isEmbeddedGame() ? '📋 Copy Room Code' : '📋 Copy Link'}</Text>
                 </TouchableOpacity>
               </View>
             </View>

@@ -16,6 +16,7 @@ import { GameplayDemoVideo } from '../components/GameplayDemoVideo';
 import { GameInActionSection } from '../components/GameInActionSection';
 import { SeoLink } from '../components/SeoLink';
 import { updatePageSeo } from '../services/seoService';
+import { isEmbeddedGame } from '../services/environmentService';
 
 
 
@@ -206,16 +207,18 @@ export const HomeScreen: React.FC<Props> = ({
                     <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
                   </View>
                 )}
-                <TouchableOpacity
-                  style={[styles.logoutBtn, (!userId || userName === 'Player') ? styles.loginBtn : styles.logoutBtnActive]}
-                  onPress={onLogout}
-                  accessibilityRole="button"
-                  accessibilityLabel={(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
-                >
-                  <Text style={styles.logoutBtnText}>
-                    {(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
-                  </Text>
-                </TouchableOpacity>
+                {!isEmbeddedGame() && (
+                  <TouchableOpacity
+                    style={[styles.logoutBtn, (!userId || userName === 'Player') ? styles.loginBtn : styles.logoutBtnActive]}
+                    onPress={onLogout}
+                    accessibilityRole="button"
+                    accessibilityLabel={(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
+                  >
+                    <Text style={styles.logoutBtnText}>
+                      {(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           ) : (
@@ -301,9 +304,11 @@ export const HomeScreen: React.FC<Props> = ({
                   <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
                   {userEmail && <Text style={styles.userHeaderEmail} numberOfLines={1}>{userEmail}</Text>}
                 </View>
-                <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
-                  <Text style={styles.logoutBtnText}>Sign Out</Text>
-                </TouchableOpacity>
+                {!isEmbeddedGame() && (
+                  <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
+                    <Text style={styles.logoutBtnText}>Sign Out</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           )}

@@ -35,6 +35,7 @@ import {
   playError,
   playGameOver
 } from '../engine/soundService';
+import { isEmbeddedGame } from '../services/environmentService';
 
 interface Props {
   room: GameRoom;
@@ -216,12 +217,16 @@ const PlayWithAFriendGuide: React.FC<{
           <Text style={styles.guideBulletItem}>
             • <Text style={styles.badgeGold}>Room Code:</Text> Send them the 4-digit room code{roomCode ? ` (${roomCode})` : ''}.
           </Text>
-          <Text style={styles.guideBulletItem}>
-            • <Text style={styles.badgeGreen}>WhatsApp:</Text> Send the invite through WhatsApp.
-          </Text>
-          <Text style={styles.guideBulletItem}>
-            • <Text style={styles.badgeCyan}>Share Link:</Text> Copy/share the private game link directly.
-          </Text>
+          {!isEmbeddedGame() && (
+            <>
+              <Text style={styles.guideBulletItem}>
+                • <Text style={styles.badgeGreen}>WhatsApp:</Text> Send the invite through WhatsApp.
+              </Text>
+              <Text style={styles.guideBulletItem}>
+                • <Text style={styles.badgeCyan}>Share Link:</Text> Copy/share the private game link directly.
+              </Text>
+            </>
+          )}
         </View>
       </View>
 
@@ -232,7 +237,9 @@ const PlayWithAFriendGuide: React.FC<{
           <Text style={styles.guideStepTitle}>Your Friend Joins</Text>
         </View>
         <Text style={styles.guideStepText}>
-          Your friend opens the link or goes to <Text style={styles.badgeBlue}>Private Room</Text> and enters the room code. Once they join, start the game and play together.
+          {isEmbeddedGame() 
+            ? 'Your friend goes to Private Room and enters the 4-digit room code. Once they join, start the game and play together.' 
+            : 'Your friend opens the link or goes to Private Room and enters the room code. Once they join, start the game and play together.'}
         </Text>
       </View>
 
@@ -1385,34 +1392,38 @@ export const GameScreen: React.FC<Props> = ({
                 )}
 
                 <View style={{ width: '100%', gap: 10, marginTop: 14 }}>
-                  <TouchableOpacity 
-                    style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
-                    onPress={async () => {
-                      const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                      const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
-                      await copyToClipboard(shareText);
-                      if (typeof window !== 'undefined') {
-                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                      }
-                      showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
-                  </TouchableOpacity>
+                  {!isEmbeddedGame() && (
+                    <TouchableOpacity 
+                      style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
+                      onPress={async () => {
+                        const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                        const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
+                        await copyToClipboard(shareText);
+                        if (typeof window !== 'undefined') {
+                          window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                        }
+                        showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
+                    </TouchableOpacity>
+                  )}
 
                   <TouchableOpacity 
                     style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', width: '100%' }]}
                     onPress={async () => {
                       const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                      const shareText = `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
+                      const shareText = isEmbeddedGame() 
+                        ? room.id 
+                        : `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
                       const copied = await copyToClipboard(shareText);
-                      showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Room Code: ${room.id}`);
-                      Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
+                      showShareToastMsg(copied ? (isEmbeddedGame() ? '📋 Room code copied!' : '📋 Challenge link copied to clipboard!') : `Room Code: ${room.id}`);
+                      Alert.alert(isEmbeddedGame() ? 'Room Code Copied' : 'Challenge Link Copied', isEmbeddedGame() ? `Copied room code: ${room.id}` : `Copied to clipboard!\n\n${shareUrl}`);
                     }}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.summaryBtnText}>📋 Copy Game Link</Text>
+                    <Text style={styles.summaryBtnText}>{isEmbeddedGame() ? '📋 Copy Room Code' : '📋 Copy Game Link'}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1565,10 +1576,12 @@ export const GameScreen: React.FC<Props> = ({
                   onPress={async () => {
                     const winner = playersList[0];
                     const standings = playersList.slice(0, 4).map((p, i) => `${i === 0 ? '🏆' : '•'} ${p.name}: ${p.totalScore} pts`).join('\n');
-                    const shareText = `🃏 7 Cards Least Match Summary!\n${winner ? `👑 Winner: ${winner.name} (${winner.totalScore} pts)\n` : ''}📊 Scores:\n${standings}\n🎮 Can you beat my score? Play free: https://cards.gnanamai.com/`;
+                    const shareText = isEmbeddedGame()
+                      ? `🃏 7 Cards Least Match Summary!\n${winner ? `👑 Winner: ${winner.name} (${winner.totalScore} pts)\n` : ''}📊 Scores:\n${standings}`
+                      : `🃏 7 Cards Least Match Summary!\n${winner ? `👑 Winner: ${winner.name} (${winner.totalScore} pts)\n` : ''}📊 Scores:\n${standings}\n🎮 Can you beat my score? Play free: https://cards.gnanamai.com/`;
                     
                     let shared = false;
-                    if (typeof navigator !== 'undefined' && navigator.share) {
+                    if (typeof navigator !== 'undefined' && navigator.share && !isEmbeddedGame()) {
                       try {
                         await navigator.share({
                           title: '7 Cards Least Match Results',
@@ -1588,21 +1601,23 @@ export const GameScreen: React.FC<Props> = ({
                   <Text style={styles.summaryBtnText}>🏆 Share Results</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
-                  onPress={async () => {
-                    const winner = playersList[0];
-                    const shareText = `🎴 7 Cards Least Card Game\n${winner ? `🏆 Winner: ${winner.name} with ${winner.totalScore} points!\n` : ''}🎮 Play 7 Cards Least free with me online: https://cards.gnanamai.com/`;
-                    await copyToClipboard(shareText);
-                    if (typeof window !== 'undefined') {
-                      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                    }
-                    showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
-                </TouchableOpacity>
+                {!isEmbeddedGame() && (
+                  <TouchableOpacity 
+                    style={[styles.summaryBtn, { backgroundColor: '#25D366', flex: 1, minWidth: 130 }]} 
+                    onPress={async () => {
+                      const winner = playersList[0];
+                      const shareText = `🎴 7 Cards Least Card Game\n${winner ? `🏆 Winner: ${winner.name} with ${winner.totalScore} points!\n` : ''}🎮 Play 7 Cards Least free with me online: https://cards.gnanamai.com/`;
+                      await copyToClipboard(shareText);
+                      if (typeof window !== 'undefined') {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                      }
+                      showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.summaryBtnText}>💬 WhatsApp</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
               {isGameOver ? (
@@ -1659,34 +1674,38 @@ export const GameScreen: React.FC<Props> = ({
             )}
 
             <View style={{ width: '100%', gap: 10, marginTop: 14 }}>
-              <TouchableOpacity 
-                style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
-                onPress={async () => {
-                  const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                  const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
-                  await copyToClipboard(shareText);
-                  if (typeof window !== 'undefined') {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                  }
-                  showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
-              </TouchableOpacity>
+              {!isEmbeddedGame() && (
+                <TouchableOpacity 
+                  style={[styles.summaryBtn, { backgroundColor: '#25D366', width: '100%' }]}
+                  onPress={async () => {
+                    const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
+                    const shareText = `🎴 Come play 7 Cards Least with me! Join room code: ${room.id}\nPlay here: ${shareUrl}`;
+                    await copyToClipboard(shareText);
+                    if (typeof window !== 'undefined') {
+                      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                    }
+                    showShareToastMsg('💬 Challenge link copied! Opening WhatsApp...');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.summaryBtnText}>💬 Share on WhatsApp</Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity 
                 style={[styles.summaryBtn, { backgroundColor: '#0ea5e9', width: '100%' }]}
                 onPress={async () => {
                   const shareUrl = `https://cards.gnanamai.com/?room=${room.id}`;
-                  const shareText = `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
+                  const shareText = isEmbeddedGame() 
+                    ? room.id 
+                    : `🎴 Join my 7 Cards Least game! Room code: ${room.id}\nPlay now: ${shareUrl}`;
                   const copied = await copyToClipboard(shareText);
-                  showShareToastMsg(copied ? '📋 Challenge link copied to clipboard!' : `Room Code: ${room.id}`);
-                  Alert.alert('Challenge Link Copied', `Copied to clipboard!\n\n${shareUrl}`);
+                  showShareToastMsg(copied ? (isEmbeddedGame() ? '📋 Room code copied!' : '📋 Challenge link copied to clipboard!') : `Room Code: ${room.id}`);
+                  Alert.alert(isEmbeddedGame() ? 'Room Code Copied' : 'Challenge Link Copied', isEmbeddedGame() ? `Copied room code: ${room.id}` : `Copied to clipboard!\n\n${shareUrl}`);
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.summaryBtnText}>📋 Copy Game Link</Text>
+                <Text style={styles.summaryBtnText}>{isEmbeddedGame() ? '📋 Copy Room Code' : '📋 Copy Game Link'}</Text>
               </TouchableOpacity>
             </View>
 
