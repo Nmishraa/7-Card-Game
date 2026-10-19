@@ -1,0 +1,12 @@
+# Environment variables & secrets
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+
+# Dependencies & Build artifacts
+node_modules/
+.expo/
+*.log
+.DS_Store
