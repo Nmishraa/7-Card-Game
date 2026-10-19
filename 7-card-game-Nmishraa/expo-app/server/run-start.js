@@ -17,10 +17,12 @@ DB_PASSWORD=neha_password
 DB_NAME=Neha_data
 PORT=5004
 EOF
-fuser -k 5004/tcp || pkill -f "node start-server.js" || true
-cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && nohup node start-server.js > server.log 2>&1 &
+/usr/local/bin/pm2 delete cards-server || true
+cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && PORT=5004 /usr/local/bin/pm2 start start-server.js --name "cards-server"
+/usr/local/bin/pm2 save
 sleep 2
 curl -s http://localhost:5004/health
+
 `;
 
   conn.exec(cmd, (err, stream) => {

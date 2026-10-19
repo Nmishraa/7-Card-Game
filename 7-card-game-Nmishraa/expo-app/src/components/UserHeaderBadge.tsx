@@ -84,10 +84,12 @@ export const UserHeaderBadge: React.FC<Props> = ({
     return () => unsubscribe();
   }, [propUser]);
 
-  const displayName = propUserName || currentUser?.displayName || 'Player';
+  const savedGuestName = (typeof window !== 'undefined' && window.localStorage)
+    ? window.localStorage.getItem('7card_guest_name')
+    : null;
+  const displayName = propUserName || currentUser?.displayName || savedGuestName || 'Player';
   const displayEmail = propUserEmail || currentUser?.email;
   const photo = propUserPhoto || currentUser?.photoURL;
-  const isLoggedIn = !!currentUser && (!currentUser.isAnonymous || !!currentUser.displayName);
 
   const handleSignOutPress = async () => {
     if (onLogout) {
@@ -104,6 +106,7 @@ export const UserHeaderBadge: React.FC<Props> = ({
 
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem('7card_game_user');
+      window.localStorage.removeItem('7card_guest_name');
     }
     setCurrentUser(null);
 
@@ -120,7 +123,11 @@ export const UserHeaderBadge: React.FC<Props> = ({
         <Image source={{ uri: photo }} style={styles.avatarImage} />
       ) : (
         <View style={styles.avatarFallback}>
-          <Text style={styles.avatarText}>{(displayName || 'U').charAt(0).toUpperCase()}</Text>
+          <Text style={styles.avatarText}>
+            {displayName && displayName !== 'Player' && displayName !== 'Guest'
+              ? displayName.charAt(0).toUpperCase()
+              : '👤'}
+          </Text>
         </View>
       )}
 
@@ -137,15 +144,18 @@ export const UserHeaderBadge: React.FC<Props> = ({
         </View>
       )}
 
-      <TouchableOpacity
-        style={[styles.actionBtn, isLoggedIn ? styles.logoutBtn : styles.loginBtn]}
-        onPress={handleSignOutPress}
-        activeOpacity={0.8}
-        accessibilityRole="button"
-        accessibilityLabel={isLoggedIn ? 'Sign Out' : 'Sign In'}
-      >
-        <Text style={styles.actionBtnText}>{isLoggedIn ? 'Sign Out' : 'Sign In'}</Text>
-      </TouchableOpacity>
+      {/* Only show Sign Out for authenticated accounts with email; do not show Sign In for guests */}
+      {displayEmail ? (
+        <TouchableOpacity
+          style={[styles.actionBtn, styles.logoutBtn]}
+          onPress={handleSignOutPress}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Sign Out"
+        >
+          <Text style={styles.actionBtnText}>Sign Out</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };

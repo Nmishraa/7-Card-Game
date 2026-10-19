@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build": "npx expo export --platform web && node scripts/prerender.js",
-    "build:crazygames": "node scripts/build-crazygames.js"
+    "build:crazygames": "node scripts/build-crazygames.js",
+    "monitor:indexing": "node scripts/monitor-indexing.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Platform, Modal, ScrollView, useWindowDimensions,
-  Image, SafeAreaView
+  Image, SafeAreaView, Alert
 } from 'react-native';
 import { HistoryModal } from '../history/HistoryModal';
 import { AnalyticsModal } from '../history/AnalyticsModal';
@@ -15,6 +15,7 @@ import { GamePreviewSection } from '../components/GamePreviewSection';
 import { GameplayDemoVideo } from '../components/GameplayDemoVideo';
 import { GameInActionSection } from '../components/GameInActionSection';
 import { SeoLink } from '../components/SeoLink';
+import { HomeSeoArticle } from '../components/HomeSeoArticle';
 import { updatePageSeo } from '../services/seoService';
 import { isEmbeddedGame } from '../services/environmentService';
 
@@ -33,10 +34,11 @@ interface Props {
   onSelectTheme: (color: string) => void;
   onQuickMatch: (playerName: string, rounds: number, turnTimeLimit?: number) => void;
   onNavigate?: (route: string) => void;
+  onUpdateGuestName?: (name: string) => void;
 }
 
 export const HomeScreen: React.FC<Props> = ({
-  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, userEmail, userPhoto, onLogout, currentFeltColor, onSelectTheme, onQuickMatch, onNavigate
+  onJoinRoom, onCreateRoom, onPlayWithComputer, userName, userId, userEmail, userPhoto, onLogout, currentFeltColor, onSelectTheme, onQuickMatch, onNavigate, onUpdateGuestName
 }) => {
   const { width, height } = useWindowDimensions();
   const styles = createStyles(width, height);
@@ -61,7 +63,23 @@ export const HomeScreen: React.FC<Props> = ({
     }
   };
 
-  const [name, setName] = useState(userName);
+  const [name, setName] = useState<string>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('7card_guest_name');
+      if (saved && saved.trim()) return saved.trim();
+    }
+    if (userName && userName !== 'Player' && userName !== 'Guest Player') {
+      return userName;
+    }
+    return '';
+  });
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userName && userName !== 'Player' && userName !== 'Guest Player' && !name) {
+      setName(userName);
+    }
+  }, [userName]);
   const [selectedRounds, setSelectedRounds] = useState(5);
   const [selectedBots, setSelectedBots] = useState(1);
   const [selectedTurnTime, setSelectedTurnTime] = useState<number>(() => {
@@ -141,14 +159,86 @@ export const HomeScreen: React.FC<Props> = ({
   const isWide = width >= 900;
   const isDesktop = width >= 900;
 
+  const effectiveDisplayName = (name && name.trim()) ? name.trim() : (userName && userName.trim() ? userName.trim() : 'Guest');
+  const avatarInitial = effectiveDisplayName !== 'Guest' ? effectiveDisplayName.charAt(0).toUpperCase() : '👤';
+
   const scrollViewRef = useRef<ScrollView>(null);
   const gameCardRef = useRef<View>(null);
+  const nameInputRef = useRef<TextInput>(null);
+
+  const validateAndSaveName = (): string | null => {
+    const trimmed = (name || '').trim();
+    if (!trimmed) {
+      setNameError('Please enter your name to start playing.');
+      nameInputRef.current?.focus();
+      return null;
+    }
+    if (trimmed.length > 20) {
+      setNameError('Player name must be 20 characters or less.');
+      nameInputRef.current?.focus();
+      return null;
+    }
+    setNameError(null);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('7card_guest_name', trimmed);
+    }
+    if (onUpdateGuestName) {
+      onUpdateGuestName(trimmed);
+    }
+    return trimmed;
+  };
+
+  const handleStartPlaying = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    if (onPlayWithComputer) {
+      onPlayWithComputer(validName, selectedRounds, selectedTurnTime, selectedBots);
+    }
+  };
 
   const handleHeroPlayPress = () => {
-    const playerName = (name && name.trim().length > 0) ? name.trim() : (userName || 'Player');
+    const validName = validateAndSaveName();
+    if (!validName) return;
     if (onPlayWithComputer) {
-      onPlayWithComputer(playerName, selectedRounds, selectedTurnTime, 1);
+      onPlayWithComputer(validName, selectedRounds, selectedTurnTime, 1);
     }
+  };
+
+  const handleHeroFriendsPlayPress = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    onCreateRoom(validName, selectedRounds, selectedTurnTime);
+  };
+
+  const handleQuickMatchPress = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    onQuickMatch(validName, selectedRounds, selectedTurnTime);
+  };
+
+  const handleCreatePrivateTablePress = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    onCreateRoom(validName, selectedRounds, selectedTurnTime);
+  };
+
+  const handlePlayBotsPress = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    if (onPlayWithComputer) {
+      onPlayWithComputer(validName, selectedRounds, selectedTurnTime, selectedBots);
+    }
+  };
+
+  const handleJoinTablePress = () => {
+    const validName = validateAndSaveName();
+    if (!validName) return;
+    const cleanRoom = (roomId || '').trim().toUpperCase();
+    if (!cleanRoom) {
+      Alert.alert('Room Code Required', 'Please enter a 4-digit room code to join.');
+      return;
+    }
+    onJoinRoom(validName, cleanRoom);
   };
 
   const handleNav = (route: string) => {
@@ -199,24 +289,22 @@ export const HomeScreen: React.FC<Props> = ({
                   <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
                 ) : (
                   <View style={styles.userHeaderAvatarFallback}>
-                    <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+                    <Text style={styles.userHeaderAvatarText}>{avatarInitial}</Text>
                   </View>
                 )}
                 {width >= 600 && (
                   <View style={styles.userHeaderDetails}>
-                    <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+                    <Text style={styles.userHeaderName} numberOfLines={1}>{effectiveDisplayName}</Text>
                   </View>
                 )}
-                {!isEmbeddedGame() && (
+                {!isEmbeddedGame() && userEmail && (
                   <TouchableOpacity
-                    style={[styles.logoutBtn, (!userId || userName === 'Player') ? styles.loginBtn : styles.logoutBtnActive]}
+                    style={[styles.logoutBtn, styles.logoutBtnActive]}
                     onPress={onLogout}
                     accessibilityRole="button"
-                    accessibilityLabel={(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
+                    accessibilityLabel="Sign Out"
                   >
-                    <Text style={styles.logoutBtnText}>
-                      {(!userId || userName === 'Player') ? 'Sign In' : 'Sign Out'}
-                    </Text>
+                    <Text style={styles.logoutBtnText}>Sign Out</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -297,14 +385,14 @@ export const HomeScreen: React.FC<Props> = ({
                   <Image source={{ uri: userPhoto }} style={styles.userHeaderAvatar} />
                 ) : (
                   <View style={styles.userHeaderAvatarFallback}>
-                    <Text style={styles.userHeaderAvatarText}>{(userName || 'U').charAt(0).toUpperCase()}</Text>
+                    <Text style={styles.userHeaderAvatarText}>{avatarInitial}</Text>
                   </View>
                 )}
                 <View style={styles.userHeaderDetails}>
-                  <Text style={styles.userHeaderName} numberOfLines={1}>{userName}</Text>
+                  <Text style={styles.userHeaderName} numberOfLines={1}>{effectiveDisplayName}</Text>
                   {userEmail && <Text style={styles.userHeaderEmail} numberOfLines={1}>{userEmail}</Text>}
                 </View>
-                {!isEmbeddedGame() && (
+                {!isEmbeddedGame() && userEmail && (
                   <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Sign Out">
                     <Text style={styles.logoutBtnText}>Sign Out</Text>
                   </TouchableOpacity>
@@ -438,10 +526,7 @@ export const HomeScreen: React.FC<Props> = ({
 
               <TouchableOpacity
                 style={styles.heroFriendsPlayBtn}
-                onPress={() => {
-                  const playerName = (name && name.trim().length > 0) ? name.trim() : (userName || 'Player');
-                  onCreateRoom(playerName, selectedRounds, selectedTurnTime);
-                }}
+                onPress={handleHeroFriendsPlayPress}
                 activeOpacity={0.85}
                 accessibilityRole="button"
                 accessibilityLabel="Play with Friends & Family"
@@ -471,19 +556,78 @@ export const HomeScreen: React.FC<Props> = ({
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.desc}>
-              Play 7 Card Game online with friends or AI. Enter your name below to start playing!
-            </Text>
+            {/* ─── GUEST PLAYER NAME ENTRY HERO SECTION ─── */}
+            <View style={styles.guestNameCard}>
+              <View style={styles.guestNameHeaderRow}>
+                <View style={styles.guestNameIconBox}>
+                  <Text style={styles.guestNameIcon}>👤</Text>
+                </View>
+                <View style={styles.guestNameTextCol}>
+                  <Text style={styles.guestNameHeading} accessibilityRole="header" aria-level={2}>
+                    What should we call you?
+                  </Text>
+                  <Text style={styles.guestNameHelper}>
+                    No sign-up required. Jump straight into the game.
+                  </Text>
+                </View>
+              </View>
 
-            {/* Name Input */}
-            <Text style={styles.fieldLabel}>Your Name</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="e.g. Bill"
-              placeholderTextColor="#888"
-              value={name}
-              onChangeText={setName}
-            />
+              <View style={styles.guestInputRow}>
+                <View style={[styles.guestInputWrapper, nameError ? styles.guestInputWrapperError : null]}>
+                  <TextInput
+                    ref={nameInputRef}
+                    style={styles.guestTextInput}
+                    placeholder="Enter your name"
+                    placeholderTextColor="#94a3b8"
+                    value={name}
+                    onChangeText={(text) => {
+                      setName(text);
+                      if (nameError) setNameError(null);
+                    }}
+                    maxLength={20}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    returnKeyType="done"
+                    onSubmitEditing={handleStartPlaying}
+                    accessibilityLabel="Player Name"
+                  />
+                  {name.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setName('');
+                        if (nameError) setNameError(null);
+                      }}
+                      style={styles.guestClearBtn}
+                      accessibilityLabel="Clear name"
+                    >
+                      <Text style={styles.guestClearText}>✕</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  style={styles.startPlayingPrimaryBtn}
+                  onPress={handleStartPlaying}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="Start Playing"
+                >
+                  <Text style={styles.startPlayingPrimaryBtnIcon}>🎮</Text>
+                  <Text style={styles.startPlayingPrimaryBtnText}>Start Playing</Text>
+                </TouchableOpacity>
+              </View>
+
+              {nameError && (
+                <View style={styles.validationErrorBox}>
+                  <Text style={styles.validationErrorIcon}>⚠️</Text>
+                  <Text style={styles.validationErrorText}>{nameError}</Text>
+                </View>
+              )}
+            </View>
+
+            <Text style={styles.desc}>
+              Play 7 Card Game online with friends or AI. Customize your match settings or jump into multiplayer below:
+            </Text>
 
             {/* Rounds Selector */}
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Number of Rounds per Game</Text>
@@ -593,10 +737,10 @@ export const HomeScreen: React.FC<Props> = ({
               <View style={styles.actionRow}>
                 <View style={styles.actionCol}>
                   <Text style={styles.colLabel}>Multiplayer</Text>
-                  <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
-                  <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
+                  <ActionButton label="⚡ Quick Match (Online)" onPress={handleQuickMatchPress} styles={styles} extraStyle={styles.quickMatchBtn} />
+                  <ActionButton label="Create Private Table" onPress={handleCreatePrivateTablePress} styles={styles} />
                   <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                  <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime, selectedBots); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                  <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={handlePlayBotsPress} styles={styles} extraStyle={styles.singlePlayerBtn} />
                 </View>
 
                 <View style={styles.colDivider} />
@@ -615,8 +759,8 @@ export const HomeScreen: React.FC<Props> = ({
                   <Text style={[styles.colLabel, { marginTop: 14 }]}>Ready to Join?</Text>
                   <ActionButton
                     label="Join Table"
-                    onPress={() => onJoinRoom(name, roomId.toUpperCase())}
-                    disabled={!name || !roomId}
+                    onPress={handleJoinTablePress}
+                    disabled={!roomId}
                     styles={styles}
                   />
                 </View>
@@ -625,11 +769,11 @@ export const HomeScreen: React.FC<Props> = ({
               /* Mobile: stacked buttons */
               <View style={styles.mobileActions}>
                 <Text style={styles.colLabel}>Multiplayer</Text>
-                <ActionButton label="⚡ Quick Match (Online)" onPress={() => onQuickMatch(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} extraStyle={styles.quickMatchBtn} />
-                <ActionButton label="Create Private Table" onPress={() => onCreateRoom(name, selectedRounds, selectedTurnTime)} disabled={!name} styles={styles} />
+                <ActionButton label="⚡ Quick Match (Online)" onPress={handleQuickMatchPress} styles={styles} extraStyle={styles.quickMatchBtn} />
+                <ActionButton label="Create Private Table" onPress={handleCreatePrivateTablePress} styles={styles} />
 
                 <Text style={[styles.colLabel, { marginTop: 14 }]}>Singleplayer</Text>
-                <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={() => { if (onPlayWithComputer) onPlayWithComputer(name, selectedRounds, selectedTurnTime, selectedBots); }} disabled={!name} styles={styles} extraStyle={styles.singlePlayerBtn} />
+                <ActionButton label={`Play vs ${selectedBots} ${selectedBots === 1 ? 'Bot' : 'Bots'}`} onPress={handlePlayBotsPress} styles={styles} extraStyle={styles.singlePlayerBtn} />
 
                 <View style={styles.divider} />
 
@@ -646,8 +790,8 @@ export const HomeScreen: React.FC<Props> = ({
                 />
                 <ActionButton
                   label="Join Table"
-                  onPress={() => onJoinRoom(name, roomId.toUpperCase())}
-                  disabled={!name || !roomId}
+                  onPress={handleJoinTablePress}
+                  disabled={!roomId}
                   styles={styles}
                 />
               </View>
@@ -843,8 +987,8 @@ export const HomeScreen: React.FC<Props> = ({
           {/* ─── GAME IN ACTION SCREENSHOTS GALLERY ─── */}
           <GameInActionSection />
 
-
-
+          {/* ─── PERMANENT SEO & GAME OVERVIEW ARTICLE ─── */}
+          <HomeSeoArticle onNavigate={onNavigate} />
 
           {/* ─── FOOTER & COMPLIANCE LINKS ─── */}
           <View style={styles.footerContainer}>
@@ -983,6 +1127,7 @@ function ActionButton({ label, onPress, disabled, styles, extraStyle }: {
 
 const createStyles = (width: number, height: number) => {
   const isSmall = width < 400;
+  const isWide = width >= 900;
   return StyleSheet.create({
     root: {
       flex: 1,
@@ -1703,6 +1848,133 @@ const createStyles = (width: number, height: number) => {
       letterSpacing: 6,
       fontWeight: 'bold',
       marginBottom: 12,
+    },
+
+    /* Guest Player Name Entry Card Styles */
+    guestNameCard: {
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+      borderRadius: 16,
+      borderWidth: 2,
+      borderColor: '#38bdf8',
+      padding: isWide ? 22 : 16,
+      marginBottom: 20,
+      width: '100%',
+      shadowColor: '#38bdf8',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 6,
+    },
+    guestNameHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 14,
+    },
+    guestNameIconBox: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      backgroundColor: 'rgba(56, 189, 248, 0.15)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(56, 189, 248, 0.4)',
+    },
+    guestNameIcon: {
+      fontSize: 22,
+    },
+    guestNameTextCol: {
+      flex: 1,
+    },
+    guestNameHeading: {
+      color: '#ffffff',
+      fontSize: isWide ? 20 : 18,
+      fontWeight: 'bold',
+      letterSpacing: 0.3,
+      marginBottom: 3,
+    },
+    guestNameHelper: {
+      color: '#94a3b8',
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    guestInputRow: {
+      flexDirection: isWide ? 'row' : 'column',
+      gap: 12,
+      alignItems: 'stretch',
+    },
+    guestInputWrapper: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#1e293b',
+      borderWidth: 1.5,
+      borderColor: '#475569',
+      borderRadius: 12,
+      paddingHorizontal: 14,
+    },
+    guestInputWrapperError: {
+      borderColor: '#f87171',
+      backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    },
+    guestTextInput: {
+      flex: 1,
+      color: '#ffffff',
+      fontSize: 16,
+      paddingVertical: 12,
+    },
+    guestClearBtn: {
+      padding: 6,
+    },
+    guestClearText: {
+      color: '#94a3b8',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    startPlayingPrimaryBtn: {
+      backgroundColor: '#16a34a',
+      borderRadius: 12,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 8,
+      shadowColor: '#16a34a',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.35,
+      shadowRadius: 10,
+      elevation: 4,
+    },
+    startPlayingPrimaryBtnIcon: {
+      fontSize: 18,
+    },
+    startPlayingPrimaryBtnText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '900',
+      letterSpacing: 0.5,
+    },
+    validationErrorBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(239, 68, 68, 0.4)',
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      marginTop: 12,
+    },
+    validationErrorIcon: {
+      fontSize: 14,
+    },
+    validationErrorText: {
+      color: '#fca5a5',
+      fontSize: 13,
+      fontWeight: '600',
     },
 
     roundsBox: {

@@ -11,6 +11,16 @@ if (!fs.existsSync(indexPath)) {
 
 const templateHtml = fs.readFileSync(indexPath, 'utf-8');
 
+// Clean up legacy duplicate directories to save crawl budget
+const legacyDirs = ['7cards-least-', '7cards-least', 'rules', 'how-to-play', 'strategy', 'faq'];
+legacyDirs.forEach(dirName => {
+  const fullPath = path.join(distDir, dirName);
+  if (fs.existsSync(fullPath)) {
+    fs.rmSync(fullPath, { recursive: true, force: true });
+    console.log(`[SEO Prerender] Removed legacy duplicate directory: dist/${dirName}`);
+  }
+});
+
 const navHtml = `
   <nav aria-label="Quick Links" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 15px; text-align: center;">
     <a href="https://cards.gnanamai.com/" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Online</a> |
@@ -45,8 +55,7 @@ const routes = [
         {
           "@type": "WebApplication",
           "@id": "https://cards.gnanamai.com/#webapp",
-          "name": "7 Cards Game Online – 7 Cards & 7 Cards Least Free",
-          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7card game", "7cards game", "7 Cards Least", "Seven Cards Least"],
+          "name": "7 Cards Least",
           "url": "https://cards.gnanamai.com/",
           "description": "Play 7 Cards Least online for free. Track 7 cards least score live, discard matching sets and runs to achieve lowest hand points, and win against friends or AI.",
           "applicationCategory": "GameApplication",
@@ -68,9 +77,8 @@ const routes = [
           "@type": "WebSite",
           "@id": "https://cards.gnanamai.com/#website",
           "url": "https://cards.gnanamai.com/",
-          "name": "7 Cards Game",
-          "alternateName": ["7 Cards Game", "7 Cards", "7cards", "7cards game"],
-          "description": "The Ultimate 7 Cards Game Online Multiplayer Experience",
+          "name": "7 Cards Least",
+          "description": "Play 7 Cards Least Online – Free real-time multiplayer card shedding game with friends or computer AI.",
           "publisher": {
             "@type": "Organization",
             "name": "7 Card Game",
@@ -216,20 +224,6 @@ const routes = [
         ${navHtml}
       </article>
     `
-  },
-  {
-    path: '/7cards-least',
-    dir: path.join(distDir, '7cards-least'),
-    title: '7 Cards Least Game Online – Official Guide & Portal',
-    canonical: 'https://cards.gnanamai.com/7-cards-least',
-    redirect: true
-  },
-  {
-    path: '/7cards-least-',
-    dir: path.join(distDir, '7cards-least-'),
-    title: '7 Cards Least Game Online – Official Guide & Portal',
-    canonical: 'https://cards.gnanamai.com/7-cards-least',
-    redirect: true
   },
   {
     path: '/7-cards-least/rules',
@@ -715,34 +709,6 @@ const routes = [
     `
   },
   {
-    path: '/rules',
-    dir: path.join(distDir, 'rules'),
-    title: '7 Cards Least Official Rules & Scoring Guide (Ace=1, Face=10, Jokers=0)',
-    canonical: 'https://cards.gnanamai.com/7-cards-least/rules',
-    redirect: true
-  },
-  {
-    path: '/how-to-play',
-    dir: path.join(distDir, 'how-to-play'),
-    title: 'How to Play 7 Cards Least – Complete Step-by-Step Guide',
-    canonical: 'https://cards.gnanamai.com/7-cards-least/how-to-play',
-    redirect: true
-  },
-  {
-    path: '/strategy',
-    dir: path.join(distDir, 'strategy'),
-    title: '7 Cards Least Strategy – Tips & Tactics to Win More Matches',
-    canonical: 'https://cards.gnanamai.com/7-cards-least/strategy',
-    redirect: true
-  },
-  {
-    path: '/faq',
-    dir: path.join(distDir, 'faq'),
-    title: '7 Cards Least FAQ – Frequently Asked Questions & Answers',
-    canonical: 'https://cards.gnanamai.com/7-cards-least/faq',
-    redirect: true
-  },
-  {
     path: '/multiplayer',
     dir: path.join(distDir, 'multiplayer'),
     title: 'Play 7 Cards Least Online Free – Multiplayer Card Game With Friends',
@@ -1125,11 +1091,11 @@ routes.forEach(route => {
     </article>
   `;
 
-  // Inject route-specific semantic HTML into <noscript> for fallback non-JS crawlers
+  // Clean, lightweight <noscript> fallback that does not duplicate the real DOM content
   const noscriptHtml = `
     <noscript>
-      <div style="padding: 24px; color: #ffffff; background-color: #062d12; font-family: sans-serif; max-width: 900px; margin: 0 auto; text-align: left;">
-        ${bodyContent}
+      <div style="padding: 20px; color: #ffffff; background-color: #062d12; font-family: sans-serif; text-align: center;">
+        <p style="margin: 0; font-size: 15px;">JavaScript is required to play 7 Cards Least online. Please enable JavaScript in your browser settings.</p>
       </div>
     </noscript>`;
 
@@ -1145,7 +1111,7 @@ routes.forEach(route => {
         <header style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: center;">
           <img src="/logo-badge.png" style="width: 76px; height: 76px; margin-bottom: 12px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));" alt="7 Cards Least Logo" />
           <div style="width: 28px; height: 28px; border: 3px solid rgba(56, 189, 248, 0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-          <p style="color: #34d399; font-weight: 700; margin-top: 10px; font-size: 14px; letter-spacing: 0.5px;">Loading 7 Cards Least...</p>
+          <p style="color: #34d399; font-weight: 700; margin-top: 10px; font-size: 14px; letter-spacing: 0.5px;">Free Online Card Shedding Game</p>
         </header>
 
         <section id="prerendered-content" style="width: 100%; max-width: 900px; text-align: left; margin: 0 auto;">

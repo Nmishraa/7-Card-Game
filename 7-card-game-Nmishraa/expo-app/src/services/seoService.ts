@@ -103,17 +103,18 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     h1: "7 Cards Least Score Calculator",
   },
   notFound: {
-    title: "Page Not Found – 7 Cards Game",
-    description: "The requested card room or page was not found. Return to 7 Cards Game home, how to play guide, or rules.",
-    canonical: "https://cards.gnanamai.com/404",
-    h1: "Page Not Found",
+    title: "404 Page Not Found – 7 Cards Least",
+    description: "The requested card room or page was not found. Return to 7 Cards Least home, how to play guide, or rules.",
+    canonical: "",
+    h1: "404 Page Not Found",
   }
 };
 
 export function updatePageSeo(routeKey: string) {
   if (typeof document === 'undefined') return;
 
-  const config = SEO_CONFIGS[routeKey] || SEO_CONFIGS.home;
+  const is404 = routeKey === 'notFound';
+  const config = is404 ? SEO_CONFIGS.notFound : (SEO_CONFIGS[routeKey] || SEO_CONFIGS.home);
 
   // Title
   document.title = config.title;
@@ -129,13 +130,22 @@ export function updatePageSeo(routeKey: string) {
     el.setAttribute('content', content);
   };
 
+  // Meta Robots - Crucial: Noindex on 404 to completely eliminate Soft 404 penalties
+  if (is404) {
+    setMetaTag('meta[name="robots"]', 'name', 'robots', 'noindex, nofollow');
+  } else {
+    setMetaTag('meta[name="robots"]', 'name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+  }
+
   // Meta Description
   setMetaTag('meta[name="description"]', 'name', 'description', config.description);
 
   // Open Graph
   setMetaTag('meta[property="og:title"]', 'property', 'og:title', config.title);
   setMetaTag('meta[property="og:description"]', 'property', 'og:description', config.description);
-  setMetaTag('meta[property="og:url"]', 'property', 'og:url', config.canonical);
+  if (config.canonical) {
+    setMetaTag('meta[property="og:url"]', 'property', 'og:url', config.canonical);
+  }
 
   // Twitter
   setMetaTag('meta[name="twitter:title"]', 'name', 'twitter:title', config.title);
@@ -143,10 +153,14 @@ export function updatePageSeo(routeKey: string) {
 
   // Canonical Link
   let canonicalEl = document.querySelector('link[rel="canonical"]');
-  if (!canonicalEl) {
-    canonicalEl = document.createElement('link');
-    canonicalEl.setAttribute('rel', 'canonical');
-    document.head.appendChild(canonicalEl);
+  if (is404) {
+    if (canonicalEl) canonicalEl.remove();
+  } else {
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link');
+      canonicalEl.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalEl);
+    }
+    canonicalEl.setAttribute('href', config.canonical);
   }
-  canonicalEl.setAttribute('href', config.canonical);
 }

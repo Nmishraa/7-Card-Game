@@ -19,6 +19,14 @@ const filesToUpload = [
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/components/SeoLink.tsx'
   },
   {
+    local: path.join(__dirname, '../src/components/HomeSeoArticle.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/components/HomeSeoArticle.tsx'
+  },
+  {
+    local: path.join(__dirname, '../public/tiktok_preview.html'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/public/tiktok_preview.html'
+  },
+  {
     local: path.join(__dirname, '../src/screens/HomeScreen.tsx'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/HomeScreen.tsx'
   },
@@ -253,25 +261,13 @@ async function run() {
     `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && npm run build`
   );
 
-  console.log('\n[Restarting server on port 5004]...');
+  console.log('\n[Restarting server on port 5004 with PM2]...');
   await execCommand(
     conn,
-    `fuser -k 5004/tcp || pkill -f "node start-server.js" || true`
+    `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && /usr/local/bin/pm2 delete cards-server || true && PORT=5004 /usr/local/bin/pm2 start start-server.js --name "cards-server" && /usr/local/bin/pm2 save`
   );
 
-  // Fire-and-forget: the detached server can keep the SSH channel open,
-  // so don't wait for 'close' — give it a few seconds, then move on.
-  await new Promise((resolve, reject) => {
-    const cmd = `cd /home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/server && PORT=5004 setsid nohup node start-server.js > server.log 2>&1 < /dev/null & disown`;
-    console.log(`\n[SSH Exec (detached)]: ${cmd}`);
-    conn.exec(cmd, (err, stream) => {
-      if (err) return reject(err);
-      stream.on('data', () => {}).stderr.on('data', () => {});
-      setTimeout(() => { try { stream.close(); } catch (_) {} resolve(); }, 3000);
-    });
-  });
-
-  await new Promise((r) => setTimeout(r, 4000));
+  await new Promise((r) => setTimeout(r, 3000));
 
   console.log('\n[Testing Health Check]');
   await execCommand(conn, `curl -s http://localhost:5004/health`);

@@ -77,10 +77,26 @@ export default function App() {
 
   const [user, setUser] = useState<AppUser | null>(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const saved = window.localStorage.getItem('7card_game_user');
-      if (saved) {
-        try { return JSON.parse(saved); } catch (e) {}
-      }
+      try {
+        const saved = window.localStorage.getItem('7card_game_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.displayName) return parsed;
+        }
+      } catch (e) {}
+
+      try {
+        const savedGuestName = window.localStorage.getItem('7card_guest_name');
+        if (savedGuestName && savedGuestName.trim()) {
+          const guestUid = window.localStorage.getItem('7card_guest_uid') || ('guest_' + Math.random().toString(36).substring(2, 9));
+          window.localStorage.setItem('7card_guest_uid', guestUid);
+          return {
+            uid: guestUid,
+            displayName: savedGuestName.trim(),
+            isAnonymous: true,
+          };
+        }
+      } catch (e) {}
     }
     return null;
   });
@@ -163,20 +179,24 @@ export default function App() {
     const targetRoom = params.get('room') || params.get('join');
     if (targetRoom && targetRoom.length === 4) {
       const cleanCode = targetRoom.toUpperCase();
-      let activeUser = user;
-      const pName = activeUser ? activeUser.displayName : 'Guest ' + Math.floor(Math.random() * 900 + 100);
-      
-      // If user is guest/null, auto login guest
-      if (!activeUser) {
-        activeUser = {
-          uid: 'guest_' + Math.random().toString(36).substring(2, 9),
-          displayName: pName,
-          isAnonymous: true,
-        };
-        setUser(activeUser);
+      const savedName = (typeof window !== 'undefined' && window.localStorage)
+        ? window.localStorage.getItem('7card_guest_name')
+        : null;
+      const knownName = user?.displayName || savedName;
+      if (knownName && knownName.trim() && knownName !== 'Player' && !knownName.startsWith('Guest ')) {
+        let activeUser = user;
+        if (!activeUser) {
+          const guestUid = (typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('7card_guest_uid') : null) || ('guest_' + Math.random().toString(36).substring(2, 9));
+          activeUser = {
+            uid: guestUid,
+            displayName: knownName.trim(),
+            isAnonymous: true,
+          };
+          setUser(activeUser);
+        }
+        handleJoinRoom(knownName.trim(), cleanCode, activeUser);
       }
-      
-      handleJoinRoom(pName, cleanCode, activeUser);
+      // If no name chosen yet, HomeScreen displays invite notice and allows entering display name before joining
     }
   }, []);
 
@@ -373,24 +393,61 @@ export default function App() {
     setUser(null);
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem('7card_game_user');
+      window.localStorage.removeItem('7card_guest_name');
     }
     setCurrentRoom(null);
     setRoomId(null);
-    if (isEmbeddedGame()) {
-      setScreen('home');
-    } else {
-      setScreen('auth');
+    setScreen('home');
+  };
+
+  const handleUpdateGuestName = (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    const guestUid = user?.uid || (typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('7card_guest_uid') : null) || ('guest_' + Math.random().toString(36).substring(2, 9));
+    const updatedUser: AppUser = {
+      uid: guestUid,
+      displayName: trimmed,
+      isAnonymous: true,
+    };
+    setUser(updatedUser);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('7card_guest_uid', guestUid);
+      window.localStorage.setItem('7card_guest_name', trimmed);
+      window.localStorage.setItem('7card_game_user', JSON.stringify(updatedUser));
     }
   };
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const getOrCreateUser = (playerName?: string): AppUser => {
-    if (user) return user;
+    const cleanName = playerName?.trim();
+    if (user) {
+      if (cleanName && cleanName !== user.displayName) {
+        const updated = { ...user, displayName: cleanName };
+        setUser(updated);
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('7card_game_user', JSON.stringify(updated));
+          window.localStorage.setItem('7card_guest_name', cleanName);
+        }
+        return updated;
+      }
+      return user;
+    }
+
+    const savedUid = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem('7card_guest_uid') : null;
+    const uid = savedUid || ('guest_' + Math.random().toString(36).substring(2, 9));
+    const savedName = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem('7card_guest_name') : null;
+    const finalName = cleanName || savedName || 'Player';
+
     const guest: AppUser = {
-      uid: 'guest_' + Math.random().toString(36).substring(2, 9),
-      displayName: playerName?.trim() || 'Guest Player',
+      uid,
+      displayName: finalName,
       isAnonymous: true,
     };
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('7card_guest_uid', uid);
+      window.localStorage.setItem('7card_guest_name', finalName);
+      window.localStorage.setItem('7card_game_user', JSON.stringify(guest));
+    }
     setUser(guest);
     return guest;
   };
@@ -825,9 +882,9 @@ export default function App() {
   // ── Render Dedicated Pages & Screens ─────────────────────────────────────────
 
   const renderContent = () => {
-    // 0. If screen is 'auth', render LoginScreen
+    // 0. Disable 'auth' screen in normal flow - keep visitors in public guest mode
     if (screen === 'auth') {
-      return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+      setScreen('home');
     }
 
     // 1. If user is in an active game room or lobby, render GameScreen or LobbyScreen
@@ -884,10 +941,9 @@ export default function App() {
                 setCurrentRoom(null);
                 if (user) {
                   handleCreateRoom(user.displayName);
-                } else if (isEmbeddedGame()) {
-                  handleCreateRoom('Player');
                 } else {
-                  setScreen('auth');
+                  const savedName = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem('7card_guest_name') : null;
+                  handleCreateRoom(savedName || 'Player');
                 }
               }}
               activeOpacity={0.8}
@@ -900,7 +956,7 @@ export default function App() {
     }
 
     // 2. SEO Content Routes
-    if (currentPath === '/7-cards-least' || currentPath === '/7cards-least' || currentPath === '/7cards-least-') {
+    if (currentPath === '/7-cards-least' || currentPath === '/7cards-least') {
       return <SevenCardsLeastMainPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
@@ -952,7 +1008,6 @@ export default function App() {
       '/',
       '/7-cards-least',
       '/7cards-least',
-      '/7cards-least-',
       '/7-cards-least/rules',
       '/7-cards-least/how-to-play',
       '/7-cards-least/strategy',
@@ -978,17 +1033,19 @@ export default function App() {
     }
 
     // Default: Main Home Screen
+    const guestSavedName = (typeof window !== 'undefined' && window.localStorage)
+      ? window.localStorage.getItem('7card_guest_name')
+      : null;
+    const currentDisplayName = user ? user.displayName : (guestSavedName || '');
+
     return (
       <HomeScreen
-        userName={user ? user.displayName : 'Player'}
+        userName={currentDisplayName}
         userId={user ? user.uid : ''}
         userEmail={user?.email}
         userPhoto={user?.photoURL}
-        onLogout={user ? handleLogout : () => {
-          if (!isEmbeddedGame()) {
-            setScreen('auth');
-          }
-        }}
+        onLogout={handleLogout}
+        onUpdateGuestName={handleUpdateGuestName}
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
         onPlayWithComputer={handlePlayWithComputer}
