@@ -1,5 +1,7 @@
 # 7 Card Game
 
+> 🎮 **Play Live Online**: [https://cards.gnanamai.com/](https://cards.gnanamai.com/)
+
 A modern, interactive multiplayer 7 Card Game built with Expo (React Native) for the frontend, Node.js & TypeScript for the backend server, and Firebase for real-time multiplayer syncing, authentication, and hosting.
 
 This repository is ready to be uploaded to GitHub for **Nmishraa**.
