@@ -3,3 +3,7 @@ node_modules/
 .DS_Store
 *.log
 .env
+test-*.js
+*.png
+indexing-dashboard.html
+indexing-report.json

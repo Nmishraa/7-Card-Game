@@ -436,15 +436,15 @@ export const handleTurnTimeout = (room: GameRoom, playerId: string): GameRoom =>
 
   const player = room.players[playerId];
   if (!player || player.isOut) return room;
-  if (!player.hand || player.hand.length === 0) {
-    // Empty hand (e.g. whole hand dropped on a match) scores 0 – auto-call LEAST instead of stalling.
-    return room.turnPhase === 'discarding' ? callLeast(room, playerId) : room;
-  }
 
   let state = { ...room };
   const now = Date.now();
 
   if (state.turnPhase === 'discarding') {
+    if (!player.hand || player.hand.length === 0) {
+      // Empty hand (e.g. whole hand dropped on a match) scores 0 – auto-call LEAST instead of stalling.
+      return callLeast(room, playerId);
+    }
     const cardToDiscard = player.hand[0];
     logTurnDiagnostic('DISCARD_ACTION', state, { playerId, reason: 'timeout_autodiscard' });
     state = playTurn(state, playerId, [cardToDiscard.id]);
@@ -615,13 +615,10 @@ export const botPlayTurn = (room: GameRoom, botId: string): GameRoom => {
   let currentState = { ...room };
   const bot = currentState.players[botId];
   if (!bot) return room;
-  if (!bot.hand || bot.hand.length === 0) {
-    return currentState.turnPhase === 'discarding' ? callLeast(currentState, botId) : room;
-  }
 
   // 1. Perform Discard Phase
   if (currentState.turnPhase === 'discarding') {
-    if (bot.roundScore <= 10) {
+    if (!bot.hand || bot.hand.length === 0 || bot.roundScore <= 10) {
       return callLeast(currentState, botId);
     }
 

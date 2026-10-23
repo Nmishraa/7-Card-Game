@@ -30,7 +30,7 @@ export const HomeSeoArticle: React.FC<Props> = ({ onNavigate }) => {
         </Text>
 
         <Text style={styles.paragraph}>
-          Welcome to <Text style={styles.bold}>7 Cards Least Online</Text> on cards.gnanamai.com! 7 Cards Least (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced shedding card game played with 7 cards dealt to each player. Unlike traditional card games where accumulating high points leads to victory, the core objective of 7 Cards Least is to achieve the <Text style={styles.italic}>lowest cumulative hand score</Text> across rounds by discarding high-value cards, forming matching rank sets or suited runs, and declaring <Text style={styles.boldGreen}>LEAST!</Text> when your hand total drops to 10 points or less.
+          Welcome to <Text style={styles.bold}>7 Cards Least</Text>! Play real-time multiplayer with friends or practice solo against computer AI. The objective is to achieve the <Text style={styles.italic}>lowest hand score</Text> by discarding high-value cards, forming sets or suited runs, and declaring <Text style={styles.boldGreen}>LEAST!</Text> when your hand total drops to 10 points or less.
         </Text>
 
         {/* Section 1: Scoring */}

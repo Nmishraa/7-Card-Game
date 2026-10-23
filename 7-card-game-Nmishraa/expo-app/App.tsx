@@ -24,6 +24,9 @@ import { DemoScreen } from './src/screens/DemoScreen';
 import { DailyChallengePage } from './src/screens/DailyChallengePage';
 import { StrategyLabPage } from './src/screens/StrategyLabPage';
 import { ScoreCalculatorPage } from './src/screens/ScoreCalculatorPage';
+import { PrivacyPage } from './src/screens/PrivacyPage';
+import { AboutPage } from './src/screens/AboutPage';
+import { ContactPage } from './src/screens/ContactPage';
 import { GameRoom, Player } from './src/engine/types';
 import {
   startRound, playTurn, drawCard, callLeast, botPlayTurn, getSequenceValue, sortHand, handleTurnTimeout, checkRoomExpiration
@@ -1004,6 +1007,18 @@ export default function App() {
       return <ScoreCalculatorPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
     }
 
+    if (currentPath === '/privacy') {
+      return <PrivacyPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
+    }
+
+    if (currentPath === '/about') {
+      return <AboutPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
+    }
+
+    if (currentPath === '/contact') {
+      return <ContactPage onNavigate={handleNavigate} user={user} onLogout={handleLogout} />;
+    }
+
     const validPaths = [
       '/',
       '/7-cards-least',
@@ -1025,6 +1040,9 @@ export default function App() {
       '/daily-challenge',
       '/strategy-lab',
       '/score-calculator',
+      '/privacy',
+      '/about',
+      '/contact',
       '/index.html'
     ];
 

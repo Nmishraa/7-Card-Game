@@ -36,12 +36,6 @@
     <meta name="twitter:image" content="https://cards.gnanamai.com/assets/logo.png" />
     <meta name="twitter:image:alt" content="7 Cards Least Game Online" />
 
-    <!-- Geo-Targeting Tags -->
-    <meta name="geo.region" content="US" />
-    <meta name="geo.placename" content="Global" />
-    <meta name="geo.position" content="37.7749;-122.4194" />
-    <meta name="ICBM" content="37.7749, -122.4194" />
-
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -78,7 +72,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WQS2TKE5H"></script>
 
     <!-- JSON-LD Structured Data Schema Graph for Google Rich Results & Star Ratings -->
-        <script type="application/ld+json">
+                    <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
@@ -203,6 +197,9 @@
 
   <body>
     
+    
+    
+    
     <noscript>
       <div style="padding: 20px; color: #ffffff; background-color: #062d12; font-family: sans-serif; text-align: center;">
         <p style="margin: 0; font-size: 15px;">JavaScript is required to play 7 Cards Least online. Please enable JavaScript in your browser settings.</p>
@@ -210,6 +207,9 @@
     </noscript>
 
     <!-- Initial Loading Screen (Replaced automatically when React mounts) -->
+    
+    
+    
     
     <div id="root">
       <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 24px 16px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-y: auto;">
@@ -253,6 +253,44 @@
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
           When your total hand sum drops to 10 points or lower, click <strong>LEAST!</strong> during your turn. Hands are revealed. If your score is strictly the lowest, you score 0 penalty points for the round!
         </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🃏 Worked Example: A Complete Turn-by-Turn Sample Round</h3>
+        <div style="background: rgba(2, 6, 23, 0.6); padding: 16px; border-radius: 10px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">1. Table Setup &amp; Dealing</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.<br />
+            • Table Setup Card: <strong style="color: #fbbf24;">4♥</strong> is flipped. (All four 4s are Table Jokers = 0 pts!)<br />
+            • Discard Pile Starter: <strong style="color: #ffffff;">8♣</strong> is flipped face-up.<br />
+            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+          </p>
+
+          <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">2. Turn 1 (Alice): High-Liability Discard</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.<br />
+            • Draw: Alice draws 2♦ (2 pts) from the face-down deck.<br />
+            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+          </p>
+
+          <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">3. Turn 2 (Bob): Tactical Match &amp; Skip</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Bob holds K♥. Since top discard is K♠, Bob drops K♥ onto the pile!<br />
+            • <strong style="color: #38bdf8;">Match &amp; Skip Triggers:</strong> Bob's discard rank matches the pile top! Bob skips drawing. His hand permanently drops from 7 cards down to 6 cards.
+          </p>
+
+          <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">4. Turn 4 (Alice): Multi-Card Pair Shedding</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).<br />
+            • Alice draws 3♣ (3 pts) from the deck.<br />
+            • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <strong style="color: #34d399;">Total 6 points!</strong>
+          </p>
+
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. The Victory Declaration &amp; Hand Reveal</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+            • On her next turn, Alice's hand is ≤ 10 points. She taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
+            • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.<br />
+            • Outcome: Alice strictly holds the lowest score! Alice scores <strong style="color: #34d399;">0 penalty points</strong>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
+          </p>
+        </div>
         
   <nav aria-label="Quick Links" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 15px; text-align: center;">
     <a href="https://cards.gnanamai.com/" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Online</a> |
@@ -260,12 +298,10 @@
     <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Official Rules</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">How to Play</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy &amp; Tips</a> |
-    <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Multiplayer Mode</a> |
-    <a href="https://cards.gnanamai.com/daily-challenge" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Daily Challenge</a> |
-    <a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy Lab</a> |
-    <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Score Calculator</a> |
-    <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Against AI</a> |
-    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a>
+    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a> |
+    <a href="https://cards.gnanamai.com/about" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">About</a> |
+    <a href="https://cards.gnanamai.com/contact" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Contact</a> |
+    <a href="https://cards.gnanamai.com/privacy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Privacy</a>
   </nav>
 
       </article>
@@ -292,7 +328,7 @@
         <div style="flex: 1;">
           <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #ffffff;">Cookie &amp; Privacy Choices</h4>
           <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;">
-            We use strictly necessary cookies to keep you signed in and save your preferences. With your consent, we also use Google Analytics to measure site performance and game stability. Read our <a href="javascript:void(0)" id="link-open-privacy" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
+            We use strictly necessary cookies to keep you signed in and save your preferences. With your consent, we also use Google Analytics to measure site performance and game stability. Read our <a href="/privacy" id="link-open-privacy" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
           </p>
         </div>
       </div>

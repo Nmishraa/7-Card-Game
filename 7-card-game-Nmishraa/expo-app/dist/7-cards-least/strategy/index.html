@@ -36,12 +36,6 @@
     <meta name="twitter:image" content="https://cards.gnanamai.com/assets/logo.png" />
     <meta name="twitter:image:alt" content="7 Cards Least Game Online" />
 
-    <!-- Geo-Targeting Tags -->
-    <meta name="geo.region" content="US" />
-    <meta name="geo.placename" content="Global" />
-    <meta name="geo.position" content="37.7749;-122.4194" />
-    <meta name="ICBM" content="37.7749, -122.4194" />
-
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -78,7 +72,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WQS2TKE5H"></script>
 
     <!-- JSON-LD Structured Data Schema Graph for Google Rich Results & Star Ratings -->
-        <script type="application/ld+json">
+                    <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
@@ -184,6 +178,9 @@
 
   <body>
     
+    
+    
+    
     <noscript>
       <div style="padding: 20px; color: #ffffff; background-color: #062d12; font-family: sans-serif; text-align: center;">
         <p style="margin: 0; font-size: 15px;">JavaScript is required to play 7 Cards Least online. Please enable JavaScript in your browser settings.</p>
@@ -191,6 +188,9 @@
     </noscript>
 
     <!-- Initial Loading Screen (Replaced automatically when React mounts) -->
+    
+    
+    
     
     <div id="root">
       <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 24px 16px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-y: auto;">
@@ -230,9 +230,41 @@
           When an opponent discards a card rank you also hold, drop your matching rank card to trigger Match &amp; Skip. Your turn ends without drawing, permanently reducing your hand size and accelerating your path to Least.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Safe Calling Windows &amp; 200-Point Survival</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Safe Calling Windows &amp; The "When to Call LEAST" Decision Matrix</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 14px;">
+          While the game permits declaring Least at 10 points or less, declaring at 8, 9 or 10 points carries high risk of suffering an 80-point penalty. Use this tested probability matrix:
+        </p>
+        <div style="overflow-x: auto; margin-bottom: 16px;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; color: #cbd5e1; background: rgba(2, 6, 23, 0.6); border-radius: 8px;">
+            <thead>
+              <tr style="border-bottom: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                <th style="padding: 8px 10px;">Hand Score</th>
+                <th style="padding: 8px 10px;">Win Rate</th>
+                <th style="padding: 8px 10px;">Action Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 8px 10px; font-weight: bold; color: #34d399;">0 to 3 Pts</td>
+                <td style="padding: 8px 10px; color: #34d399; font-weight: bold;">98% Win</td>
+                <td style="padding: 8px 10px;">Call LEAST immediately. Virtually impossible to beat.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 8px 10px; font-weight: bold; color: #fbbf24;">4 to 6 Pts</td>
+                <td style="padding: 8px 10px; color: #fbbf24; font-weight: bold;">75% Win</td>
+                <td style="padding: 8px 10px;">Safe call if opponents draw blind; hold if an opponent took a 2 or Ace.</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 10px; font-weight: bold; color: #ef4444;">7 to 10 Pts</td>
+                <td style="padding: 8px 10px; color: #ef4444; font-weight: bold;">35% Win</td>
+                <td style="padding: 8px 10px;">High Danger. Shed 1 more turn before calling to avoid the +80 penalty.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">6. Tournament &amp; 200-Point Survival Play</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Calling at 8 to 10 points is high-risk. Target hands between 0 and 4 points to guarantee victory and eliminate the risk of an 80-point penalty. In multi-round matches, preserve points when approaching the 200-point elimination limit.
+          In multi-round matches, players reaching 200 cumulative points are eliminated. If your score approaches 140+ points, prioritize survival and only call Least on near-zero hands to avoid an elimination blow.
         </p>
         
   <nav aria-label="Quick Links" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 15px; text-align: center;">
@@ -241,12 +273,10 @@
     <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Official Rules</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">How to Play</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy &amp; Tips</a> |
-    <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Multiplayer Mode</a> |
-    <a href="https://cards.gnanamai.com/daily-challenge" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Daily Challenge</a> |
-    <a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy Lab</a> |
-    <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Score Calculator</a> |
-    <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Against AI</a> |
-    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a>
+    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a> |
+    <a href="https://cards.gnanamai.com/about" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">About</a> |
+    <a href="https://cards.gnanamai.com/contact" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Contact</a> |
+    <a href="https://cards.gnanamai.com/privacy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Privacy</a>
   </nav>
 
       </article>
@@ -273,7 +303,7 @@
         <div style="flex: 1;">
           <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #ffffff;">Cookie &amp; Privacy Choices</h4>
           <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;">
-            We use strictly necessary cookies to keep you signed in and save your preferences. With your consent, we also use Google Analytics to measure site performance and game stability. Read our <a href="javascript:void(0)" id="link-open-privacy" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
+            We use strictly necessary cookies to keep you signed in and save your preferences. With your consent, we also use Google Analytics to measure site performance and game stability. Read our <a href="/privacy" id="link-open-privacy" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
           </p>
         </div>
       </div>

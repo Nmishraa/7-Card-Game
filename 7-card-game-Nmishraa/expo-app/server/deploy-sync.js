@@ -63,6 +63,18 @@ const filesToUpload = [
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/SevenCardsLeastFaqPage.tsx'
   },
   {
+    local: path.join(__dirname, '../src/screens/AboutPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/AboutPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/ContactPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/ContactPage.tsx'
+  },
+  {
+    local: path.join(__dirname, '../src/screens/PrivacyPage.tsx'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/PrivacyPage.tsx'
+  },
+  {
     local: path.join(__dirname, '../src/screens/PlayAgainstAiPage.tsx'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/screens/PlayAgainstAiPage.tsx'
   },
@@ -117,6 +129,10 @@ const filesToUpload = [
   {
     local: path.join(__dirname, '../src/engine/gameLogic.ts'),
     remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/engine/gameLogic.ts'
+  },
+  {
+    local: path.join(__dirname, '../src/engine/gameLogic.js'),
+    remote: '/home/neha_developer/7-Card-Game/7-card-game-Nmishraa/expo-app/src/engine/gameLogic.js'
   },
   {
     local: path.join(__dirname, '../src/services/seoService.ts'),

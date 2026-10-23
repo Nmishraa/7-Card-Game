@@ -69,6 +69,7 @@ if (fs.existsSync(webDistPath)) {
     '/how-to-play': '/7-cards-least/how-to-play',
     '/strategy': '/7-cards-least/strategy',
     '/faq': '/7-cards-least/faq',
+    '/variations': '/7-cards-least',
     '/7cards-least': '/7-cards-least',
     '/7cards-least-': '/7-cards-least',
     '/solo': '/play-against-ai',
@@ -136,6 +137,11 @@ if (fs.existsSync(webDistPath)) {
 
 app.use('/api/v1', v1Router);
 
+// SEO: Redirect /sitemap to /sitemap.xml
+app.get('/sitemap', (req, res) => {
+  res.redirect(301, '/sitemap.xml');
+});
+
 if (fs.existsSync(webDistPath)) {
   const validClientRoutes = new Set([
     '',
@@ -151,7 +157,9 @@ if (fs.existsSync(webDistPath)) {
     '/strategy-lab',
     '/score-calculator',
     '/demo',
-    '/variations'
+    '/privacy',
+    '/about',
+    '/contact'
   ]);
 
   app.use((req: Request, res: Response, next) => {

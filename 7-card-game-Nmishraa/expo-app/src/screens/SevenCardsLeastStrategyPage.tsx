@@ -102,15 +102,33 @@ export const SevenCardsLeastStrategyPage: React.FC<Props> = ({ onNavigate, user,
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>5. Safe "LEAST!" Score Thresholds &amp; Risk Management</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>5. Safe "LEAST!" Score Thresholds &amp; Decision Matrix</Text>
             <Text style={styles.bodyText}>
-              While the game permits declaring Least at 10 points or less, declaring at 9 or 10 points carries significant risk of incurring the <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>80-point penalty</Text>.
-              {'\n\n'}
-              <Text style={styles.boldText}>Calling Windows:</Text>
-              {'\n'}• <Text style={{ color: '#34d399', fontWeight: 'bold' }}>0 to 4 Points (Ultra Safe):</Text> {'>'}95% win probability. Declare immediately.
-              {'\n'}• <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>5 to 7 Points (Moderate Risk):</Text> Safe if opponents have drawn from the deck; risky if opponents picked low cards from the discard pile.
-              {'\n'}• <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>8 to 10 Points (High Risk):</Text> Only declare if you have verified that opponents are trapped holding un-discarded face cards.
+              While the game permits declaring Least at 10 points or less, declaring at 8, 9 or 10 points carries significant risk of incurring the <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>80-point penalty</Text>. Use this tested probability matrix:
             </Text>
+
+            <View style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', borderRadius: 10, padding: 10, marginTop: 12, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)' }}>
+              <View style={{ flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: 'rgba(56, 189, 248, 0.5)', paddingBottom: 8 }}>
+                <Text style={{ flex: 1.2, color: '#38bdf8', fontWeight: 'bold', fontSize: 13 }}>Hand Score</Text>
+                <Text style={{ flex: 1, color: '#38bdf8', fontWeight: 'bold', fontSize: 13 }}>Win Rate</Text>
+                <Text style={{ flex: 2, color: '#38bdf8', fontWeight: 'bold', fontSize: 13 }}>Action Recommendation</Text>
+              </View>
+              <View style={{ flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' }}>
+                <Text style={{ flex: 1.2, color: '#34d399', fontWeight: 'bold', fontSize: 13 }}>0 to 3 Pts</Text>
+                <Text style={{ flex: 1, color: '#34d399', fontWeight: 'bold', fontSize: 13 }}>98% Win</Text>
+                <Text style={{ flex: 2, color: '#cbd5e1', fontSize: 12 }}>Call LEAST immediately. Virtually impossible to lose.</Text>
+              </View>
+              <View style={{ flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' }}>
+                <Text style={{ flex: 1.2, color: '#fbbf24', fontWeight: 'bold', fontSize: 13 }}>4 to 6 Pts</Text>
+                <Text style={{ flex: 1, color: '#fbbf24', fontWeight: 'bold', fontSize: 13 }}>75% Win</Text>
+                <Text style={{ flex: 2, color: '#cbd5e1', fontSize: 12 }}>Call if opponents are drawing blind; hold if an opponent took a 2 or Ace.</Text>
+              </View>
+              <View style={{ flexDirection: 'row', paddingVertical: 8 }}>
+                <Text style={{ flex: 1.2, color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>7 to 10 Pts</Text>
+                <Text style={{ flex: 1, color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>35% Win</Text>
+                <Text style={{ flex: 2, color: '#cbd5e1', fontSize: 12 }}>High Danger. Discard 1 more turn before calling to avoid +80 penalty.</Text>
+              </View>
+            </View>
           </View>
 
           <View style={styles.cardSection}>

@@ -283,6 +283,7 @@ export const LobbyScreen: React.FC<Props> = ({ room, userId, onLeaveRoom, onStar
                   </TouchableOpacity>
 
                   <TouchableOpacity 
+                    testID="start-game-btn"
                     style={[styles.button, styles.startButton]} 
                     onPress={onStartGame}
                   >

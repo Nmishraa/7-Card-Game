@@ -9,7 +9,15 @@ if (!fs.existsSync(indexPath)) {
   process.exit(1);
 }
 
-const templateHtml = fs.readFileSync(indexPath, 'utf-8');
+let templateHtml = fs.readFileSync(indexPath, 'utf-8');
+
+// Defensively strip legacy geo-targeting tags from template
+templateHtml = templateHtml.replace(/<!-- Geo-Targeting Tags -->[\s\S]*?<meta name="ICBM" content="[^"]*" \/>\s*/gi, '');
+templateHtml = templateHtml.replace(/<meta name="geo\.[^"]+" content="[^"]*" \/>\s*/gi, '');
+templateHtml = templateHtml.replace(/<meta name="ICBM" content="[^"]*" \/>\s*/gi, '');
+
+// Ensure cookie banner links to /privacy instead of javascript:void(0)
+templateHtml = templateHtml.replace(/href="javascript:void\(0\)" id="link-open-privacy"/gi, 'href="/privacy" id="link-open-privacy"');
 
 // Clean up legacy duplicate directories to save crawl budget
 const legacyDirs = ['7cards-least-', '7cards-least', 'rules', 'how-to-play', 'strategy', 'faq'];
@@ -28,12 +36,10 @@ const navHtml = `
     <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Official Rules</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">How to Play</a> |
     <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy &amp; Tips</a> |
-    <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Multiplayer Mode</a> |
-    <a href="https://cards.gnanamai.com/daily-challenge" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Daily Challenge</a> |
-    <a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Strategy Lab</a> |
-    <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Score Calculator</a> |
-    <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">Play Against AI</a> |
-    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a>
+    <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; margin: 0 8px; text-decoration: none; font-weight: bold;">FAQ</a> |
+    <a href="https://cards.gnanamai.com/about" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">About</a> |
+    <a href="https://cards.gnanamai.com/contact" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Contact</a> |
+    <a href="https://cards.gnanamai.com/privacy" style="color: #38bdf8; margin: 0 8px; text-decoration: none;">Privacy</a>
   </nav>
 `;
 
@@ -101,7 +107,7 @@ const routes = [
         <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">The ultimate online portal for 7 Cards Least rules, strategy, and real-time multiplayer card games.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          Welcome to <strong>7 Cards Least Online</strong> on cards.gnanamai.com! 7 Cards Least (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced shedding card game played with 7 cards dealt to each player. Unlike traditional card games where accumulating high points leads to victory, the core objective of 7 Cards Least is to achieve the <em>lowest cumulative hand score</em> across rounds by discarding high-value cards, forming matching rank sets or suited runs, and declaring <strong>LEAST!</strong> when your hand total drops to 10 points or less.
+          Welcome to <strong>7 Cards Least Online</strong> on cards.gnanamai.com! 7 Cards Least is a fast-paced card shedding game played with 7 cards dealt to each player. Unlike traditional card games where accumulating high points leads to victory, the core objective of 7 Cards Least is to achieve the <em>lowest cumulative hand score</em> across rounds by discarding high-value cards, forming matching rank sets or suited runs, and declaring <strong>LEAST!</strong> when your hand total drops to 10 points or less.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 Card Point Values &amp; Scoring Overview</h3>
@@ -280,7 +286,7 @@ const routes = [
         <div style="background: rgba(56, 189, 248, 0.08); border: 2px solid #38bdf8; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
           <h3 style="font-size: 1.2rem; color: #38bdf8; margin: 0 0 10px; font-weight: bold;">⚡ What is 7 Cards Least? (Quick Summary)</h3>
           <p style="color: #f1f5f9; line-height: 1.7; font-size: 0.98rem; margin: 0 0 14px;">
-            <strong>7 Cards Least</strong> (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <strong>lowest cumulative hand point total</strong> by discarding high-value face cards (10 points each), building matched sets or suited runs, and calling <em>"LEAST!"</em> when your hand total drops to 10 points or fewer.
+            <strong>7 Cards Least</strong> is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <strong>lowest cumulative hand point total</strong> by discarding high-value face cards (10 points each), building matched sets or suited runs, and calling <em>"LEAST!"</em> when your hand total drops to 10 points or fewer.
           </p>
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; color: #cbd5e1;">
@@ -357,7 +363,26 @@ const routes = [
           <strong>Scenario B – False Call (80-Point Penalty):</strong> Caller declares Least with 7 points, but an opponent holds 5 points! Because the caller did not strictly beat every opponent, the caller incurs the <strong>80-point penalty</strong>.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Additional Guides &amp; Resources</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. 3 Common Scoring Mistakes &amp; How to Avoid Them</h3>
+        <div style="background: rgba(2, 6, 23, 0.6); padding: 16px; border-radius: 10px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">Mistake 1: Calling LEAST with a Tie</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • <em>Example:</em> You declare LEAST with 6 points. An opponent also reveals 6 points.<br />
+            • <strong>The Rule:</strong> The caller must strictly beat all opponents. In a tie, the caller receives the full <strong>+80 point penalty</strong>, while the opponent earns 0 points!
+          </p>
+          <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">Mistake 2: Face Card Valuation Assumptions</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • <em>Example:</em> Holding Jack, Queen, and King.<br />
+            • <strong>The Rule:</strong> Jacks, Queens, and Kings each count as flat 10 points (not 11, 12, 13). They represent instant liability and should be dumped in pairs or singles early.
+          </p>
+          <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">Mistake 3: King-Ace Wrapping in Runs</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+            • <em>Example:</em> Attempting to play Q♠-K♠-A♠.<br />
+            • <strong>The Rule:</strong> Aces are strictly low cards worth 1 point. Suited runs can run A-2-3-4, but King-Ace wrapping is illegal.
+          </p>
+        </div>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">6. Additional Guides &amp; Resources</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
           Learn more with our <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">step-by-step how to play walkthrough</a>, study <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">winning card shedding strategies</a>, test your skills in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">online multiplayer</a>, practice against <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">computer AI bots</a>, or read the <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">7 Cards Least FAQ</a>.
         </p>
@@ -463,6 +488,44 @@ const routes = [
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
           When your total hand sum drops to 10 points or lower, click <strong>LEAST!</strong> during your turn. Hands are revealed. If your score is strictly the lowest, you score 0 penalty points for the round!
         </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🃏 Worked Example: A Complete Turn-by-Turn Sample Round</h3>
+        <div style="background: rgba(2, 6, 23, 0.6); padding: 16px; border-radius: 10px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">1. Table Setup &amp; Dealing</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.<br />
+            • Table Setup Card: <strong style="color: #fbbf24;">4♥</strong> is flipped. (All four 4s are Table Jokers = 0 pts!)<br />
+            • Discard Pile Starter: <strong style="color: #ffffff;">8♣</strong> is flipped face-up.<br />
+            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+          </p>
+
+          <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">2. Turn 1 (Alice): High-Liability Discard</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.<br />
+            • Draw: Alice draws 2♦ (2 pts) from the face-down deck.<br />
+            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+          </p>
+
+          <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">3. Turn 2 (Bob): Tactical Match &amp; Skip</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Bob holds K♥. Since top discard is K♠, Bob drops K♥ onto the pile!<br />
+            • <strong style="color: #38bdf8;">Match &amp; Skip Triggers:</strong> Bob's discard rank matches the pile top! Bob skips drawing. His hand permanently drops from 7 cards down to 6 cards.
+          </p>
+
+          <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">4. Turn 4 (Alice): Multi-Card Pair Shedding</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
+            • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).<br />
+            • Alice draws 3♣ (3 pts) from the deck.<br />
+            • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <strong style="color: #34d399;">Total 6 points!</strong>
+          </p>
+
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. The Victory Declaration &amp; Hand Reveal</p>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+            • On her next turn, Alice's hand is ≤ 10 points. She taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
+            • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.<br />
+            • Outcome: Alice strictly holds the lowest score! Alice scores <strong style="color: #34d399;">0 penalty points</strong>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
+          </p>
+        </div>
         ${navHtml}
       </article>
     `
@@ -542,9 +605,41 @@ const routes = [
           When an opponent discards a card rank you also hold, drop your matching rank card to trigger Match &amp; Skip. Your turn ends without drawing, permanently reducing your hand size and accelerating your path to Least.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Safe Calling Windows &amp; 200-Point Survival</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">5. Safe Calling Windows &amp; The "When to Call LEAST" Decision Matrix</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 14px;">
+          While the game permits declaring Least at 10 points or less, declaring at 8, 9 or 10 points carries high risk of suffering an 80-point penalty. Use this tested probability matrix:
+        </p>
+        <div style="overflow-x: auto; margin-bottom: 16px;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; color: #cbd5e1; background: rgba(2, 6, 23, 0.6); border-radius: 8px;">
+            <thead>
+              <tr style="border-bottom: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                <th style="padding: 8px 10px;">Hand Score</th>
+                <th style="padding: 8px 10px;">Win Rate</th>
+                <th style="padding: 8px 10px;">Action Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 8px 10px; font-weight: bold; color: #34d399;">0 to 3 Pts</td>
+                <td style="padding: 8px 10px; color: #34d399; font-weight: bold;">98% Win</td>
+                <td style="padding: 8px 10px;">Call LEAST immediately. Virtually impossible to beat.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 8px 10px; font-weight: bold; color: #fbbf24;">4 to 6 Pts</td>
+                <td style="padding: 8px 10px; color: #fbbf24; font-weight: bold;">75% Win</td>
+                <td style="padding: 8px 10px;">Safe call if opponents draw blind; hold if an opponent took a 2 or Ace.</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 10px; font-weight: bold; color: #ef4444;">7 to 10 Pts</td>
+                <td style="padding: 8px 10px; color: #ef4444; font-weight: bold;">35% Win</td>
+                <td style="padding: 8px 10px;">High Danger. Shed 1 more turn before calling to avoid the +80 penalty.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">6. Tournament &amp; 200-Point Survival Play</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Calling at 8 to 10 points is high-risk. Target hands between 0 and 4 points to guarantee victory and eliminate the risk of an 80-point penalty. In multi-round matches, preserve points when approaching the 200-point elimination limit.
+          In multi-round matches, players reaching 200 cumulative points are eliminated. If your score approaches 140+ points, prioritize survival and only call Least on near-zero hands to avoid an elimination blow.
         </p>
         ${navHtml}
       </article>
@@ -714,6 +809,7 @@ const routes = [
     title: 'Play 7 Cards Least Online Free – Multiplayer Card Game With Friends',
     description: 'Play 7 Cards Least online for free with friends, family, or online players. Create private rooms, join with 4-digit codes, instant play in your browser with no download.',
     canonical: 'https://cards.gnanamai.com/multiplayer',
+    robots: 'noindex, follow',
     h1: 'Play 7 Cards Least Online Free – Multiplayer',
     h2: 'Create private rooms, invite friends via WhatsApp, or join instant online player tables.',
     breadcrumbs: [
@@ -776,6 +872,7 @@ const routes = [
     title: '7 Cards Least Against AI – Play Free Online',
     description: 'Play 7 Cards Least against computer AI bots online for free. Practice your card shedding strategy, test Joker plays, and play instant solo matches with zero wait.',
     canonical: 'https://cards.gnanamai.com/play-against-ai',
+    robots: 'noindex, follow',
     h1: '7 Cards Least Against Computer AI',
     h2: 'Practice your card shedding tactics singleplayer against smart computer bots.',
     breadcrumbs: [
@@ -838,6 +935,7 @@ const routes = [
     title: '7 Cards Game Demo – 45-Second Interactive Preview',
     description: 'Watch the 45-second animated gameplay preview of 7 Cards Least. See card dealing, discard strategy, LEAST calls, and table hand reveals in action.',
     canonical: 'https://cards.gnanamai.com/demo',
+    robots: 'noindex, follow',
     h1: '7 Cards Least 45-Second Gameplay Preview',
     h2: 'Watch animated dealing, card discards, LEAST calls, and winning hand reveals.',
     fullHtml: `
@@ -858,6 +956,7 @@ const routes = [
     title: '7 Cards Least Daily Challenge – Play Today\'s Puzzle Online',
     description: 'Play the official daily 7 Cards Least lowest-score challenge. Identical 7-card starting hands and joker wildcards for all players. Solve in 3 turns and share your score!',
     canonical: 'https://cards.gnanamai.com/daily-challenge',
+    robots: 'noindex, follow',
     h1: '7 Cards Least Daily Challenge',
     h2: 'Solve today\'s deterministic lowest-score puzzle with 3 strategic card-shedding turns.',
     breadcrumbs: [
@@ -919,6 +1018,7 @@ const routes = [
     title: '7 Cards Least Strategy Lab – Interactive Tactical Scenarios',
     description: 'Master 7 Cards Least with realistic interactive scenarios. Learn when to shed face cards, preserve pairs, break runs, and calculate 80-point penalty risks.',
     canonical: 'https://cards.gnanamai.com/strategy-lab',
+    robots: 'noindex, follow',
     h1: '7 Cards Least Interactive Strategy Lab',
     h2: 'Test real-game card decisions with instant strategic feedback, penalty risk evaluations, and optimal move analyses.',
     breadcrumbs: [
@@ -981,6 +1081,7 @@ const routes = [
     title: '7 Cards Least Score Calculator – Hand Points & Least Eligibility',
     description: 'Calculate your 7 Cards Least hand score instantly. Check wild Joker values, assess Least declaration eligibility (≤10 pts), and simulate discard strategies.',
     canonical: 'https://cards.gnanamai.com/score-calculator',
+    robots: 'noindex, follow',
     h1: '7 Cards Least Quick Score Calculator',
     h2: 'Instant card point evaluation, zero-point Joker calculation, and Least call eligibility checker.',
     breadcrumbs: [
@@ -1036,6 +1137,133 @@ const routes = [
         ${navHtml}
       </article>
     `
+  },
+  {
+    path: '/privacy',
+    dir: path.join(distDir, 'privacy'),
+    title: 'Privacy Policy – 7 Cards Least Online',
+    description: 'Official Privacy Policy for 7 Cards Least online at cards.gnanamai.com. Information on minimal data collection, cookies, Google Consent Mode v2, and player privacy rights.',
+    canonical: 'https://cards.gnanamai.com/privacy',
+    robots: 'index, follow',
+    h1: 'Privacy Policy',
+    h2: 'How we collect, protect, and handle data on cards.gnanamai.com.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://cards.gnanamai.com/privacy" }
+    ],
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">Privacy Policy</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">How we collect, protect, and handle data on cards.gnanamai.com.</h2>
+        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 16px;">Last Updated: October 22, 2026</p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">1. Introduction &amp; Data Controller</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          Welcome to 7 Cards Least (<strong>cards.gnanamai.com</strong>), operated by <strong>Gnanam AI</strong> (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). We respect your privacy and are committed to protecting personal data in compliance with the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and global privacy standards. For privacy inquiries, contact <strong>support@gnanamai.com</strong>.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">2. What Data We Collect</h3>
+        <ul style="line-height: 1.8; color: #cbd5e1; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong>Guest Identifiers:</strong> Randomly generated anonymous IDs and local display names stored in your browser.</li>
+          <li><strong>Optional Profile Data:</strong> Basic profile info (email, display name) if you choose to sign in via Google.</li>
+          <li><strong>Gameplay Diagnostics:</strong> Turn sequences, card discards, and scores transiently processed to synchronize game tables.</li>
+          <li><strong>Anonymous Analytics:</strong> Only collected with your explicit consent via Google Consent Mode v2.</li>
+        </ul>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">3. Cookies &amp; Tracking Choices</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          We utilize Google Consent Mode v2. Analytical cookies remain inactive until you explicitly click &quot;Accept All&quot; on our cookie banner.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">4. Your Rights</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          You can request access, correction, or deletion of any stored data by contacting our team at <a href="mailto:support@gnanamai.com" style="color: #38bdf8; text-decoration: underline;">support@gnanamai.com</a>.
+        </p>
+
+        ${navHtml}
+      </article>
+    `
+  },
+  {
+    path: '/about',
+    dir: path.join(distDir, 'about'),
+    title: 'About Us – 7 Cards Least Online',
+    description: 'Learn about 7 Cards Least on cards.gnanamai.com, developed by Gnanam AI. Our mission is to provide an authentic, instant, ad-free card gaming experience.',
+    canonical: 'https://cards.gnanamai.com/about',
+    robots: 'index, follow',
+    h1: 'About 7 Cards Least',
+    h2: 'Who runs cards.gnanamai.com, our story, and our commitment to fair card play.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "About Us", "item": "https://cards.gnanamai.com/about" }
+    ],
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">About 7 Cards Least</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Who runs cards.gnanamai.com, our story, and our commitment to fair card play.</h2>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">👋 Who Runs the Site</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          7 Cards Least (<strong>cards.gnanamai.com</strong>) is designed, developed, and maintained by <strong>Gnanam AI</strong>, an independent studio focused on building accessible, high-performance web software and digital card games.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎯 Why This Site Exists</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          7 Cards Least is a traditional shedding card game played by generations of card enthusiasts under names like Low Hand Rummy or Seven Cards Least. We built this platform so players anywhere can enjoy authentic matches with zero installation friction, no intrusive ads, and true turn-by-turn mechanics.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🛡️ Fair Play &amp; Modern Technology</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          The game engine runs on deterministic card shuffling, verified turn state machines, and synchronized web technologies. Practice solo against intelligent computer bots or create private rooms to play real-time games with friends and family.
+        </p>
+
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          Have questions or ideas? Contact us at <a href="mailto:support@gnanamai.com" style="color: #38bdf8; text-decoration: underline;">support@gnanamai.com</a>.
+        </p>
+
+        ${navHtml}
+      </article>
+    `
+  },
+  {
+    path: '/contact',
+    dir: path.join(distDir, 'contact'),
+    title: 'Contact Us – 7 Cards Least Online',
+    description: 'Contact the 7 Cards Least development team at Gnanam AI. Email support@gnanamai.com for gameplay inquiries, bug reports, and player feedback.',
+    canonical: 'https://cards.gnanamai.com/contact',
+    robots: 'index, follow',
+    h1: 'Contact Us',
+    h2: 'Official support, inquiries, and player feedback for cards.gnanamai.com.',
+    breadcrumbs: [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Contact Us", "item": "https://cards.gnanamai.com/contact" }
+    ],
+    fullHtml: `
+      <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">Contact Us</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Official support, inquiries, and player feedback for cards.gnanamai.com.</h2>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📬 Direct Email Support</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          For all player support, questions, bug reports, or feature recommendations, please email:
+        </p>
+        <p style="font-size: 1.2rem; font-weight: bold; color: #38bdf8; margin-bottom: 16px;">
+          <a href="mailto:support@gnanamai.com" style="color: #38bdf8; text-decoration: underline;">support@gnanamai.com</a>
+        </p>
+        <p style="line-height: 1.7; color: #94a3b8; font-size: 0.9rem; margin-bottom: 16px;">
+          We review player feedback daily and reply within 24 to 48 business hours.
+        </p>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🏢 Publisher &amp; Developer Details</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          <strong>Publisher:</strong> Gnanam AI<br />
+          <strong>Platform:</strong> https://cards.gnanamai.com<br />
+          <strong>Primary Contact:</strong> support@gnanamai.com
+        </p>
+
+        ${navHtml}
+      </article>
+    `
   }
 ];
 
@@ -1068,6 +1296,11 @@ routes.forEach(route => {
     routeHtml = routeHtml.replace(/<link rel="canonical" href=".*?" \/>/gi, `<link rel="canonical" href="${route.canonical}" />`);
     routeHtml = routeHtml.replace(/<meta property="og:url" content=".*?" \/>/gi, `<meta property="og:url" content="${route.canonical}" />`);
     routeHtml = routeHtml.replace(/<meta name="twitter:url" content=".*?" \/>/gi, `<meta name="twitter:url" content="${route.canonical}" />`);
+  }
+
+  // Replace Robots tag if specified on route
+  if (route.robots) {
+    routeHtml = routeHtml.replace(/<meta name="robots" content=".*?" \/>/gi, `<meta name="robots" content="${route.robots}" />`);
   }
 
   // Inject or replace tailored JSON-LD schema graph

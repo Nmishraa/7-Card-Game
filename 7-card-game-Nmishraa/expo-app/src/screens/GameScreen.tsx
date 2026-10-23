@@ -611,6 +611,8 @@ export const GameScreen: React.FC<Props> = ({
   const isSmallScreen = width < 450;
   const avatarSize = isMobile ? Math.max(28, 48 - n * 2.5) : Math.max(40, 64 - n * 2.5);
   const styles = createStyles(width, height, n, avatarSize, currentFeltColor || '#076324');
+  const cardW = Number(styles.cardBack.width) || 60;
+  const cardH = Number(styles.cardBack.height) || 84;
   
   const [selected, setSelected] = useState<string[]>([]);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
@@ -687,14 +689,57 @@ export const GameScreen: React.FC<Props> = ({
   const warningSoundPlayedRef = useRef<string | null>(null);
   const timeoutTriggeredRef = useRef<string | null>(null);
 
+  // Turn Order and Player Seating around the Oval Table
+  const turnOrder = room?.turnOrder || [];
+  const myIndex = turnOrder.indexOf(currentPlayerId);
+  const rotatedPlayers = myIndex >= 0 
+    ? [...turnOrder.slice(myIndex), ...turnOrder.slice(0, myIndex)]
+    : turnOrder;
+
+  // Animation Queue for table players (human, bots, remote multiplayer opponents)
+  type TableAnimTask = {
+    id: string;
+    type: 'discard' | 'draw';
+    playerId: string;
+    cards?: CardType[];
+    card?: CardType;
+    isBack?: boolean;
+    wasFromDiscard?: boolean;
+  };
+  const animationQueueRef = useRef<TableAnimTask[]>([]);
+  const isQueueRunningRef = useRef(false);
+  const processedAnimationKeysRef = useRef<Set<string>>(new Set());
+
   // Card movement animation refs & state
   const deckRef = useRef<any>(null);
   const discardRef = useRef<any>(null);
+  const pendingDiscardRef = useRef<any>(null);
   const handRef = useRef<any>(null);
+  const seatRefs = useRef<Record<string, any>>({});
+  const isActionInProgressRef = useRef(false);
+  const isMountedRef = useRef(true);
+  const activeHumanAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+  const activeOpponentAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+  const prevRoomForAnimRef = useRef<GameRoom | null>(null);
+  const isLocalHumanDiscardRef = useRef(false);
+  const isLocalHumanDrawRef = useRef(false);
 
   const [isAnimatingCard, setIsAnimatingCard] = useState(false);
+  const [animatingDiscardIds, setAnimatingDiscardIds] = useState<string[]>([]);
+  const [isPickingFromDiscard, setIsPickingFromDiscard] = useState(false);
+  const [opponentPendingDiscardHiding, setOpponentPendingDiscardHiding] = useState(false);
+  const [opponentPickingFromDiscard, setOpponentPickingFromDiscard] = useState(false);
+  const [opponentDrawingPlayerId, setOpponentDrawingPlayerId] = useState<string | null>(null);
+
   const [flyingCard, setFlyingCard] = useState<{
     card?: CardType;
+    cards?: CardType[];
+    isBack?: boolean;
+  } | null>(null);
+
+  const [opponentFlyingCard, setOpponentFlyingCard] = useState<{
+    card?: CardType;
+    cards?: CardType[];
     isBack?: boolean;
   } | null>(null);
 
@@ -702,9 +747,44 @@ export const GameScreen: React.FC<Props> = ({
   const flyRotate = useRef(new Animated.Value(0)).current;
   const flyScale = useRef(new Animated.Value(1)).current;
 
-  const getRefCoords = (ref: React.RefObject<any>, fallbackX: number, fallbackY: number) => {
-    if (Platform.OS === 'web' && ref.current) {
-      const el = ref.current;
+  const oppFlyAnim = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const oppFlyRotate = useRef(new Animated.Value(0)).current;
+  const oppFlyScale = useRef(new Animated.Value(1)).current;
+
+  const isReducedMotion = () => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (activeHumanAnimRef.current) activeHumanAnimRef.current.stop();
+      if (activeOpponentAnimRef.current) activeOpponentAnimRef.current.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (room && room.status !== 'playing') {
+      setFlyingCard(null);
+      setOpponentFlyingCard(null);
+      setIsAnimatingCard(false);
+      setAnimatingDiscardIds([]);
+      setIsPickingFromDiscard(false);
+      setOpponentPendingDiscardHiding(false);
+      setOpponentPickingFromDiscard(false);
+      isActionInProgressRef.current = false;
+      if (activeHumanAnimRef.current) activeHumanAnimRef.current.stop();
+      if (activeOpponentAnimRef.current) activeOpponentAnimRef.current.stop();
+    }
+  }, [room?.status]);
+
+  const getRefCoords = (ref: any, fallbackX: number, fallbackY: number) => {
+    if (Platform.OS === 'web' && ref) {
+      const el = ref.current?._touchableNode || ref.current?.node || ref.current || ref;
       if (el && typeof el.getBoundingClientRect === 'function') {
         const rect = el.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
@@ -715,8 +795,142 @@ export const GameScreen: React.FC<Props> = ({
     return { x: fallbackX, y: fallbackY };
   };
 
+  const getPlayerCoords = (playerId: string) => {
+    if (playerId === currentPlayerId) {
+      return getRefCoords(handRef, width * 0.50, height * 0.88);
+    }
+    const idx = rotatedPlayers.indexOf(playerId);
+    const total = rotatedPlayers.length;
+    const pCoords = getPerimeterCoords(idx >= 0 ? idx : 0, total);
+    const fallbackX = (pCoords.x / 100) * width;
+    const fallbackY = (height * 0.12) + (pCoords.y / 100) * (height * 0.60);
+    return getRefCoords(seatRefs.current[playerId], fallbackX, fallbackY);
+  };
+
+  const processAnimationQueue = () => {
+    if (!isMountedRef.current) return;
+    if (isQueueRunningRef.current) return;
+    if (animationQueueRef.current.length === 0) {
+      isQueueRunningRef.current = false;
+      return;
+    }
+
+    const task = animationQueueRef.current.shift();
+    if (!task) return;
+
+    isQueueRunningRef.current = true;
+
+    const oppCoords = getPlayerCoords(task.playerId);
+    const deckCoords = getRefCoords(deckRef, width * 0.42, height * 0.45);
+    const discardCoords = getRefCoords(pendingDiscardRef.current || discardRef, width * 0.58, height * 0.45);
+
+    if (task.type === 'discard') {
+      const discardDuration = isReducedMotion() ? 0 : 340;
+      setOpponentPendingDiscardHiding(true);
+      setOpponentFlyingCard({
+        cards: task.cards,
+        card: task.card,
+        isBack: false,
+      });
+
+      oppFlyAnim.setValue({ x: oppCoords.x, y: oppCoords.y });
+      oppFlyRotate.setValue(0);
+      oppFlyScale.setValue(1.05);
+
+      playDiscard();
+
+      const anim = Animated.parallel([
+        Animated.timing(oppFlyAnim, {
+          toValue: { x: discardCoords.x, y: discardCoords.y },
+          duration: discardDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+        Animated.timing(oppFlyRotate, {
+          toValue: 8,
+          duration: discardDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+        Animated.timing(oppFlyScale, {
+          toValue: 0.95,
+          duration: discardDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+      ]);
+
+      activeOpponentAnimRef.current = anim;
+      anim.start(() => {
+        if (!isMountedRef.current) return;
+        setOpponentPendingDiscardHiding(false);
+        setOpponentFlyingCard(null);
+        isQueueRunningRef.current = false;
+        processAnimationQueue();
+      });
+    } else if (task.type === 'draw') {
+      const startX = task.wasFromDiscard ? discardCoords.x : deckCoords.x;
+      const startY = task.wasFromDiscard ? discardCoords.y : deckCoords.y;
+      const endX = oppCoords.x;
+      const endY = oppCoords.y;
+      const drawDuration = isReducedMotion() ? 0 : 400;
+
+      if (task.wasFromDiscard) {
+        setOpponentPickingFromDiscard(true);
+      }
+
+      setOpponentDrawingPlayerId(task.playerId);
+
+      setOpponentFlyingCard({
+        card: task.card,
+        isBack: task.isBack,
+      });
+
+      oppFlyAnim.setValue({ x: startX, y: startY });
+      oppFlyRotate.setValue(task.wasFromDiscard ? 4 : -6);
+      oppFlyScale.setValue(task.wasFromDiscard ? 1.05 : 1.15);
+
+      playDraw();
+
+      const anim = Animated.parallel([
+        Animated.timing(oppFlyAnim, {
+          toValue: { x: endX, y: endY },
+          duration: drawDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+        Animated.timing(oppFlyRotate, {
+          toValue: 0,
+          duration: drawDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+        Animated.timing(oppFlyScale, {
+          toValue: 0.85,
+          duration: drawDuration,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }),
+      ]);
+
+      activeOpponentAnimRef.current = anim;
+      anim.start(() => {
+        if (!isMountedRef.current) return;
+        setOpponentPickingFromDiscard(false);
+        setOpponentDrawingPlayerId(null);
+        setOpponentFlyingCard(null);
+        isQueueRunningRef.current = false;
+        processAnimationQueue();
+      });
+    }
+  };
+
   const animateDrawCard = (source: 'deck' | 'discard') => {
-    if (isAnimatingCard) return;
+    if (isActionInProgressRef.current || isAnimatingCard) return;
+
+    isActionInProgressRef.current = true;
+    setIsAnimatingCard(true);
+    isLocalHumanDrawRef.current = true;
 
     const deckCoords = getRefCoords(deckRef, width * 0.42, height * 0.45);
     const discardCoords = getRefCoords(discardRef, width * 0.58, height * 0.45);
@@ -729,46 +943,60 @@ export const GameScreen: React.FC<Props> = ({
 
     const topDiscard = room.discardPile && room.discardPile.length > 0 ? room.discardPile[room.discardPile.length - 1] : undefined;
 
-    setIsAnimatingCard(true);
+    if (source === 'discard') {
+      setIsPickingFromDiscard(true);
+    }
+
     setFlyingCard({
       card: source === 'discard' ? topDiscard : undefined,
       isBack: source === 'deck',
     });
 
     flyAnim.setValue({ x: startX, y: startY });
-    flyRotate.setValue(-8);
+    flyRotate.setValue(source === 'deck' ? -8 : 6);
     flyScale.setValue(1.1);
 
     playDraw();
 
-    Animated.parallel([
+    const duration = isReducedMotion() ? 0 : 380;
+
+    const anim = Animated.parallel([
       Animated.timing(flyAnim, {
         toValue: { x: endX, y: endY },
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
       Animated.timing(flyRotate, {
         toValue: 0,
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
       Animated.timing(flyScale, {
-        toValue: 1,
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        toValue: 1.0,
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
-    ]).start(() => {
+    ]);
+    activeHumanAnimRef.current = anim;
+
+    anim.start(() => {
+      if (!isMountedRef.current) return;
       onDrawCard(source);
       setFlyingCard(null);
+      setIsPickingFromDiscard(false);
       setIsAnimatingCard(false);
+      isActionInProgressRef.current = false;
+      setTimeout(() => {
+        isLocalHumanDrawRef.current = false;
+      }, 500);
     });
   };
 
   const animateDiscardCard = () => {
-    if (isAnimatingCard || selected.length === 0) return;
+    if (isActionInProgressRef.current || isAnimatingCard || selected.length === 0) return;
 
     const cardsToDiscard = (me && me.hand ? me.hand : []).filter(c => selected.includes(c.id));
     if (!isValidSetOrRun(cardsToDiscard)) {
@@ -777,7 +1005,12 @@ export const GameScreen: React.FC<Props> = ({
       return;
     }
 
-    const discardCoords = getRefCoords(discardRef, width * 0.58, height * 0.45);
+    isActionInProgressRef.current = true;
+    setIsAnimatingCard(true);
+    setAnimatingDiscardIds([...selected]);
+    isLocalHumanDiscardRef.current = true;
+
+    const discardCoords = getRefCoords(pendingDiscardRef.current || discardRef, width * 0.58, height * 0.45);
     const handCoords = getRefCoords(handRef, width * 0.50, height * 0.88);
 
     const startX = handCoords.x;
@@ -785,46 +1018,169 @@ export const GameScreen: React.FC<Props> = ({
     const endX = discardCoords.x;
     const endY = discardCoords.y;
 
-    const cardToAnimate = cardsToDiscard[0];
-
-    setIsAnimatingCard(true);
     setFlyingCard({
-      card: cardToAnimate,
+      cards: cardsToDiscard,
+      card: cardsToDiscard[0],
       isBack: false,
     });
 
     flyAnim.setValue({ x: startX, y: startY });
     flyRotate.setValue(0);
-    flyScale.setValue(1.05);
+    flyScale.setValue(1.08);
 
     playDiscard();
 
-    Animated.parallel([
+    const duration = isReducedMotion() ? 0 : 340;
+
+    const anim = Animated.parallel([
       Animated.timing(flyAnim, {
         toValue: { x: endX, y: endY },
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
       Animated.timing(flyRotate, {
-        toValue: 12,
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        toValue: 10,
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
       Animated.timing(flyScale, {
-        toValue: 0.9,
-        duration: 380,
-        easing: Easing.out(Easing.quad),
+        toValue: 0.95,
+        duration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: false,
       }),
-    ]).start(() => {
+    ]);
+    activeHumanAnimRef.current = anim;
+
+    anim.start(() => {
+      if (!isMountedRef.current) return;
       onDiscardAndDraw(selected);
       setSelected([]);
       setFlyingCard(null);
+      setAnimatingDiscardIds([]);
       setIsAnimatingCard(false);
+      isActionInProgressRef.current = false;
+      setTimeout(() => {
+        isLocalHumanDiscardRef.current = false;
+      }, 500);
     });
   };
+
+  // Unified Table Players Animation Engine (Every Opponent, Bot & Multiplayer Peer)
+  useEffect(() => {
+    if (!room || room.status !== 'playing') {
+      prevRoomForAnimRef.current = room;
+      animationQueueRef.current = [];
+      isQueueRunningRef.current = false;
+      return;
+    }
+
+    const prev = prevRoomForAnimRef.current;
+    prevRoomForAnimRef.current = room;
+
+    if (!prev || prev.id !== room.id) {
+      processedAnimationKeysRef.current.clear();
+      animationQueueRef.current = [];
+      isQueueRunningRef.current = false;
+      return;
+    }
+
+    if (prev.currentRound !== room.currentRound) {
+      processedAnimationKeysRef.current.clear();
+      animationQueueRef.current = [];
+      isQueueRunningRef.current = false;
+      return;
+    }
+
+    const prevTurnId = prev.turnOrder ? prev.turnOrder[prev.turnIndex] : undefined;
+    if (!prevTurnId) return;
+
+    const isLocalHumanMove = prevTurnId === currentPlayerId;
+
+    // Helper to generate a unique, monotonic event identifier for every turn action
+    const getActionKey = (prefix: 'discard' | 'draw', playerId: string, extra: string) => {
+      const versionPart = room.version !== undefined
+        ? `v${room.version}`
+        : `ts${room.turnStartTime || room.updatedAt || Date.now()}`;
+      return `${prefix}_${room.id}_r${room.currentRound}_p${playerId}_${versionPart}_${extra}`;
+    };
+
+    // 1. Detect Discard from any player
+    const didDiscard = prev.turnPhase === 'discarding' &&
+      ((room.pendingDiscard && room.pendingDiscard.length > 0 && (!prev.pendingDiscard || prev.pendingDiscard.length === 0)) ||
+       (room.discardPile && room.discardPile.length > (prev.discardPile?.length || 0)) ||
+       (room.turnIndex !== prev.turnIndex && (room.discardPile?.length || 0) > (prev.discardPile?.length || 0)));
+
+    if (didDiscard) {
+      const discardedCards = (room.pendingDiscard && room.pendingDiscard.length > 0)
+        ? room.pendingDiscard
+        : (room.discardPile ? room.discardPile.slice(prev.discardPile?.length || 0) : []);
+
+      const firstCardId = discardedCards[0]?.id || `idx_${room.discardPile?.length || 0}`;
+      const discardKey = getActionKey('discard', prevTurnId, `c${firstCardId}`);
+
+      if (!processedAnimationKeysRef.current.has(discardKey)) {
+        processedAnimationKeysRef.current.add(discardKey);
+
+        if (isLocalHumanMove && isLocalHumanDiscardRef.current) {
+          // Already animated locally by human action
+          isLocalHumanDiscardRef.current = false;
+        } else {
+          animationQueueRef.current.push({
+            id: discardKey,
+            type: 'discard',
+            playerId: prevTurnId,
+            cards: discardedCards,
+            card: discardedCards[0],
+            isBack: false,
+          });
+        }
+      }
+    }
+
+    // 2. Detect Pick / Draw from any player
+    const didPick = (prev.turnPhase === 'picking' && room.turnPhase === 'discarding') ||
+      (prev.turnPhase === 'discarding' && room.turnIndex !== prev.turnIndex && !didDiscard);
+
+    if (didPick) {
+      const prevDiscardCount = prev.discardPile?.length || 0;
+      const prevPendingCount = prev.pendingDiscard?.length || 0;
+      const newDiscardCount = room.discardPile?.length || 0;
+      const wasFromDiscard = prevDiscardCount > 0 && newDiscardCount === (prevDiscardCount - 1 + prevPendingCount);
+
+      const pickedCard = wasFromDiscard && prev.discardPile && prev.discardPile.length > 0
+        ? prev.discardPile[prev.discardPile.length - 1]
+        : undefined;
+
+      const drawKey = getActionKey('draw', prevTurnId, wasFromDiscard ? 'discard' : 'deck');
+
+      console.log(`[ANIM_ENGINE] didPick TRUE | prevTurnId=${prevTurnId} | wasFromDiscard=${wasFromDiscard} | drawKey=${drawKey} | processed=${processedAnimationKeysRef.current.has(drawKey)}`);
+
+      if (!processedAnimationKeysRef.current.has(drawKey)) {
+        processedAnimationKeysRef.current.add(drawKey);
+
+        if (isLocalHumanMove && isLocalHumanDrawRef.current) {
+          // Already animated locally by human action
+          isLocalHumanDrawRef.current = false;
+        } else {
+          console.log(`[ANIM_ENGINE] Queuing DRAW task for player: ${prevTurnId}`);
+          animationQueueRef.current.push({
+            id: drawKey,
+            type: 'draw',
+            playerId: prevTurnId,
+            wasFromDiscard,
+            card: pickedCard,
+            isBack: !wasFromDiscard,
+          });
+        }
+      }
+    }
+
+    // Drain queued animations sequentially
+    processAnimationQueue();
+  }, [room, currentPlayerId, width, height]);
 
   useEffect(() => {
     if (!room || room.status !== 'playing') return;
@@ -1098,7 +1454,6 @@ export const GameScreen: React.FC<Props> = ({
   const players = room.players || {};
   const me = players[currentPlayerId];
   
-  const turnOrder = room.turnOrder || [];
   const currentTurnId = turnOrder[room.turnIndex];
   const isMyTurn = currentTurnId === currentPlayerId && room.status === 'playing';
   const isRevealingMode = (room.status === 'round-end' || room.status === 'game-over') && !revealCompleted;
@@ -1149,12 +1504,6 @@ export const GameScreen: React.FC<Props> = ({
       return () => clearTimeout(timer);
     }
   }, [isRevealingMode, spotlightIndex]);
-
-  // Rotate players so logged-in player is always at index 0 (Bottom Center)
-  const myIndex = turnOrder.indexOf(currentPlayerId);
-  const rotatedPlayers = myIndex >= 0 
-    ? [...turnOrder.slice(myIndex), ...turnOrder.slice(0, myIndex)]
-    : turnOrder;
 
   const handleToggle = (id: string) => {
     if (!isMyTurn || room.turnPhase !== 'discarding' || isAnimatingCard) {
@@ -1989,7 +2338,7 @@ export const GameScreen: React.FC<Props> = ({
                     zIndex: 120,
                   };
                   return (
-                    <View key={id} style={[styles.opponentArea, pos]} pointerEvents="box-none">
+                    <View key={id} ref={el => { if (el) seatRefs.current[id] = el; }} style={[styles.opponentArea, pos]} pointerEvents="box-none">
                       <View style={{ alignItems: 'center', justifyContent: 'center', position: 'relative' }} pointerEvents="box-none">
                         
                         {/* Avatar */}
@@ -2005,12 +2354,29 @@ export const GameScreen: React.FC<Props> = ({
                           )}
                           {isCurrentTurn && !isRevealingMode ? <ActivePlayerGlow size={avatarSize} /> : null}
                           {isHost && <View style={styles.hostBadge}><Text style={styles.hostBadgeText}>HOST</Text></View>}
-                          {!isOut && <View style={styles.cardCountBadge}><Text style={styles.cardCountText}>{(player.hand && player.hand.length) || 0}</Text></View>}
+                          {(() => {
+                            const isDrawing = opponentDrawingPlayerId === id;
+                            const effectiveCount = isDrawing 
+                              ? Math.max(0, (player.hand?.length || 0) - 1) 
+                              : ((player.hand && player.hand.length) || 0);
+                            return (
+                              !isOut && (
+                                <View style={styles.cardCountBadge}>
+                                  <Text style={styles.cardCountText}>{effectiveCount}</Text>
+                                </View>
+                              )
+                            );
+                          })()}
                           {isOut && <View style={styles.outOverlay}><Text style={styles.outOverlayText}>OUT</Text></View>}
                         </View>
 
                         {/* Label & Opponent Cards */}
                         {(() => {
+                          const isDrawing = opponentDrawingPlayerId === id;
+                          const effectiveCount = isDrawing 
+                            ? Math.max(0, (player.hand?.length || 0) - 1) 
+                            : ((player.hand && player.hand.length) || 0);
+
                           let infoStyle: any = { position: 'absolute', alignItems: 'center', zIndex: 70, width: 110 };
                           let cardStyle: any = { flexDirection: 'row' };
                           let showCardsAbove = true;
@@ -2038,7 +2404,7 @@ export const GameScreen: React.FC<Props> = ({
                             <View style={infoStyle} pointerEvents="none">
                               {showCardsAbove && !isMe && !isOut && !isRevealingMode && (
                                 <View style={[styles.opponentHand, cardStyle]}>
-                                  {Array.from({ length: Math.min((player.hand && player.hand.length) || 0, 5) }).map((_, i) => (
+                                  {Array.from({ length: Math.min(effectiveCount, 5) }).map((_, i) => (
                                     <View key={i} style={[styles.cardBackSmall, { marginLeft: i === 0 ? 0 : -8 }]} />
                                   ))}
                                 </View>
@@ -2095,9 +2461,10 @@ export const GameScreen: React.FC<Props> = ({
                           <Text style={styles.pileLabel}>DECK</Text>
                           <TouchableOpacity 
                             ref={deckRef}
-                            style={[styles.centerCardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard) && styles.disabled]} 
+                            testID="deck-pile"
+                            style={[styles.centerCardBack, (!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard || !!opponentFlyingCard) && styles.disabled]} 
                             onPress={() => animateDrawCard('deck')} 
-                            disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
+                            disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard || !!opponentFlyingCard}
                             activeOpacity={0.7}
                           >
                             <View style={styles.cardPattern} />
@@ -2108,16 +2475,26 @@ export const GameScreen: React.FC<Props> = ({
                           {room.discardPile.length > 0 ? (
                             <TouchableOpacity 
                               ref={discardRef}
+                              testID="discard-pile"
                               style={styles.cardCluster}
-                              onPress={(isMyTurn && room.turnPhase === 'picking' && !isAnimatingCard) ? () => animateDrawCard('discard') : undefined}
-                              disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard}
+                              onPress={(isMyTurn && room.turnPhase === 'picking' && !isAnimatingCard && !opponentFlyingCard) ? () => animateDrawCard('discard') : undefined}
+                              disabled={!isMyTurn || room.turnPhase !== 'picking' || isAnimatingCard || !!opponentFlyingCard}
                               activeOpacity={0.7}
                             >
-                              {room.discardPile.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
-                                <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }} pointerEvents="none">
-                                  {renderCard(card, false, undefined, false, true)}
-                                </View>
-                              ))}
+                              {(() => {
+                                const hideTop = isPickingFromDiscard || opponentPickingFromDiscard;
+                                const displayCards = hideTop 
+                                  ? room.discardPile.slice(0, -1) 
+                                  : room.discardPile;
+                                if (displayCards.length === 0) {
+                                  return <View style={[styles.centerCard, styles.emptyPile]} />;
+                                }
+                                return displayCards.slice(-(room.lastDiscardedCount || 1)).map((card, idx) => (
+                                  <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }} pointerEvents="none">
+                                    {renderCard(card, false, undefined, false, true)}
+                                  </View>
+                                ));
+                              })()}
                             </TouchableOpacity>
                           ) : (
                             <View ref={discardRef} style={[styles.centerCard, styles.emptyPile]} />
@@ -2127,7 +2504,14 @@ export const GameScreen: React.FC<Props> = ({
                         {room.pendingDiscard && room.pendingDiscard.length > 0 && (
                           <View style={styles.pileContainer} pointerEvents="box-none">
                             <Text style={styles.pileLabel}>NEW DISCARD</Text>
-                            <View style={styles.cardCluster} pointerEvents="none">
+                            <View 
+                              ref={pendingDiscardRef}
+                              style={[
+                                styles.cardCluster,
+                                opponentPendingDiscardHiding && { opacity: 0 }
+                              ]} 
+                              pointerEvents="none"
+                            >
                               {room.pendingDiscard.map((card, idx) => (
                                 <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -25 }}>
                                   {renderCard(card, false, undefined, false, true)}
@@ -2366,7 +2750,15 @@ export const GameScreen: React.FC<Props> = ({
           <View style={styles.playerDockContainer} pointerEvents="box-none">
             <View style={styles.dockTopBarContainer} pointerEvents="box-none">
               {onSortHand && (
-                <TouchableOpacity style={styles.sortBtn} onPress={onSortHand} activeOpacity={0.8}>
+                <TouchableOpacity 
+                  style={[styles.sortBtn, isAnimatingCard && styles.disabled]} 
+                  onPress={() => {
+                    if (isAnimatingCard) return;
+                    onSortHand();
+                  }} 
+                  disabled={isAnimatingCard}
+                  activeOpacity={0.8}
+                >
                   <Text style={styles.sortBtnText}>Sort Cards</Text>
                 </TouchableOpacity>
               )}
@@ -2375,19 +2767,23 @@ export const GameScreen: React.FC<Props> = ({
             {isMyTurn && room.turnPhase === 'discarding' && (
               <View style={styles.dockActionRow}>
                 <TouchableOpacity
-                  style={[styles.actionBtn, styles.discardBtn, (selected.length === 0 || isAnimatingCard) && styles.disabled]}
+                  testID="discard-action-btn"
+                  style={[styles.actionBtn, styles.discardBtn, (selected.length === 0 || isAnimatingCard || !!opponentFlyingCard) && styles.disabled]}
                   onPress={animateDiscardCard}
-                  disabled={selected.length === 0 || isAnimatingCard}
+                  disabled={selected.length === 0 || isAnimatingCard || !!opponentFlyingCard}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.actionBtnText}>Discard {selected.length > 0 ? `(${selected.length})` : ''}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.actionBtn, styles.leastBtn]}
+                  testID="least-action-btn"
+                  style={[styles.actionBtn, styles.leastBtn, (isAnimatingCard || !!opponentFlyingCard) && styles.disabled]}
                   onPress={() => {
+                    if (isAnimatingCard || opponentFlyingCard) return;
                     playCallLeast();
                     onCallLeast();
                   }}
+                  disabled={isAnimatingCard || !!opponentFlyingCard}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.actionBtnText}>Least!</Text>
@@ -2404,6 +2800,12 @@ export const GameScreen: React.FC<Props> = ({
               >
                 {(me.hand || []).map(card => {
                   const isJoker = room.jokerCard?.rank === card.rank;
+                  const isBeingDiscarded = animatingDiscardIds.includes(card.id);
+                  if (isBeingDiscarded) {
+                    return (
+                      <View key={card.id} style={[styles.card, { opacity: 0 }]} />
+                    );
+                  }
                   return renderCard(card, selected.includes(card.id), () => handleToggle(card.id), isJoker);
                 })}
               </ScrollView>
@@ -2411,9 +2813,10 @@ export const GameScreen: React.FC<Props> = ({
           </View>
         )}
 
-        {/* Flying Card Overlay for smooth drawing/discarding flight animation */}
+        {/* Flying Card Overlay for smooth human drawing/discarding flight animation */}
         {flyingCard && (
           <Animated.View
+            testID="flying-card-overlay"
             style={{
               position: 'absolute',
               left: 0,
@@ -2430,8 +2833,13 @@ export const GameScreen: React.FC<Props> = ({
                 },
                 { scale: flyScale },
               ],
-              marginLeft: -(isSmallScreen ? 22 : 30),
-              marginTop: -(isSmallScreen ? 32 : 43),
+              marginLeft: -Math.round(cardW / 2),
+              marginTop: -Math.round(cardH / 2),
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: 0.5,
+              shadowRadius: 12,
+              elevation: 25,
             }}
             pointerEvents="none"
           >
@@ -2439,8 +2847,64 @@ export const GameScreen: React.FC<Props> = ({
               <View style={styles.cardBack}>
                 <View style={styles.cardPattern} />
               </View>
+            ) : flyingCard.cards && flyingCard.cards.length > 1 ? (
+              <View style={styles.cardCluster}>
+                {flyingCard.cards.map((card, idx) => (
+                  <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -22 }}>
+                    {renderCard(card, false, undefined, card.rank === room.jokerCard?.rank, true)}
+                  </View>
+                ))}
+              </View>
             ) : (
-              flyingCard.card && renderCard(flyingCard.card, false)
+              flyingCard.card && renderCard(flyingCard.card, false, undefined, flyingCard.card.rank === room.jokerCard?.rank, true)
+            )}
+          </Animated.View>
+        )}
+
+        {/* Opponent Flying Card Overlay for smooth bot/peer drawing/discarding flight animation */}
+        {opponentFlyingCard && (
+          <Animated.View
+            testID="opponent-flying-card-overlay"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              zIndex: 9999,
+              transform: [
+                { translateX: oppFlyAnim.x },
+                { translateY: oppFlyAnim.y },
+                {
+                  rotate: oppFlyRotate.interpolate({
+                    inputRange: [-360, 360],
+                    outputRange: ['-360deg', '360deg'],
+                  }),
+                },
+                { scale: oppFlyScale },
+              ],
+              marginLeft: -Math.round(cardW / 2),
+              marginTop: -Math.round(cardH / 2),
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: 0.5,
+              shadowRadius: 12,
+              elevation: 25,
+            }}
+            pointerEvents="none"
+          >
+            {opponentFlyingCard.isBack ? (
+              <View style={styles.cardBack}>
+                <View style={styles.cardPattern} />
+              </View>
+            ) : opponentFlyingCard.cards && opponentFlyingCard.cards.length > 1 ? (
+              <View style={styles.cardCluster}>
+                {opponentFlyingCard.cards.map((card, idx) => (
+                  <View key={card.id} style={{ marginLeft: idx === 0 ? 0 : -22 }}>
+                    {renderCard(card, false, undefined, card.rank === room.jokerCard?.rank, true)}
+                  </View>
+                ))}
+              </View>
+            ) : (
+              opponentFlyingCard.card && renderCard(opponentFlyingCard.card, false, undefined, opponentFlyingCard.card.rank === room.jokerCard?.rank, true)
             )}
           </Animated.View>
         )}

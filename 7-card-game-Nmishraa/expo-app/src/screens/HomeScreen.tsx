@@ -132,7 +132,7 @@ export const HomeScreen: React.FC<Props> = ({
   const faqList = [
     {
       q: "What is 7 Cards Least?",
-      a: "7 Cards Least (often called Low Hand Rummy or 7 Cards) is a fast-paced shedding card game played with a standard 52-card deck. Each player is dealt 7 cards. The objective is to achieve the lowest cumulative hand point total by discarding high cards, forming equal-rank sets or suited runs, and declaring 'Least!' when your hand score drops to 10 points or less."
+      a: "7 Cards Least is a fast-paced shedding card game played with a standard 52-card deck. Each player is dealt 7 cards. The objective is to achieve the lowest cumulative hand point total by discarding high cards, forming equal-rank sets or suited runs, and declaring 'Least!' when your hand score drops to 10 points or less."
     },
     {
       q: "How do card point values and Joker wildcards work?",
@@ -1015,7 +1015,11 @@ export const HomeScreen: React.FC<Props> = ({
               <Text style={styles.footerDot}>•</Text>
               <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate}><Text style={styles.footerLink}>FAQ</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button"><Text style={styles.footerLink}>Privacy Policy</Text></TouchableOpacity>
+              <SeoLink href="/about" onNavigate={onNavigate}><Text style={styles.footerLink}>About</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/contact" onNavigate={onNavigate}><Text style={styles.footerLink}>Contact</Text></SeoLink>
+              <Text style={styles.footerDot}>•</Text>
+              <SeoLink href="/privacy" onNavigate={onNavigate}><Text style={styles.footerLink}>Privacy Policy</Text></SeoLink>
               <Text style={styles.footerDot}>•</Text>
               <TouchableOpacity onPress={() => setShowTerms(true)} accessibilityRole="button"><Text style={styles.footerLink}>Terms</Text></TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>

@@ -60,7 +60,7 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate, user, on
           <View style={styles.featuredSnippetCard}>
             <Text style={styles.featuredSnippetHeading} accessibilityRole="header" aria-level={2}>⚡ What is 7 Cards Least? (Quick Summary)</Text>
             <Text style={styles.featuredSnippetText}>
-              <Text style={styles.boldText}>7 Cards Least</Text> (also known as 7 Cards Game, Low Hand Rummy, or Seven Cards Least) is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <Text style={{ color: '#34d399', fontWeight: 'bold' }}>lowest cumulative hand point total</Text> by discarding high-value face cards (10 pts), building matched sets or runs, and calling <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text> when your hand total is 10 points or fewer.
+              <Text style={styles.boldText}>7 Cards Least</Text> is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <Text style={{ color: '#34d399', fontWeight: 'bold' }}>lowest cumulative hand point total</Text> by discarding high-value face cards (10 pts), building matched sets or runs, and calling <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text> when your hand total is 10 points or fewer.
             </Text>
 
             {/* Quick Scoring Table */}
@@ -151,6 +151,26 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate, user, on
               {'\n'}Player 1 declares Least holding 7 points. Opponent A reveals 5 points!
               {'\n'}• Because Opponent A has a lower score than the caller, Player 1 committed a false call and incurs an <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>80-point penalty</Text> added to their match total.
               {'\n'}• Opponent A wins the round with 0 points.
+            </Text>
+          </View>
+
+          <View style={styles.cardSection}>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>5. 3 Common Scoring Mistakes &amp; How to Avoid Them</Text>
+            <Text style={styles.bodyText}>
+              <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>Mistake 1: Calling LEAST with a Tie</Text>
+              {'\n'}• <Text style={styles.italic}>Example:</Text> You call LEAST with 6 points. An opponent reveals their hand and also has 6 points.
+              {'\n'}• <Text style={styles.boldText}>The Trap:</Text> Many beginners assume a tie means both players get 0 points.
+              {'\n'}• <Text style={styles.boldText}>The Correct Rule:</Text> The caller must strictly beat every opponent. In a tie, the caller is penalized with <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>+80 penalty points</Text>, while the opponent earns 0 points!
+              {'\n\n'}
+              <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>Mistake 2: Face Card Valuation Assumptions</Text>
+              {'\n'}• <Text style={styles.italic}>Example:</Text> Holding Jack, Queen, and King.
+              {'\n'}• <Text style={styles.boldText}>The Trap:</Text> Assuming Jack=11, Queen=12, King=13 like other trick games.
+              {'\n'}• <Text style={styles.boldText}>The Correct Rule:</Text> In 7 Cards Least, Jacks, Queens, and Kings are each worth flat 10 points. Discard them in pairs or singles as your highest priority.
+              {'\n\n'}
+              <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>Mistake 3: King-Ace Wrapping in Suited Runs</Text>
+              {'\n'}• <Text style={styles.italic}>Example:</Text> Attempting to discard Q♠-K♠-A♠.
+              {'\n'}• <Text style={styles.boldText}>The Trap:</Text> Thinking Ace can wrap around high cards.
+              {'\n'}• <Text style={styles.boldText}>The Correct Rule:</Text> Aces are strictly low cards worth 1 point. Valid sequences are A-2-3-4. Q-K-A is illegal and will be rejected.
             </Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/multiplayer" onNavigate={onNavigate} style={styles.primaryCta}>

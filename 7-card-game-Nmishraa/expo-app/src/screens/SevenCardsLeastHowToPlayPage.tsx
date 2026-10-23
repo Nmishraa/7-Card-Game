@@ -345,6 +345,61 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               </View>
             )}
           </View>
+
+          {/* ─── WORKED EXAMPLE: FULL SAMPLE ROUND ─── */}
+          <View style={[styles.stepBox, { marginTop: 24, backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(56, 189, 248, 0.4)' }]}>
+            <Text style={[styles.stepBoxTitle, { color: '#38bdf8' }]} accessibilityRole="header" aria-level={2}>
+              🃏 Worked Example: A Complete Turn-by-Turn Sample Round
+            </Text>
+            <Text style={styles.stepBoxDesc}>
+              Follow along with this step-by-step 3-player match example to see dealing, tactical discards, Match &amp; Skip, and the winning LEAST declaration in action.
+            </Text>
+
+            <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 12 }}>
+              <Text style={{ color: '#34d399', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>1. Table Setup &amp; Dealing</Text>
+              <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.{'\n'}
+                • Table Setup Card: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>4♥</Text> is flipped. (All four 4s are Table Jokers = 0 pts!){'\n'}
+                • Discard Pile Starter: <Text style={{ color: '#ffffff', fontWeight: 'bold' }}>8♣</Text> is flipped face-up.{'\n'}
+                • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+              </Text>
+            </View>
+
+            <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
+              <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>2. Turn 1 (Alice): High-Liability Discard</Text>
+              <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.{'\n'}
+                • Draw: Alice draws 2♦ (2 pts) from the face-down deck.{'\n'}
+                • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+              </Text>
+            </View>
+
+            <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
+              <Text style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>3. Turn 2 (Bob): Tactical Match &amp; Skip</Text>
+              <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                • Bob holds K♥. Since top discard is K♠, Bob drops K♥ onto the pile!{'\n'}
+                • <Text style={{ color: '#38bdf8', fontWeight: 'bold' }}>Match &amp; Skip Triggers:</Text> Bob's discard rank matches the pile top! Bob skips drawing. His hand permanently drops from 7 cards down to 6 cards.
+              </Text>
+            </View>
+
+            <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
+              <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>4. Turn 4 (Alice): Multi-Card Pair Shedding</Text>
+              <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).{'\n'}
+                • Alice draws 3♣ (3 pts) from the deck.{'\n'}
+                • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <Text style={{ color: '#34d399', fontWeight: 'bold' }}>Total 6 points!</Text>
+              </Text>
+            </View>
+
+            <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
+              <Text style={{ color: '#34d399', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>5. The Victory Declaration &amp; Hand Reveal</Text>
+              <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
+                • On her next turn, Alice's hand is ≤ 10 points. She taps <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text>{'\n'}
+                • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.{'\n'}
+                • Outcome: Alice strictly holds the lowest score! Alice scores <Text style={{ color: '#34d399', fontWeight: 'bold' }}>0 penalty points</Text>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* ─── FOOTER ─── */}
