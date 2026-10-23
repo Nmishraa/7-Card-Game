@@ -268,11 +268,11 @@ const getPerimeterCoords = (index: number, n: number) => {
     const coords = [
       { x: 50, y: 100 }, // 0: Bottom Center
       { x: 82, y: 100 }, // 1: Bottom Right
-      { x: 100, y: 50 }, // 2: Far Right
+      { x: 94, y: 50 },  // 2: Far Right (inset from 100 so avatar & badges never clip off-screen)
       { x: 82, y: 0 },   // 3: Top Right
       { x: 50, y: 0 },   // 4: Top Center
       { x: 18, y: 0 },   // 5: Top Left
-      { x: 0, y: 50 },   // 6: Far Left
+      { x: 6, y: 50 },   // 6: Far Left (inset from 0 so avatar & badges never clip off-screen)
       { x: 18, y: 100 }, // 7: Bottom Left
     ];
     return coords[index % 8];
@@ -281,11 +281,11 @@ const getPerimeterCoords = (index: number, n: number) => {
     const coords = [
       { x: 50, y: 100 }, // 0: Bottom Center
       { x: 82, y: 100 }, // 1: Bottom Right
-      { x: 100, y: 50 }, // 2: Far Right
+      { x: 94, y: 50 },  // 2: Far Right
       { x: 80, y: 0 },   // 3: Top Right
       { x: 50, y: 0 },   // 4: Top Center
       { x: 20, y: 0 },   // 5: Top Left
-      { x: 0, y: 50 },   // 6: Far Left
+      { x: 6, y: 50 },   // 6: Far Left
     ];
     return coords[index % 7];
   }
@@ -304,18 +304,18 @@ const getPerimeterCoords = (index: number, n: number) => {
     const coords = [
       { x: 50, y: 100 }, // 0: Bottom Center
       { x: 85, y: 100 }, // 1: Bottom Right
-      { x: 100, y: 50 }, // 2: Far Right
+      { x: 94, y: 50 },  // 2: Far Right
       { x: 50, y: 0 },   // 3: Top Center
-      { x: 0, y: 50 },   // 4: Far Left
+      { x: 6, y: 50 },   // 4: Far Left
     ];
     return coords[index % 5];
   }
   if (n === 4) {
     const coords = [
       { x: 50, y: 100 }, // 0: Bottom Center
-      { x: 100, y: 50 }, // 1: Far Right
+      { x: 94, y: 50 },  // 1: Far Right
       { x: 50, y: 0 },   // 2: Top Center
-      { x: 0, y: 50 },   // 3: Far Left
+      { x: 6, y: 50 },   // 3: Far Left
     ];
     return coords[index % 4];
   }
@@ -455,21 +455,21 @@ const AnimatedRevealedHandOnTable: React.FC<{
 
   if (coords.y === 100) {
     // Bottom seats: Place inside green felt, well above bottom rail and avatar
-    targetTop = totalSeats >= 6 ? '60%' : '58%';
-    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
-    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
+    targetTop = totalSeats >= 6 ? '62%' : '58%';
+    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '73%' : '74%';
+    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '27%' : '26%';
     else targetLeft = '50%';
   } else if (coords.y === 0) {
     // Top seats: Place inside green felt, safely below top rail
     targetTop = totalSeats >= 6 ? '8%' : '7%';
-    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '76%' : '74%';
-    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '24%' : '26%';
+    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '74%' : '74%';
+    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '26%' : '26%';
     else targetLeft = '50%';
   } else {
     // Side seats (Far Left / Far Right)
-    targetTop = '33%';
-    if (coords.x >= 75) targetLeft = '80%';
-    else if (coords.x <= 25) targetLeft = '20%';
+    targetTop = '34%';
+    if (coords.x >= 75) targetLeft = totalSeats >= 6 ? '74%' : '76%';
+    else if (coords.x <= 25) targetLeft = totalSeats >= 6 ? '26%' : '24%';
   }
 
   // Smooth, subtle reveal animation: cards rise smoothly by 12px with a gentle fade-in
@@ -564,6 +564,7 @@ const AnimatedRevealedHandOnTable: React.FC<{
   );
 
   const zLayer = 220 + (coords.y === 100 ? 50 : (coords.y === 50 ? 25 : 0));
+  const containerWidth = Math.max(totalHandWidth, isMobile ? 130 : 160);
 
   const animatedContainerStyle: any = isCenter
     ? {
@@ -583,11 +584,12 @@ const AnimatedRevealedHandOnTable: React.FC<{
         position: 'absolute',
         top: targetTop,
         left: targetLeft,
+        width: containerWidth,
         zIndex: zLayer,
         alignItems: 'center',
         opacity: animOpacity,
         transform: [
-          { translateX: -Math.round(totalHandWidth / 2) },
+          { translateX: -Math.round(containerWidth / 2) },
           { translateY: isMobile ? -14 : -18 },
           { translateY: animOffset },
           { scale: animScale },
@@ -2335,7 +2337,7 @@ export const GameScreen: React.FC<Props> = ({
                     top: `${y}%`, 
                     left: `${x}%`, 
                     transform: [{ translateX: -half }, { translateY: -half }],
-                    zIndex: 120,
+                    zIndex: isRevealingMode ? 350 : 120,
                   };
                   return (
                     <View key={id} ref={el => { if (el) seatRefs.current[id] = el; }} style={[styles.opponentArea, pos]} pointerEvents="box-none">
@@ -2393,10 +2395,20 @@ export const GameScreen: React.FC<Props> = ({
                             cardStyle = { ...cardStyle, marginBottom: 5 };
                             showCardsAbove = true;
                           } else if (x >= 80) {
-                            infoStyle = { ...infoStyle, top: avatarSize + 2, right: 0, alignItems: 'center', width: 90 };
+                            // Side Right Seat (Seat 2 in 8P): In reveal mode, anchor above avatar to avoid bottom-right cards
+                            if (isRevealingMode) {
+                              infoStyle = { ...infoStyle, bottom: avatarSize + 2, right: 0, alignItems: 'center', width: 95 };
+                            } else {
+                              infoStyle = { ...infoStyle, top: avatarSize + 2, right: 0, alignItems: 'center', width: 95 };
+                            }
                             showCardsAbove = false;
                           } else if (x <= 20) {
-                            infoStyle = { ...infoStyle, top: avatarSize + 2, left: 0, alignItems: 'center', width: 90 };
+                            // Side Left Seat (Seat 6 in 8P): In reveal mode, anchor above avatar to avoid bottom-left cards
+                            if (isRevealingMode) {
+                              infoStyle = { ...infoStyle, bottom: avatarSize + 2, left: 0, alignItems: 'center', width: 95 };
+                            } else {
+                              infoStyle = { ...infoStyle, top: avatarSize + 2, left: 0, alignItems: 'center', width: 95 };
+                            }
                             showCardsAbove = false;
                           }
 
@@ -4041,10 +4053,10 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
     floatingPlayerLabel: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 5,
+      gap: 4,
       marginBottom: 3,
       backgroundColor: 'rgba(5, 30, 15, 0.98)',
-      paddingHorizontal: isMobile ? 8 : 12,
+      paddingHorizontal: isMobile ? 7 : 10,
       paddingVertical: isMobile ? 2.5 : 4,
       borderRadius: 12,
       borderWidth: 1.5,
@@ -4055,17 +4067,20 @@ const createStyles = (width: number, height: number, n: number = 4, avatarSize: 
       shadowRadius: 5,
       elevation: 12,
       zIndex: 9999,
+      flexShrink: 0,
     },
     floatingPlayerNameText: {
       color: '#ffffff',
       fontSize: isMobile ? 11 : 12,
       fontWeight: 'bold',
-      maxWidth: isMobile ? 80 : 120,
+      maxWidth: isMobile ? 95 : 130,
+      flexShrink: 0,
     },
     floatingScoreText: {
       color: '#facc15',
       fontSize: isMobile ? 11 : 12,
       fontWeight: '900',
+      flexShrink: 0,
     },
     floatingCallerBadge: {
       backgroundColor: '#facc15',

@@ -292,6 +292,7 @@ const styles = StyleSheet.create({
   h2: { color: '#38bdf8', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   bodyText: { color: '#cbd5e1', fontSize: 15, lineHeight: 24 },
   boldText: { color: '#fbbf24', fontWeight: 'bold' },
+  italic: { fontStyle: 'italic', color: '#94a3b8' },
 
   ctaRow: { flexDirection: 'row', gap: 12, marginTop: 16, flexWrap: 'wrap' },
   primaryCta: { backgroundColor: '#0275d8', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, minHeight: 44, justifyContent: 'center' },
