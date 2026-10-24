@@ -78,7 +78,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
 
           <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Game Online – Official Guide &amp; Portal</Text>
           <Text style={styles.subtitle}>
-            Welcome to the official portal for 7 Cards Least (also known as 7 Card Game or Low Hand Rummy). Discover complete deck mechanics, Joker wildcard rules, turn sequences, and lowest-score strategies.
+            An indie tactical card game where the lowest hand score wins. Learn deck setup, zero-point table Jokers, Match &amp; Skip mechanics, and tournament survival.
           </Text>
 
           {/* ⚡ TOP HERO PLAY CTA CARD ⚡ */}
@@ -101,7 +101,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
           <View style={styles.cardSection}>
             <Text style={styles.h2} accessibilityRole="header" aria-level={2}>What Is 7 Cards Least?</Text>
             <Text style={styles.bodyText}>
-              7 Cards Least is a strategic lowest-score card shedding game played with a standard 52-card deck. Unlike classic card games where the goal is to accumulate high points, 7 Cards Least inverts traditional scoring: each player is dealt 7 cards, and the goal is to systematically minimize your hand total by discarding high cards, assembling matching rank sets, and building suited runs.
+              7 Cards Least is an indie card shedding game built around calculated risk, card deduction, and timing. Each player is dealt 7 cards from a standard deck (or two decks for tables with 6 to 8 players). Unlike traditional rummy where you keep cards to meld long sequences, your entire goal here is hand reduction: stripping out heavy point cards while maneuvering into a sub-10 point hand to declare Least.
               {'\n\n'}
               When a player calculates that their total hand value has dropped to <Text style={styles.boldText}>10 points or less</Text>, they declare <Text style={styles.boldText}>"LEAST!"</Text> during their turn. The player holding the lowest score wins the round with zero penalty points!
             </Text>
@@ -112,7 +112,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
             <Text style={styles.bodyText}>
               A match is played with a standard 52-card deck (single deck for 2 to 5 players, two decks shuffled together for 6 to 8 players) without physical joker cards.
               {'\n\n'}
-              • <Text style={styles.boldText}>Table Joker Selection:</Text> At the start of each round, 1 card is flipped face-up from the deck into the center table. The rank of this card establishes the <Text style={styles.boldText}>zero-point Joker rank</Text> for the entire round. Any card of matching rank held in any player's hand scores <Text style={styles.boldText}>0 points</Text>!
+              • <Text style={styles.boldText}>Table Joker Selection:</Text> At the start of each round, 1 card is flipped face-up from the deck into the center table. The rank of this card establishes the <Text style={styles.boldText}>zero-point Joker rank</Text> for the entire round. Any card of matching rank held in any player's hand scores <Text style={styles.boldText}>0 points</Text>! For example, if a 7 is flipped, all four 7s (7♠, 7♥, 7♦, 7♣) count as 0 points.
               {'\n'}• <Text style={styles.boldText}>Dealing:</Text> Every player is dealt exactly 7 cards.
               {'\n'}• <Text style={styles.boldText}>Discard Pile Open:</Text> A second card is flipped face-up adjacent to the draw deck to start the active Discard Pile.
             </Text>
@@ -121,7 +121,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
           <View style={styles.cardSection}>
             <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Card Point Values &amp; Scoring System</Text>
             <Text style={styles.bodyText}>
-              Every card remaining in your hand when a round concludes contributes directly to your penalty score:
+              Hand scores are calculated by summing the point values of all remaining cards:
               {'\n'}• <Text style={styles.boldText}>Ace (A):</Text> 1 Point (the lowest standard card).
               {'\n'}• <Text style={styles.boldText}>Numbered Cards (2 to 10):</Text> Face value (2–10 points corresponding to card rank).
               {'\n'}• <Text style={styles.boldText}>Face Cards (Jack, Queen, King):</Text> 10 Points each (high liability cards to discard early).
@@ -142,9 +142,9 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
               {'\n'}   - An equal-rank set of 2+ cards (e.g. 7♥ 7♦ or 9♠ 9♥ 9♣).
               {'\n'}   - A suited run of 3+ consecutive cards in the same suit (e.g. 4♣ 5♣ 6♣).
               {'\n\n'}
-              2. <Text style={styles.boldText}>The Match &amp; Skip Rule:</Text> If your discarded card matches the rank of the current top card of the Discard Pile, your turn concludes immediately! You do not have to draw a replacement card, permanently decreasing your hand size.
+              2. <Text style={styles.boldText}>The Match &amp; Skip Rule:</Text> If your discarded card matches the rank of the current top card of the Discard Pile, your turn concludes immediately! You do not draw a replacement card, permanently decreasing your hand size.
               {'\n\n'}
-              3. <Text style={styles.boldText}>Phase 2 – Drawing:</Text> If your discard does not match the pile rank, draw 1 card from either the face-down Draw Deck or the face-up Discard Pile.
+              3. <Text style={styles.boldText}>Phase 2 – Drawing:</Text> If your discard does not match the pile rank, draw 1 card from either the face-down Draw Deck or the face-up Discard Pile. If a drawn deck card matches your discard rank, it drops immediately to the discard pile without entering hand.
             </Text>
             <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.inlineCta}>
               <Text style={styles.inlineCtaText}>Step-by-step interactive beginner tutorial →</Text>
@@ -157,7 +157,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
               When your total hand score is 10 points or less, you can declare <Text style={styles.boldText}>"LEAST!"</Text> on your turn to halt the round. All players reveal their hands:
               {'\n\n'}
               • <Text style={styles.boldText}>Successful Call:</Text> If your hand score is strictly lower than every opponent, you win the round and score <Text style={styles.boldText}>0 points</Text>. Opponents receive points equal to their hand score minus your winning score.
-              {'\n'}• <Text style={styles.boldText}>False Call (The 80-Point Penalty):</Text> If ANY opponent holds an equal or lower hand score than your hand, your call fails! You incur a heavy <Text style={styles.boldText}>80-point penalty</Text> added to your match score, while the true lowest player wins the round.
+              {'\n'}• <Text style={styles.boldText}>False Call (The 80-Point Penalty):</Text> If ANY opponent holds an equal or lower hand score than your hand, your call fails! You incur a heavy <Text style={styles.boldText}>80-point penalty</Text> added to your match score, while the true lowest player wins the round with 0 points.
             </Text>
           </View>
 
@@ -171,7 +171,7 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
           <View style={styles.cardSection}>
             <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Winning Strategy Overview</Text>
             <Text style={styles.bodyText}>
-              Top players prioritize discarding high-point face cards (J, Q, K) during the first 3 turns, hold zero-point Jokers to construct game-ending low hands, watch opponent pickup choices from the discard pile, and only declare Least when their hand is safely below 6 points to guard against the 80-point penalty.
+              Top players prioritize shedding isolated face cards early, track low card pickups from the discard pile, hold zero-point Jokers to anchor winning hands, and only declare Least when their hand total is comfortably below 6 points to avoid the devastating 80-point penalty.
             </Text>
             <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.inlineCta}>
               <Text style={styles.inlineCtaText}>Explore in-depth tactical strategies &amp; hand examples →</Text>

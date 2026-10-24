@@ -93,7 +93,7 @@
           "name": "What happens if the Draw Deck runs out of cards during an active round?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert."
+            "text": "If the face-down Draw Deck is completely depleted during gameplay, our engine leaves the current top card of the discard pile face-up on the table, shuffles all previously discarded cards into a brand new draw deck with Fisher-Yates randomization, and sends a quick notification to the game chat. Play continues uninterrupted."
           }
         },
         {
@@ -110,6 +110,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "If the caller holds more points than the opponents, the caller fails and incurs the full 80-point penalty. If two or more opponents tie for the lowest hand score, both tied opponents share round victory and receive 0 penalty points."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if a player discards their entire hand on a Match & Skip?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "If a player's final remaining card (or set) matches the rank on top of the discard pile, Match & Skip triggers and skips the draw phase. Their hand drops to 0 cards (0 points). On their next turn, the engine automatically declares Least for them, winning the round with 0 points."
           }
         },
         {
@@ -266,7 +274,12 @@
 
         <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What happens if the Draw Deck runs out of cards during an active round?</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A: If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert. Play continues seamlessly.
+          A: If the face-down Draw Deck is completely depleted during gameplay, our engine leaves the current top card of the discard pile face-up on the table, shuffles all previously discarded cards into a brand new draw deck with Fisher-Yates randomization, and sends a quick notification to the game chat. Play continues uninterrupted.
+        </p>
+
+        <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: What happens if a player discards their entire hand on a Match &amp; Skip?</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          A: If a player's final remaining card (or set) matches the rank on top of the discard pile, Match &amp; Skip triggers and skips the draw phase. Their hand drops to 0 cards (0 points). On their next turn, the engine automatically declares Least for them, winning the round with 0 points.
         </p>
 
         <h3 style="font-size: 1.2rem; color: #38bdf8; margin-top: 20px; margin-bottom: 8px;">Q: Can I discard cards matching the Table Joker rank as a set or sequence?</h3>
@@ -410,7 +423,7 @@
         });
       })();
     </script>
-  <script src="/_expo/static/js/web/index-bcfeed92e6940dd7d55a6f6563a7d949.js" defer></script>
+  <script src="/_expo/static/js/web/index-43ad2a29ef87da5f8461c08e2545f7ab.js" defer></script>
 </body>
 </html>
 

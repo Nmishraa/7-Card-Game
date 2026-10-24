@@ -56,11 +56,11 @@ export const SevenCardsLeastRulesPage: React.FC<Props> = ({ onNavigate, user, on
           <Text style={styles.h1} accessibilityRole="header" aria-level={1}>7 Cards Least Official Rules &amp; Scoring Guide</Text>
           <Text style={styles.subtitle}>Complete guide to card point values, discards, wildcards, turn rules, and penalties in 7 Cards Least.</Text>
 
-          {/* ─── GOOGLE FEATURED SNIPPET DEFINITION & SCORING TABLE ─── */}
+          {/* ─── OFFICIAL GAME OVERVIEW & SCORING TABLE ─── */}
           <View style={styles.featuredSnippetCard}>
-            <Text style={styles.featuredSnippetHeading} accessibilityRole="header" aria-level={2}>⚡ What is 7 Cards Least? (Quick Summary)</Text>
+            <Text style={styles.featuredSnippetHeading} accessibilityRole="header" aria-level={2}>⚡ How 7 Cards Least is Played (Official Rules)</Text>
             <Text style={styles.featuredSnippetText}>
-              <Text style={styles.boldText}>7 Cards Least</Text> is a fast-paced card shedding game played with 7 cards dealt to each player from a standard 52-card deck. The objective is to finish each round with the <Text style={{ color: '#34d399', fontWeight: 'bold' }}>lowest cumulative hand point total</Text> by discarding high-value face cards (10 pts), building matched sets or runs, and calling <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text> when your hand total is 10 points or fewer.
+              In <Text style={styles.boldText}>7 Cards Least</Text>, players are dealt 7 cards from a standard 52-card deck (or two decks for 6 to 8 players). Unlike traditional card games that reward point hoarding, the goal here is to shed heavy liabilities and finish each round with the <Text style={{ color: '#34d399', fontWeight: 'bold' }}>lowest total hand point count</Text>. You do this by discarding high-value face cards (10 pts), assembling matching sets or suited runs, and calling <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text> before discarding when your hand drops to 10 points or fewer.
             </Text>
 
             {/* Quick Scoring Table */}

@@ -26,104 +26,80 @@ export const HomeSeoArticle: React.FC<Props> = ({ onNavigate }) => {
           aria-level={3}
           style={styles.h2}
         >
-          The ultimate online portal for 7 Cards Least rules, strategy, and real-time multiplayer card games.
+          A tactical low-hand card shedding game where the goal is to finish with the lowest score at the table.
         </Text>
 
         <Text style={styles.paragraph}>
-          Welcome to <Text style={styles.bold}>7 Cards Least</Text>! Play real-time multiplayer with friends or practice solo against computer AI. The objective is to achieve the <Text style={styles.italic}>lowest hand score</Text> by discarding high-value cards, forming sets or suited runs, and declaring <Text style={styles.boldGreen}>LEAST!</Text> when your hand total drops to 10 points or less.
+          <Text style={styles.bold}>7 Cards Least</Text> is an indie card shedding game built around calculated risk, card deduction, and timing. Instead of trying to build high-value tricks or meld points, each player is dealt 7 cards and works to shed heavy liabilities. When you calculate that your hand sum has dropped to 10 points or less, you can declare <Text style={styles.boldGreen}>"LEAST!"</Text> on your turn. If your hand is strictly lower than every opponent, you take 0 penalty points; but if an opponent ties or holds a lower score, you take an <Text style={styles.bold}>80-point penalty</Text>.
         </Text>
 
-        {/* Section 1: Scoring */}
+        {/* Section 1: How Scoring Works */}
         <Text
           accessibilityRole="header"
           // @ts-ignore
           aria-level={3}
           style={styles.h3}
         >
-          🎴 Card Point Values &amp; Scoring Overview
+          🎴 Card Values, Relative Scoring &amp; Penalties
         </Text>
         <Text style={styles.paragraph}>
-          Understanding point values is critical for effective card shedding. Every card remaining in your hand at the end of a round adds to your round score penalty:
+          In 7 Cards Least, card ranks determine how fast you can safely reach declaring range:
         </Text>
 
         <View style={styles.bulletList}>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Ace (A):</Text> 1 Point (the lowest standard card value).
+            • <Text style={styles.boldWhite}>Number Cards (2 to 10):</Text> Worth their exact face value (2–10 points).
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Number Cards (2 to 10):</Text> Face Value (2–10 points each).
+            • <Text style={styles.boldWhite}>Face Cards (J, Q, K):</Text> Flat 10 points each. Unmatched face cards are your biggest early liability.
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Face Cards (J, Q, K):</Text> 10 Points each (high liability cards to shed early).
+            • <Text style={styles.boldWhite}>Ace (A):</Text> 1 Point. Low anchor cards that make ideal sequences like A-2-3.
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Table Joker Wildcard:</Text> 0 Points (determined by the face-up card during table setup).
+            • <Text style={styles.boldWhite}>Table Joker (0 Points):</Text> At round setup, the dealer flips one card into the center. Any card matching that rank—regardless of suit—counts as 0 points for the entire round.
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Least Declaration Threshold:</Text> Total hand score must be 10 points or less to call Least.
+            • <Text style={styles.boldWhite}>Relative Difference Scoring:</Text> When a caller wins, opponents take penalty points equal only to the difference (their hand score minus the winning score). You are not penalized your full hand score unless the winner held 0 points.
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>False Call Penalty:</Text> An 80-point penalty is assessed if an opponent holds an equal or lower score upon reveal.
+            • <Text style={styles.boldWhite}>The 80-Point Blunder:</Text> The caller must strictly beat every opponent. In a tie or loss, the caller receives an 80-point penalty, while the true lowest player wins with 0 points.
           </Text>
         </View>
 
-        {/* Section 2: Features & Modes */}
+        {/* Section 2: Turn Flow & How to Play */}
         <Text
           accessibilityRole="header"
           // @ts-ignore
           aria-level={3}
           style={styles.h3}
         >
-          🎮 Flexible Game Modes &amp; Features
+          🕹️ How a Turn Works &amp; How to Start Playing
         </Text>
         <Text style={styles.paragraph}>
-          Whether you want to play instant solo matches or host private games with friends, cards.gnanamai.com provides seamless cross-platform gameplay:
+          Each turn follows a clean, tactical loop:
         </Text>
 
         <View style={styles.bulletList}>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Real-Time Online Multiplayer:</Text> Create private room lobbies with unique 4-digit codes, share WhatsApp invite links, and play with 2 to 8 real players in{' '}
-            <SeoLink href="/multiplayer" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>online multiplayer mode</Text>
-            </SeoLink>.
+            • <Text style={styles.boldWhite}>1. Discard Phase:</Text> Play a single card, a matching set of 2+ cards of the same rank (e.g. 8♠ 8♦), or a suited run of 3+ consecutive cards (e.g. 5♣ 6♣ 7♣).
           </Text>
           <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Singleplayer AI Practice:</Text> Play against 1 to 7 smart computer bots with zero wait times in{' '}
+            • <Text style={styles.boldWhite}>2. Match &amp; Skip Shortcut:</Text> If your discard matches the rank currently on top of the discard pile, your turn ends immediately without drawing! Your hand size permanently shrinks by one card.
+          </Text>
+          <Text style={styles.bulletItem}>
+            • <Text style={styles.boldWhite}>3. Draw Phase:</Text> If not skipped, draw 1 card from either the face-down deck or the face-up discard pile. If a drawn deck card matches your discard rank, it drops immediately to the pile.
+          </Text>
+          <Text style={styles.bulletItem}>
+            • <Text style={styles.boldWhite}>4. Calling Least:</Text> Before discarding on your turn, if your total hand score is 10 points or fewer, tap "LEAST!" to stop the round and trigger the showdown.
+          </Text>
+          <Text style={styles.bulletItem}>
+            • <Text style={styles.boldWhite}>Multiplayer &amp; Solo AI:</Text> Jump into a game using Quick Match above, practice solo against computer bots in{' '}
             <SeoLink href="/play-against-ai" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>play against AI mode</Text>
-            </SeoLink>.
-          </Text>
-          <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Custom Match Rules:</Text> Adjust round counts, turn timers (60-second limit or infinite), and felt table themes.
-          </Text>
-          <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Interactive Companion Tools:</Text> Test scenarios in the{' '}
-            <SeoLink href="/strategy-lab" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>Strategy Lab</Text>
-            </SeoLink>, calculate scores in the{' '}
-            <SeoLink href="/score-calculator" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>Score Calculator</Text>
-            </SeoLink>, and tackle the daily puzzle in{' '}
-            <SeoLink href="/daily-challenge" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>Daily Challenge</Text>
-            </SeoLink>.
-          </Text>
-          <Text style={styles.bulletItem}>
-            • <Text style={styles.boldWhite}>Comprehensive Guides:</Text> Master game details with our{' '}
-            <SeoLink href="/7-cards-least" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>7 Cards Least Guide</Text>
-            </SeoLink>, review the{' '}
-            <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>official rules</Text>
-            </SeoLink>, read the{' '}
-            <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>how to play tutorial</Text>
-            </SeoLink>, explore{' '}
-            <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>winning strategies</Text>
-            </SeoLink>, or check out our{' '}
-            <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate}>
-              <Text style={styles.linkText}>frequently asked questions</Text>
+              <Text style={styles.linkText}>AI mode</Text>
+            </SeoLink>, or create private lobbies with WhatsApp invites in{' '}
+            <SeoLink href="/multiplayer" onNavigate={onNavigate}>
+              <Text style={styles.linkText}>multiplayer mode</Text>
             </SeoLink>.
           </Text>
         </View>

@@ -25,7 +25,7 @@ export const SevenCardsLeastFaqPage: React.FC<Props> = ({ onNavigate, user, onLo
     },
     {
       q: 'What happens if the Draw Deck runs out of cards during an active round?',
-      a: 'If the face-down Draw Deck is completely depleted during gameplay, the game automatically preserves the current top face-up card on the discard pile, reshuffles all other discarded cards into a brand new face-down draw deck, and displays a system alert. Play continues seamlessly.'
+      a: 'If the face-down Draw Deck is completely depleted during gameplay, our engine leaves the current top card of the discard pile face-up on the table, shuffles all previously discarded cards into a brand new draw deck with Fisher-Yates randomization, and sends a quick notification to the game chat. Play continues uninterrupted.'
     },
     {
       q: 'Can I discard cards matching the Table Joker rank as a set or sequence?',
@@ -34,6 +34,10 @@ export const SevenCardsLeastFaqPage: React.FC<Props> = ({ onNavigate, user, onLo
     {
       q: 'What happens if two or more opponents tie for the lowest score when Least is declared?',
       a: 'If the caller holds more points than the opponents, the caller fails and incurs the full 80-point penalty. If two or more opponents tie for the lowest hand score (e.g. both hold 3 points), both tied opponents share round victory and receive 0 penalty points, while all other players score their point difference.'
+    },
+    {
+      q: 'What happens if a player discards their entire hand on a Match & Skip?',
+      a: 'If a player\'s final remaining card (or set) matches the rank on top of the discard pile, Match & Skip triggers and skips the draw phase. Their hand drops to 0 cards (0 points). On their next turn, the engine automatically declares Least for them, winning the round with 0 points.'
     },
     {
       q: 'Can I call "Least!" on my very first turn of a round?',

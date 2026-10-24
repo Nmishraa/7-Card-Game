@@ -154,7 +154,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 1: Choose Game Mode & Launch</Text>
                 <Text style={styles.stepBoxDesc}>
-                  Select your nickname and choose whether to practice solo against smart AI bots or create a multiplayer table for friends.
+                  Enter a nickname and pick how you want to play. You can jump directly into a solo table against computer bots (AlphaBot, BetaBot, OmegaBot) for instant practice, or host a private multiplayer room with custom round counts and WhatsApp invites for friends.
                 </Text>
 
                 <View style={styles.demoSetupBox}>
@@ -180,7 +180,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 2: Understand Your 7 Cards & Score</Text>
                 <Text style={styles.stepBoxDesc}>
-                  Tap any card below to see its value. Notice how the <Text style={styles.boldText}>7 of Spades ♠</Text> acts as a Wildcard Joker worth <Text style={styles.boldText}>0 points</Text>!
+                  Tap any card below to see its value. Notice how the <Text style={styles.boldText}>7 of Spades ♠</Text> acts as the flipped Table Joker worth <Text style={styles.boldText}>0 points</Text>! In every round, 4 cards in the deck match the Joker rank and become zero-point shields.
                 </Text>
 
                 {/* Score summary badge */}
@@ -234,7 +234,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 3: Discard a Card or Combination</Text>
                 <Text style={styles.stepBoxDesc}>
-                  You can discard a single high card or drop equal rank sets (e.g. 3♥ 3♦ 3♣) and suited runs to quickly drain your hand points!
+                  Every turn begins with a discard. You can dump a single high-liability card (like a King), drop matching rank sets (e.g. 3♥ 3♦ 3♣ for 9 pts shed), or suited runs (3+ consecutive cards same suit). If your discard rank matches the top of the discard pile, Match &amp; Skip triggers and you skip drawing!
                 </Text>
 
                 {/* Action buttons */}
@@ -273,7 +273,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 4: Draw a Replacement Card</Text>
                 <Text style={styles.stepBoxDesc}>
-                  After discarding, pick up a new card. You can draw blindly from the face-down Deck or take the visible top card from the Discard Pile.
+                  Unless you triggered Match &amp; Skip, you must draw 1 card. Choose the face-up Discard Pile only if that visible card directly lowers your total or completes a set. Otherwise, draw blind from the deck hoping for an Ace or Joker!
                 </Text>
 
                 <View style={styles.drawPilesRow}>
@@ -309,7 +309,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 5: Call "Least!" to Win the Round</Text>
                 <Text style={styles.stepBoxDesc}>
-                  When your total hand score is <Text style={styles.boldText}>10 points or less (≤ 10 pts)</Text>, tap <Text style={styles.boldText}>LEAST!</Text> during your turn to halt the round. If your hand holds the lowest score, you earn <Text style={styles.boldText}>0 points</Text> for the round!
+                  When your total hand score is <Text style={styles.boldText}>10 points or less (≤ 10 pts)</Text>, the "LEAST!" button illuminates on your turn before you discard. Calling halts play and reveals all hands. If your score is strictly the lowest, you win with <Text style={styles.boldText}>0 penalty points</Text>!
                 </Text>
 
                 <View style={styles.callLeastDemoBox}>

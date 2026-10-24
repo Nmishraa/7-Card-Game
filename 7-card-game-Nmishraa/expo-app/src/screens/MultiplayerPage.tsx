@@ -429,41 +429,41 @@ export const MultiplayerPage: React.FC<Props> = ({ onNavigate, user, onLogout })
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>⚡ Quick Match (Online)</Text>
+            <Text style={styles.h2}>⚡ Instant Quick Match &amp; Seamless Fill</Text>
             <Text style={styles.bodyText}>
-              Jump straight into a fast online game! Quick Match instantly pairs you with available players and computer AI bots (AlphaBot, BetaBot, OmegaBot) so you never have to wait in long queues to start playing.
+              Jump straight into a live game! Quick Match instantly pairs you with real players or adaptive computer AI bots (AlphaBot, BetaBot, OmegaBot) so your table is always full and playable with zero waiting.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>🔒 Private Tables &amp; 4-Digit Room Codes</Text>
+            <Text style={styles.h2}>🔒 Private Tables, WhatsApp Links &amp; 4-Digit Codes</Text>
             <Text style={styles.bodyText}>
-              Want to host a card session with friends? Create a Private Table, set your custom round count (from 1 to 20 rounds), and share the unique 4-digit room code with your friends so they can join from any browser or mobile device.
+              Hosting game night with friends? Set up a private table, customize your match length (1 to 20 rounds), and share your 4-digit room code or WhatsApp invite link. Anyone can tap the link and join from their phone or computer browser without downloading an app or creating an account.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>💬 Real-time Sync &amp; Live Chat</Text>
+            <Text style={styles.h2}>💬 Real-Time State Sync &amp; Table Timers</Text>
             <Text style={styles.bodyText}>
-              Every discard, card draw, and score update is synchronized in real time via our high-performance backend database connection. Use the integrated live chat to send quick system messages and banter during matches.
+              Turns, discards, and score calculations are synchronized in real time across all active players. Waiting rooms stay active for 15 minutes before expiring. Once a tournament concludes, players have 5 minutes to request a rematch together before the table closes.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>🏆 Master the Least Score Card Game online</Text>
+            <Text style={styles.h2}>🏆 Master Lowest-Score Card Strategy</Text>
             <Text style={styles.bodyText}>
-              In 7 Cards Least, every player aims for the <Text style={{fontWeight: 'bold', color: '#fbbf24'}}>least score</Text> at the table. By discarding high-value face cards and building matching sets, you minimize your points to declare "Least". Learn more about official <TouchableOpacity onPress={() => onNavigate('/rules')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>7 Cards Game Rules</Text></TouchableOpacity> or explore our main guide on <TouchableOpacity onPress={() => onNavigate('/7-cards-least')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>7 Cards Least online card game strategies</Text></TouchableOpacity>.
+              In 7 Cards Least, victory belongs to the player who minimizes penalty liability. Discard unmatched face cards, capitalize on Match &amp; Skip turns, and know when to safely declare "LEAST!". Learn more in our <TouchableOpacity onPress={() => onNavigate('/7-cards-least/rules')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>Official 7 Cards Least Rules</Text></TouchableOpacity> or review practical hand scenarios in our <TouchableOpacity onPress={() => onNavigate('/7-cards-least/strategy')}><Text style={{color: '#38bdf8', textDecorationLine: 'underline'}}>Tactical Strategy Guide</Text></TouchableOpacity>.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2}>Ready to Battle Online?</Text>
+            <Text style={styles.h2}>Ready to Start a Game?</Text>
             <View style={styles.ctaRow}>
               <TouchableOpacity style={styles.primaryCta} onPress={() => onNavigate('/')}>
                 <Text style={styles.ctaText}>⚡ Start Quick Match</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/solo')}>
-                <Text style={styles.secondaryCtaText}>🤖 Play Solo vs Computer</Text>
+              <TouchableOpacity style={styles.secondaryCta} onPress={() => onNavigate('/play-against-ai')}>
+                <Text style={styles.secondaryCtaText}>🤖 Practice vs AI</Text>
               </TouchableOpacity>
             </View>
           </View>
