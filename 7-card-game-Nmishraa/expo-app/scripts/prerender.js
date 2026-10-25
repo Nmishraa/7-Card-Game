@@ -59,16 +59,16 @@ const routes = [
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": ["WebApplication", "VideoGame"],
+          "@type": "VideoGame",
           "@id": "https://cards.gnanamai.com/#game",
           "name": "7 Cards Least",
           "alternateName": "Seven Cards Least",
           "url": "https://cards.gnanamai.com/",
           "description": "A tactical low-hand card shedding game where the goal is to finish with the lowest score at the table.",
-          "applicationCategory": "GameApplication",
+          "genre": ["Card Game", "Strategy Game"],
           "gamePlatform": "Web Browser",
-          "operatingSystem": "All",
-          "genre": ["Card Game", "Strategy Game", "Multiplayer"],
+          "applicationCategory": "Game",
+          "operatingSystem": "Any",
           "playMode": ["SinglePlayer", "MultiPlayer"],
           "numberOfPlayers": {
             "@type": "QuantitativeValue",
