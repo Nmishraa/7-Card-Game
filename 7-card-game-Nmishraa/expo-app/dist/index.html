@@ -77,19 +77,32 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "WebApplication",
-      "@id": "https://cards.gnanamai.com/#webapp",
+      "@type": [
+        "WebApplication",
+        "VideoGame"
+      ],
+      "@id": "https://cards.gnanamai.com/#game",
       "name": "7 Cards Least",
+      "alternateName": "Seven Cards Least",
       "url": "https://cards.gnanamai.com/",
-      "description": "Play 7 Cards Least online for free. Track 7 cards least score live, discard matching sets and runs to achieve lowest hand points, and win against friends or AI.",
+      "description": "A tactical low-hand card shedding game where the goal is to finish with the lowest score at the table.",
       "applicationCategory": "GameApplication",
       "gamePlatform": "Web Browser",
       "operatingSystem": "All",
       "genre": [
         "Card Game",
-        "Multiplayer",
-        "Casual Game"
+        "Strategy Game",
+        "Multiplayer"
       ],
+      "playMode": [
+        "SinglePlayer",
+        "MultiPlayer"
+      ],
+      "numberOfPlayers": {
+        "@type": "QuantitativeValue",
+        "minValue": 2,
+        "maxValue": 8
+      },
       "offers": {
         "@type": "Offer",
         "price": "0",
