@@ -99,92 +99,85 @@ export const SevenCardsLeastMainPage: React.FC<Props> = ({ onNavigate, user, onL
           <GamePreviewSection />
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>What Is 7 Cards Least?</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>What Makes 7 Cards Least Different?</Text>
             <Text style={styles.bodyText}>
-              7 Cards Least is an indie card shedding game built around calculated risk, card deduction, and timing. Each player is dealt 7 cards from a standard deck (or two decks for tables with 6 to 8 players). Unlike traditional rummy where you keep cards to meld long sequences, your entire goal here is hand reduction: stripping out heavy point cards while maneuvering into a sub-10 point hand to declare Least.
+              Welcome to the official 7 Cards Least knowledge portal. Unlike traditional card games that reward point hoarding or meld construction, 7 Cards Least is built on <Text style={styles.boldText}>pure hand reduction</Text>.
               {'\n\n'}
-              When a player calculates that their total hand value has dropped to <Text style={styles.boldText}>10 points or less</Text>, they declare <Text style={styles.boldText}>"LEAST!"</Text> during their turn. The player holding the lowest score wins the round with zero penalty points!
+              Each player starts with 7 dealt cards, working to discard point liabilities and maneuver their hand sum down to 10 points or lower to declare <Text style={styles.boldText}>"LEAST!"</Text>.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Deck Setup &amp; The Table Joker Wildcard</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>🌟 The 4 Core Mechanics of 7 Cards Least</Text>
             <Text style={styles.bodyText}>
-              A match is played with a standard 52-card deck (single deck for 2 to 5 players, two decks shuffled together for 6 to 8 players) without physical joker cards.
-              {'\n\n'}
-              • <Text style={styles.boldText}>Table Joker Selection:</Text> At the start of each round, 1 card is flipped face-up from the deck into the center table. The rank of this card establishes the <Text style={styles.boldText}>zero-point Joker rank</Text> for the entire round. Any card of matching rank held in any player's hand scores <Text style={styles.boldText}>0 points</Text>! For example, if a 7 is flipped, all four 7s (7♠, 7♥, 7♦, 7♣) count as 0 points.
-              {'\n'}• <Text style={styles.boldText}>Dealing:</Text> Every player is dealt exactly 7 cards.
-              {'\n'}• <Text style={styles.boldText}>Discard Pile Open:</Text> A second card is flipped face-up adjacent to the draw deck to start the active Discard Pile.
+              • <Text style={styles.boldText}>1. Point Liability Shedding:</Text> High cards (J, Q, K = 10 pts) are dangerous liabilities. Players rapidly shed points by discarding equal-rank pairs/triples or suited consecutive runs.
+              {'\n\n'}• <Text style={styles.boldText}>2. Dynamic Table Jokers:</Text> At the start of every round, one setup card is flipped in the center. All four cards of that matching rank become <Text style={styles.boldText}>0-point wildcards</Text> for the entire round.
+              {'\n\n'}• <Text style={styles.boldText}>3. Match &amp; Skip Acceleration:</Text> Matching the exact rank of the discard pile top skips your draw phase, permanently decreasing your hand size and speeding up your path to victory.
+              {'\n\n'}• <Text style={styles.boldText}>4. The High-Stakes Showdown:</Text> When your hand totals ≤ 10 points, call "LEAST!". If you hold the lowest score, you earn 0 penalty points; but if an opponent ties or beats you, you suffer a devastating <Text style={styles.boldText}>80-point penalty</Text>.
             </Text>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Card Point Values &amp; Scoring System</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>📚 Complete 7 Cards Least Guide Network</Text>
             <Text style={styles.bodyText}>
-              Hand scores are calculated by summing the point values of all remaining cards:
-              {'\n'}• <Text style={styles.boldText}>Ace (A):</Text> 1 Point (the lowest standard card).
-              {'\n'}• <Text style={styles.boldText}>Numbered Cards (2 to 10):</Text> Face value (2–10 points corresponding to card rank).
-              {'\n'}• <Text style={styles.boldText}>Face Cards (Jack, Queen, King):</Text> 10 Points each (high liability cards to discard early).
-              {'\n'}• <Text style={styles.boldText}>Table Joker Rank:</Text> 0 Points (established by the table setup card).
+              Explore our dedicated in-depth resources tailored for every stage of your gameplay:
             </Text>
-            <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>View complete official rules &amp; scoring reference →</Text>
-            </SeoLink>
+
+            <View style={{ gap: 12, marginTop: 14 }}>
+              <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 16, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.25)' }}>
+                <Text style={{ color: '#38bdf8', fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>📖 Official Rules &amp; Scoring</Text>
+                <Text style={{ color: '#94a3b8', fontSize: 14, lineHeight: 20, marginBottom: 8 }}>
+                  Complete point breakdown (Ace=1, Numbers=2-10, Face=10, Joker=0), relative difference scoring, and the 80-point wrong call penalty.
+                </Text>
+                <SeoLink href="/7-cards-least/rules" onNavigate={onNavigate} style={styles.inlineCta}>
+                  <Text style={styles.inlineCtaText}>Read Official Rules →</Text>
+                </SeoLink>
+              </View>
+
+              <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 16, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.25)' }}>
+                <Text style={{ color: '#38bdf8', fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>🎓 Step-by-Step How to Play</Text>
+                <Text style={{ color: '#94a3b8', fontSize: 14, lineHeight: 20, marginBottom: 8 }}>
+                  Beginner tutorial covering dealing, multi-card discards, drawing, and a complete turn-by-turn worked sample round.
+                </Text>
+                <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.inlineCta}>
+                  <Text style={styles.inlineCtaText}>Start How to Play Tutorial →</Text>
+                </SeoLink>
+              </View>
+
+              <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 16, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.25)' }}>
+                <Text style={{ color: '#38bdf8', fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>🧠 Winning Strategy &amp; Tactics</Text>
+                <Text style={{ color: '#94a3b8', fontSize: 14, lineHeight: 20, marginBottom: 8 }}>
+                  Advanced discard order, opponent pickup tracking, the 0–10 point call risk matrix, and multi-round 200-point tournament survival.
+                </Text>
+                <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.inlineCta}>
+                  <Text style={styles.inlineCtaText}>Explore Strategy Guide →</Text>
+                </SeoLink>
+              </View>
+
+              <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 16, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.25)' }}>
+                <Text style={{ color: '#38bdf8', fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>❓ Frequently Asked Questions (FAQ)</Text>
+                <Text style={{ color: '#94a3b8', fontSize: 14, lineHeight: 20, marginBottom: 8 }}>
+                  Detailed answers to edge-case questions: ties, reshuffling, zero-card hand calls, and room host controls.
+                </Text>
+                <SeoLink href="/7-cards-least/faq" onNavigate={onNavigate} style={styles.inlineCta}>
+                  <Text style={styles.inlineCtaText}>View All FAQs →</Text>
+                </SeoLink>
+              </View>
+            </View>
           </View>
 
           <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Turn Progression &amp; Actions</Text>
-            <Text style={styles.bodyText}>
-              Turns advance in a clockwise direction around the table. Each turn consists of two distinct phases:
-              {'\n\n'}
-              1. <Text style={styles.boldText}>Phase 1 – Discarding:</Text> You must discard valid cards onto the Discard Pile. Valid combinations include:
-              {'\n'}   - A single card (e.g. King of Spades).
-              {'\n'}   - An equal-rank set of 2+ cards (e.g. 7♥ 7♦ or 9♠ 9♥ 9♣).
-              {'\n'}   - A suited run of 3+ consecutive cards in the same suit (e.g. 4♣ 5♣ 6♣).
-              {'\n\n'}
-              2. <Text style={styles.boldText}>The Match &amp; Skip Rule:</Text> If your discarded card matches the rank of the current top card of the Discard Pile, your turn concludes immediately! You do not draw a replacement card, permanently decreasing your hand size.
-              {'\n\n'}
-              3. <Text style={styles.boldText}>Phase 2 – Drawing:</Text> If your discard does not match the pile rank, draw 1 card from either the face-down Draw Deck or the face-up Discard Pile. If a drawn deck card matches your discard rank, it drops immediately to the discard pile without entering hand.
-            </Text>
-            <SeoLink href="/7-cards-least/how-to-play" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Step-by-step interactive beginner tutorial →</Text>
-            </SeoLink>
-          </View>
-
-          <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Calling "LEAST!" &amp; The 80-Point Penalty</Text>
-            <Text style={styles.bodyText}>
-              When your total hand score is 10 points or less, you can declare <Text style={styles.boldText}>"LEAST!"</Text> on your turn to halt the round. All players reveal their hands:
-              {'\n\n'}
-              • <Text style={styles.boldText}>Successful Call:</Text> If your hand score is strictly lower than every opponent, you win the round and score <Text style={styles.boldText}>0 points</Text>. Opponents receive points equal to their hand score minus your winning score.
-              {'\n'}• <Text style={styles.boldText}>False Call (The 80-Point Penalty):</Text> If ANY opponent holds an equal or lower hand score than your hand, your call fails! You incur a heavy <Text style={styles.boldText}>80-point penalty</Text> added to your match score, while the true lowest player wins the round with 0 points.
-            </Text>
-          </View>
-
-          <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Match Structure &amp; Elimination</Text>
-            <Text style={styles.bodyText}>
-              Matches consist of 1 to 20 rounds (customizable by the table host). Points accumulate from round to round. Any player whose cumulative score reaches or exceeds <Text style={styles.boldText}>200 points</Text> is eliminated from the game. When the designated rounds finish or only one player survives, the player with the lowest total score is crowned champion.
-            </Text>
-          </View>
-
-          <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Winning Strategy Overview</Text>
-            <Text style={styles.bodyText}>
-              Top players prioritize shedding isolated face cards early, track low card pickups from the discard pile, hold zero-point Jokers to anchor winning hands, and only declare Least when their hand total is comfortably below 6 points to avoid the devastating 80-point penalty.
-            </Text>
-            <SeoLink href="/7-cards-least/strategy" onNavigate={onNavigate} style={styles.inlineCta}>
-              <Text style={styles.inlineCtaText}>Explore in-depth tactical strategies &amp; hand examples →</Text>
-            </SeoLink>
-          </View>
-
-          <View style={styles.cardSection}>
-            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>Game Modes: Solo AI &amp; Real-Time Multiplayer</Text>
+            <Text style={styles.h2} accessibilityRole="header" aria-level={2}>🎮 Interactive Practice &amp; Game Modes</Text>
             <Text style={styles.bodyText}>
               Play 7 Cards Least in whichever mode suits your schedule:
               {'\n\n'}
-              • <Text style={styles.boldText}>Singleplayer vs Computer AI:</Text> Practice against 1 to 7 smart computer bots with zero wait time and adjustable turn limits.
-              {'\n'}• <Text style={styles.boldText}>Real-Time Online Multiplayer:</Text> Create private room lobbies with 4-digit codes, share WhatsApp invite links, and play with friends and family across mobile or desktop browsers.
+              • <Text style={styles.boldText}>Singleplayer vs Computer AI:</Text> Practice against intelligent computer bots with zero wait time in{' '}
+              <SeoLink href="/play-against-ai" onNavigate={onNavigate}><Text style={styles.inlineCtaText}>Solo vs AI Mode</Text></SeoLink>.
+              {'\n\n'}• <Text style={styles.boldText}>Real-Time Online Multiplayer:</Text> Create private room lobbies with 4-digit codes, share WhatsApp invite links, and play with friends in{' '}
+              <SeoLink href="/multiplayer" onNavigate={onNavigate}><Text style={styles.inlineCtaText}>Multiplayer Mode</Text></SeoLink>.
+              {'\n\n'}• <Text style={styles.boldText}>Interactive Tactical Simulators:</Text> Test hand scenarios in the{' '}
+              <SeoLink href="/strategy-lab" onNavigate={onNavigate}><Text style={styles.inlineCtaText}>Strategy Lab</Text></SeoLink> or compute points in the{' '}
+              <SeoLink href="/score-calculator" onNavigate={onNavigate}><Text style={styles.inlineCtaText}>Score Calculator</Text></SeoLink>.
             </Text>
             <View style={styles.ctaRow}>
               <SeoLink href="/" onNavigate={onNavigate} style={styles.primaryCta}>

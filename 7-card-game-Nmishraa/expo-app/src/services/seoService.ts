@@ -10,7 +10,7 @@ export const SEO_CONFIGS: Record<string, PageSeoConfig> = {
     title: "7 Cards Least Online – Play 7 Cards Game & Seven Cards Free",
     description: "Play 7 Cards Least online for free. Track 7 cards least score live, discard matching sets and runs to achieve the lowest hand points, and win against friends or AI.",
     canonical: "https://cards.gnanamai.com/",
-    h1: "7 Cards Least Game Online – Play Free With Friends & AI",
+    h1: "Play 7 Cards Least Online – Free Web Card Game",
   },
   "7-cards-least": {
     title: "7 Cards Least Game Online – Official Guide & Portal",

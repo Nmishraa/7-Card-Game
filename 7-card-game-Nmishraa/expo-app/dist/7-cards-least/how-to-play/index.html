@@ -72,7 +72,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WQS2TKE5H"></script>
 
     <!-- JSON-LD Structured Data Schema Graph for Google Rich Results & Star Ratings -->
-            <script type="application/ld+json">
+        <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
@@ -197,7 +197,6 @@
 
   <body>
     
-    
     <noscript>
       <div style="padding: 20px; color: #ffffff; background-color: #062d12; font-family: sans-serif; text-align: center;">
         <p style="margin: 0; font-size: 15px;">JavaScript is required to play 7 Cards Least online. Please enable JavaScript in your browser settings.</p>
@@ -205,7 +204,6 @@
     </noscript>
 
     <!-- Initial Loading Screen (Replaced automatically when React mounts) -->
-    
     
     <div id="root">
       <main id="main-content" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; width: 100%; background: radial-gradient(circle at center, #0b5e28 0%, #062d12 100%); color: #ffffff; text-align: center; padding: 24px 16px; box-sizing: border-box; flex: 1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-y: auto;">
@@ -242,7 +240,7 @@
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 4: Draw a Replacement Card</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          After discarding, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile to keep your hand size balanced at 7 cards, unless Match &amp; Skip applies.
+          Each player starts with seven cards. On your turn, discard a legal card or combination, then draw one card. If you discard more than one card, your hand size decreases. Unless Match &amp; Skip applies, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 5: Declare LEAST! for the Win</h3>
@@ -255,16 +253,16 @@
           <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">1. Table Setup &amp; Dealing</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
             • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.<br />
-            • Table Setup Card: <strong style="color: #fbbf24;">4♥</strong> is flipped. (All four 4s are Table Jokers = 0 pts!)<br />
+            • Table Setup Card: <strong style="color: #fbbf24;">7♦</strong> is flipped. (All four 7s are Table Jokers = 0 pts!)<br />
             • Discard Pile Starter: <strong style="color: #ffffff;">8♣</strong> is flipped face-up.<br />
-            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (4), A♥ (1). Hand Total = 44 pts.
           </p>
 
           <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">2. Turn 1 (Alice): High-Liability Discard</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
             • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.<br />
             • Draw: Alice draws 2♦ (2 pts) from the face-down deck.<br />
-            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (4), A♥ (1) = 36 pts (reduced from 44).
           </p>
 
           <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">3. Turn 2 (Bob): Tactical Match &amp; Skip</p>
@@ -275,14 +273,14 @@
 
           <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">4. Turn 4 (Alice): Multi-Card Pair Shedding</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
-            • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).<br />
-            • Alice draws 3♣ (3 pts) from the deck.<br />
-            • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <strong style="color: #34d399;">Total 6 points!</strong>
+            • Alice discards 5♠ and 5♦, then draws 3♣. Her hand is now Q♦, 9♣, 2♦, 4♠, A♥, and 3♣. Her total is 10 + 9 + 2 + 4 + 1 + 3 = 29 points.<br />
+            • Notice that discarding two cards and drawing one reduced her hand size from 7 cards down to 6 cards.
           </p>
 
-          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. The Victory Declaration &amp; Hand Reveal</p>
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. Later Turn: Valid Low-Score Call &amp; Hand Reveal</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
-            • On her next turn, Alice's hand is ≤ 10 points. She taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
+            • In later turns, Alice discards her remaining high liabilities (Q♦ and 9♣). After drawing low replacements, her hand is reduced to: 2♦ (2), 3♣ (3), and A♥ (1) = <strong style="color: #34d399;">Total 6 points!</strong><br />
+            • Because her hand total is ≤ 10 points on her turn, Alice taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
             • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.<br />
             • Outcome: Alice strictly holds the lowest score! Alice scores <strong style="color: #34d399;">0 penalty points</strong>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
           </p>
@@ -394,7 +392,7 @@
         });
       })();
     </script>
-  <script src="/_expo/static/js/web/index-43ad2a29ef87da5f8461c08e2545f7ab.js" defer></script>
+  <script src="/_expo/static/js/web/index-8338431fc1e1ab76c70e22bbe64693ee.js" defer></script>
 </body>
 </html>
 

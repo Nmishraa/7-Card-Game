@@ -50,8 +50,8 @@ const routes = [
     title: '7 Cards Least Online – Play 7 Cards Game & Seven Cards Free',
     description: 'Play 7 Cards Least online for free. Enjoy real-time multiplayer card games with friends or practice solo against computer AI. No download required.',
     canonical: 'https://cards.gnanamai.com/',
-    h1: '7 Cards Least Game Online – Play Free With Friends & AI',
-    h2: 'The ultimate online portal for 7 Cards Least rules, strategy, and real-time multiplayer card games.',
+    h1: 'Play 7 Cards Least Online – Free Web Card Game',
+    h2: 'Instant browser card game with friends or AI bots. No downloads or installations required.',
     breadcrumbs: [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://cards.gnanamai.com/" }
     ],
@@ -110,36 +110,38 @@ const routes = [
     },
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
-        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Play Free With Friends &amp; AI</h1>
-        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">A tactical low-hand card shedding game where the goal is to finish with the lowest score at the table.</h2>
+        <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">Play 7 Cards Least Online – Free Web Card Game</h1>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">Instant browser card game with friends or AI bots. No downloads or installations required.</h2>
         
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          <strong>7 Cards Least</strong> is an indie card shedding game built around calculated risk, card deduction, and timing. Instead of trying to build high-value tricks or meld points, each player is dealt 7 cards and works to shed heavy liabilities. When you calculate that your hand sum has dropped to 10 points or less, you can declare <strong>"LEAST!"</strong> on your turn. If your hand is strictly lower than every opponent, you take 0 penalty points; but if an opponent ties or holds a lower score, you take an <strong>80-point penalty</strong>.
-        </p>
-
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 Card Values, Relative Scoring &amp; Penalties</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">⚡ How to Start Playing in Seconds</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 12px;">
-          In 7 Cards Least, card ranks determine how fast you can safely reach declaring range:
+          7 Cards Least is playable immediately in any modern desktop or mobile browser with zero setup:
         </p>
+        <ol style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong style="color: #ffffff;">Enter Your Nickname:</strong> Type your preferred display name into the lobby card above.</li>
+          <li><strong style="color: #ffffff;">Pick a Mode:</strong> Select <strong>Quick Match</strong> for instant matchmaking, create a private room with a 4-digit code in <strong>Multiplayer</strong>, or practice against bots in <strong>Solo vs AI</strong>.</li>
+          <li><strong style="color: #ffffff;">Automatic Table Dealing:</strong> The game server deals 7 cards to each seat, turns up the center Table Joker, and manages turns, discards, and scoring in real time.</li>
+        </ol>
+
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎮 Game Modes: Solo, Multiplayer &amp; Daily Challenge</h3>
         <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong style="color: #ffffff;">Number Cards (2 to 10):</strong> Worth their exact face value (2–10 points).</li>
-          <li><strong style="color: #ffffff;">Face Cards (J, Q, K):</strong> Flat 10 points each. Unmatched face cards are your biggest early liability.</li>
-          <li><strong style="color: #ffffff;">Ace (A):</strong> 1 Point. Low anchor cards that make ideal sequences like A-2-3.</li>
-          <li><strong style="color: #ffffff;">Table Joker (0 Points):</strong> At round setup, the dealer flips one card into the center. Any card matching that rank—regardless of suit—counts as 0 points for the entire round.</li>
-          <li><strong style="color: #ffffff;">Relative Difference Scoring:</strong> When a caller wins, opponents take penalty points equal only to the difference (their hand score minus the winning score). You are not penalized your full hand score unless the winner held 0 points.</li>
-          <li><strong style="color: #ffffff;">The 80-Point Blunder:</strong> The caller must strictly beat every opponent. In a tie or loss, the caller receives an 80-point penalty, while the true lowest player wins with 0 points.</li>
+          <li><strong style="color: #ffffff;">Solo Practice Against AI:</strong> Practice discarding high-point face cards and testing call thresholds with no queue delay. Play against customizable computer bots in <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">Singleplayer AI mode</a>.</li>
+          <li><strong style="color: #ffffff;">Real-Time Multiplayer (2 to 8 Players):</strong> Host private games with friends and family using a simple 4-digit code or direct link in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">Online Multiplayer mode</a>. Works seamlessly across phones, tablets, and desktop browsers.</li>
+          <li><strong style="color: #ffffff;">Daily Puzzle Challenge:</strong> Test your card-shedding instincts with a daily seeded hand in <a href="https://cards.gnanamai.com/daily-challenge" style="color: #38bdf8; text-decoration: underline;">Daily Challenge mode</a>. Discard optimal sets to achieve the lowest possible hand total.</li>
         </ul>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🕹️ How a Turn Works &amp; How to Start Playing</h3>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📖 Objective &amp; Complete Rules Guide</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Each turn follows a clean, tactical loop:
+          The core objective of 7 Cards Least is to shed high point liabilities (Aces = 1, face cards = 10, Table Joker = 0) and declare <strong>"LEAST!"</strong> when your hand sum drops to 10 points or lower. If you hold the lowest hand score at the table, you win with 0 penalty points!
+        </p>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+          For in-depth tutorials, official scoring formulas, and strategy guides, explore:
         </p>
         <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong style="color: #ffffff;">1. Discard Phase:</strong> Play a single card, a matching set of 2+ cards of the same rank (e.g. 8♠ 8♦), or a suited run of 3+ consecutive cards (e.g. 5♣ 6♣ 7♣).</li>
-          <li><strong style="color: #ffffff;">2. Match &amp; Skip Shortcut:</strong> If your discard matches the rank currently on top of the discard pile, your turn ends immediately without drawing! Your hand size permanently shrinks by one card.</li>
-          <li><strong style="color: #ffffff;">3. Draw Phase:</strong> If not skipped, draw 1 card from either the face-down deck or the face-up discard pile. If a drawn deck card matches your discard rank, it drops immediately to the pile.</li>
-          <li><strong style="color: #ffffff;">4. Calling Least:</strong> Before discarding on your turn, if your total hand score is 10 points or fewer, tap "LEAST!" to stop the round and trigger the showdown.</li>
-          <li><strong style="color: #ffffff;">Multiplayer &amp; Solo AI:</strong> Jump into a game using Quick Match above, practice solo against computer bots in <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">AI mode</a>, or create private lobbies with WhatsApp invites in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">multiplayer mode</a>.</li>
+          <li><a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">Official Rules &amp; Scoring Guide</a>: Full breakdown of point values, relative score differences, and the 80-point wrong call penalty.</li>
+          <li><a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">Step-by-Step How to Play</a>: Beginner walkthrough covering multi-card set discarding, drawing, and Match &amp; Skip shortcuts.</li>
+          <li><a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">Winning Strategy &amp; Tactics</a>: Advanced discard order, tracking opponents' pickups, and optimal declaration windows.</li>
+          <li><a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">Interactive Strategy Lab</a> &amp; <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">Score Calculator</a>: Test hands and calculate point totals with immediate visual feedback.</li>
         </ul>
         ${navHtml}
       </article>
@@ -192,49 +194,53 @@ const routes = [
     fullHtml: `
       <article style="max-width: 900px; margin: 0 auto; text-align: left; background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
         <h1 style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px; color: #ffffff; text-align: center;">7 Cards Least Game Online – Official Guide &amp; Portal</h1>
-        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">An indie tactical card game where the lowest hand score wins. Learn deck setup, zero-point table Jokers, Match &amp; Skip mechanics, and tournament survival.</h2>
+        <h2 style="font-size: 1.25rem; color: #38bdf8; font-weight: 600; margin-bottom: 20px; text-align: center;">The central knowledge hub and guide directory for 7 Cards Least rules, tutorials, and strategy.</h2>
         
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 1rem; margin-bottom: 16px;">
-          <strong>7 Cards Least</strong> is an indie card shedding game built around calculated risk, card deduction, and timing. Each player is dealt 7 cards from a standard deck (or two decks for tables with 6 to 8 players). Unlike traditional rummy where you keep cards to meld long sequences, your entire goal here is hand reduction: stripping out heavy point cards while maneuvering into a sub-10 point hand to declare Least.
+          Welcome to the official <strong>7 Cards Least</strong> knowledge portal. Unlike traditional card games that reward point hoarding or meld construction, 7 Cards Least is built on <strong>pure hand reduction</strong>. Each player starts with 7 cards, working to discard point liabilities and maneuver their hand sum down to 10 points or lower to declare <strong>"LEAST!"</strong>.
         </p>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎴 Deck Setup &amp; The Table Joker Wildcard</h3>
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          A game uses a standard 52-card deck (single deck for 2 to 5 players; two shuffled decks for 6 to 8 players) with no physical jokers. At the beginning of each round, 1 card is flipped face-up in the center to establish the <strong>zero-point Joker rank</strong>. Any card matching this rank in any player's hand scores <strong>0 points</strong>! For example, if a 7 is flipped, all four 7s (7♠, 7♥, 7♦, 7♣) count as 0 points. A second card is flipped face-up to begin the Discard Pile, and 7 cards are dealt to each player.
-        </p>
-
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📋 Card Point Values</h3>
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 12px;">
-          Hand scores are calculated by summing the point values of all remaining cards:
-        </p>
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🌟 The 4 Core Mechanics of 7 Cards Least</h3>
         <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong style="color: #ffffff;">Ace (A):</strong> 1 Point (the lowest standard card).</li>
-          <li><strong style="color: #ffffff;">Number Cards (2 to 10):</strong> Face Value (2–10 points based on rank).</li>
-          <li><strong style="color: #ffffff;">Face Cards (Jack, Queen, King):</strong> 10 Points each (high liability cards to discard early).</li>
-          <li><strong style="color: #ffffff;">Table Joker Rank:</strong> 0 Points (established by the round setup flip).</li>
-          <li><strong style="color: #ffffff;">Least Calling Window:</strong> Total hand score must be 10 points or less to call Least.</li>
-          <li><strong style="color: #ffffff;">False Call Penalty:</strong> An 80-point penalty is assessed if an opponent holds an equal or lower score.</li>
+          <li><strong style="color: #ffffff;">1. Point Liability Shedding:</strong> High cards (J, Q, K = 10 pts) are dangerous liabilities. Players rapidly shed points by discarding equal-rank pairs/triples or suited consecutive runs.</li>
+          <li><strong style="color: #ffffff;">2. Dynamic Table Jokers:</strong> At the start of every round, one setup card is flipped in the center. All four cards of that matching rank become <strong>0-point wildcards</strong> for the entire round.</li>
+          <li><strong style="color: #ffffff;">3. Match &amp; Skip Acceleration:</strong> Matching the exact rank of the discard pile top skips your draw phase, permanently decreasing your hand size and speeding up your path to victory.</li>
+          <li><strong style="color: #ffffff;">4. The High-Stakes Showdown:</strong> When your hand totals ≤ 10 points, call "LEAST!". If you hold the lowest score, you earn 0 penalty points; but if an opponent ties or beats you, you suffer a devastating <strong>80-point penalty</strong>.</li>
         </ul>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🕹️ Turn Progression &amp; Actions</h3>
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Turns proceed clockwise around the table. Each turn involves two distinct phases:
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">📚 Complete 7 Cards Least Guide Network</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 14px;">
+          Explore our dedicated in-depth resources tailored for every stage of your gameplay:
         </p>
-        <ol style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
-          <li><strong>Phase 1 – Discarding:</strong> Drop a single card, a matching set (e.g. 9♠-9♥-9♦), or a suited sequence (e.g. 4♣-5♣-6♣) onto the Discard Pile.</li>
-          <li><strong>Match &amp; Skip:</strong> If your discard matches the rank of the current top discard card, your turn concludes immediately without drawing, permanently shrinking your hand.</li>
-          <li><strong>Phase 2 – Drawing:</strong> If not skipped, draw 1 card from either the face-down Draw Deck or the face-up Discard Pile. If a drawn deck card matches your discard rank, it drops immediately to the discard pile without entering hand.</li>
-        </ol>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px;">
+          <div style="background: rgba(2, 6, 23, 0.6); padding: 18px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <h4 style="margin: 0 0 8px; color: #38bdf8; font-size: 1.1rem;">📖 <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">Official Rules &amp; Scoring</a></h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">Complete point breakdown (Ace=1, Numbers=2-10, Face=10, Joker=0), relative difference scoring, and the 80-point wrong call penalty.</p>
+          </div>
+          <div style="background: rgba(2, 6, 23, 0.6); padding: 18px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <h4 style="margin: 0 0 8px; color: #38bdf8; font-size: 1.1rem;">🎓 <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">Step-by-Step How to Play</a></h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">Beginner tutorial covering dealing, multi-card discards, drawing, and a complete turn-by-turn worked sample round.</p>
+          </div>
+          <div style="background: rgba(2, 6, 23, 0.6); padding: 18px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <h4 style="margin: 0 0 8px; color: #38bdf8; font-size: 1.1rem;">🧠 <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">Winning Strategy &amp; Tactics</a></h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">Advanced discard order, opponent pickup tracking, the 0–10 point call risk matrix, and multi-round 200-point tournament survival.</p>
+          </div>
+          <div style="background: rgba(2, 6, 23, 0.6); padding: 18px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <h4 style="margin: 0 0 8px; color: #38bdf8; font-size: 1.1rem;">❓ <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">Frequently Asked Questions</a></h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">Detailed answers to edge-case questions: ties, reshuffling, zero-card hand calls, and room host controls.</p>
+          </div>
+        </div>
 
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🏆 Calling "LEAST!" &amp; 80-Point Penalty</h3>
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          When your hand sum drops to 10 points or less, you can call <strong>LEAST!</strong> on your turn before discarding. All hands are revealed: if your hand is strictly lower than every opponent, you win the round with 0 penalty points. Opponents receive points equal to their hand score minus your winning score. However, if any opponent ties or holds a lower score, you incur an <strong>80-point penalty</strong>, while the true lowest player wins with 0 points. Players reaching 200 cumulative points across rounds are eliminated.
+        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🎮 Interactive Practice &amp; Game Modes</h3>
+        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 14px;">
+          Ready to put your tactics into practice? Jump directly into a match on cards.gnanamai.com:
         </p>
-
-        <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 24px; margin-bottom: 10px;">🌐 Explore Related Guides</h3>
-        <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          Deepen your expertise with our <a href="https://cards.gnanamai.com/7-cards-least/rules" style="color: #38bdf8; text-decoration: underline;">official scoring rules</a>, learn <a href="https://cards.gnanamai.com/7-cards-least/how-to-play" style="color: #38bdf8; text-decoration: underline;">how to play step-by-step</a>, study <a href="https://cards.gnanamai.com/7-cards-least/strategy" style="color: #38bdf8; text-decoration: underline;">winning strategies &amp; hand examples</a>, review the <a href="https://cards.gnanamai.com/7-cards-least/faq" style="color: #38bdf8; text-decoration: underline;">FAQ section</a>, play with friends in <a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">online multiplayer</a>, or practice against <a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">computer AI bots</a>.
-        </p>
+        <ul style="line-height: 1.8; color: #94a3b8; font-size: 0.95rem; margin-left: 20px; margin-bottom: 16px;">
+          <li><strong style="color: #ffffff;"><a href="https://cards.gnanamai.com/" style="color: #38bdf8; text-decoration: underline;">Play Online</a>:</strong> Instant matchmaking in your browser with zero installation.</li>
+          <li><strong style="color: #ffffff;"><a href="https://cards.gnanamai.com/multiplayer" style="color: #38bdf8; text-decoration: underline;">Multiplayer Mode</a>:</strong> Create private rooms with custom rounds and invite friends via WhatsApp or 4-digit codes.</li>
+          <li><strong style="color: #ffffff;"><a href="https://cards.gnanamai.com/play-against-ai" style="color: #38bdf8; text-decoration: underline;">Solo vs AI</a>:</strong> Test discards and call timings against intelligent computer bots with no matchmaking delay.</li>
+          <li><strong style="color: #ffffff;"><a href="https://cards.gnanamai.com/strategy-lab" style="color: #38bdf8; text-decoration: underline;">Strategy Lab</a> &amp; <a href="https://cards.gnanamai.com/score-calculator" style="color: #38bdf8; text-decoration: underline;">Score Calculator</a>:</strong> Interactive simulators to test hand decisions and calculate points.</li>
+        </ul>
         ${navHtml}
       </article>
     `
@@ -489,7 +495,7 @@ const routes = [
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 4: Draw a Replacement Card</h3>
         <p style="line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
-          After discarding, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile to keep your hand size balanced at 7 cards, unless Match &amp; Skip applies.
+          Each player starts with seven cards. On your turn, discard a legal card or combination, then draw one card. If you discard more than one card, your hand size decreases. Unless Match &amp; Skip applies, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile.
         </p>
 
         <h3 style="font-size: 1.3rem; color: #38bdf8; margin-top: 20px; margin-bottom: 10px;">Step 5: Declare LEAST! for the Win</h3>
@@ -502,16 +508,16 @@ const routes = [
           <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">1. Table Setup &amp; Dealing</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
             • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.<br />
-            • Table Setup Card: <strong style="color: #fbbf24;">4♥</strong> is flipped. (All four 4s are Table Jokers = 0 pts!)<br />
+            • Table Setup Card: <strong style="color: #fbbf24;">7♦</strong> is flipped. (All four 7s are Table Jokers = 0 pts!)<br />
             • Discard Pile Starter: <strong style="color: #ffffff;">8♣</strong> is flipped face-up.<br />
-            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+            • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (4), A♥ (1). Hand Total = 44 pts.
           </p>
 
           <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">2. Turn 1 (Alice): High-Liability Discard</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
             • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.<br />
             • Draw: Alice draws 2♦ (2 pts) from the face-down deck.<br />
-            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+            • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (4), A♥ (1) = 36 pts (reduced from 44).
           </p>
 
           <p style="color: #fbbf24; font-weight: bold; margin: 0 0 6px;">3. Turn 2 (Bob): Tactical Match &amp; Skip</p>
@@ -522,14 +528,14 @@ const routes = [
 
           <p style="color: #38bdf8; font-weight: bold; margin: 0 0 6px;">4. Turn 4 (Alice): Multi-Card Pair Shedding</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px;">
-            • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).<br />
-            • Alice draws 3♣ (3 pts) from the deck.<br />
-            • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <strong style="color: #34d399;">Total 6 points!</strong>
+            • Alice discards 5♠ and 5♦, then draws 3♣. Her hand is now Q♦, 9♣, 2♦, 4♠, A♥, and 3♣. Her total is 10 + 9 + 2 + 4 + 1 + 3 = 29 points.<br />
+            • Notice that discarding two cards and drawing one reduced her hand size from 7 cards down to 6 cards.
           </p>
 
-          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. The Victory Declaration &amp; Hand Reveal</p>
+          <p style="color: #34d399; font-weight: bold; margin: 0 0 6px;">5. Later Turn: Valid Low-Score Call &amp; Hand Reveal</p>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
-            • On her next turn, Alice's hand is ≤ 10 points. She taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
+            • In later turns, Alice discards her remaining high liabilities (Q♦ and 9♣). After drawing low replacements, her hand is reduced to: 2♦ (2), 3♣ (3), and A♥ (1) = <strong style="color: #34d399;">Total 6 points!</strong><br />
+            • Because her hand total is ≤ 10 points on her turn, Alice taps <strong style="color: #fbbf24;">"LEAST!"</strong><br />
             • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.<br />
             • Outcome: Alice strictly holds the lowest score! Alice scores <strong style="color: #34d399;">0 penalty points</strong>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
           </p>

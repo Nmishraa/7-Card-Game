@@ -273,7 +273,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <View style={styles.stepBox}>
                 <Text style={styles.stepBoxTitle}>Step 4: Draw a Replacement Card</Text>
                 <Text style={styles.stepBoxDesc}>
-                  Unless you triggered Match &amp; Skip, you must draw 1 card. Choose the face-up Discard Pile only if that visible card directly lowers your total or completes a set. Otherwise, draw blind from the deck hoping for an Ace or Joker!
+                  Each player starts with seven cards. On your turn, discard a legal card or combination, then draw one card. If you discard more than one card, your hand size decreases. Unless you triggered Match &amp; Skip, pick up one replacement card from either the face-down Draw Deck or the face-up Discard Pile.
                 </Text>
 
                 <View style={styles.drawPilesRow}>
@@ -359,9 +359,9 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <Text style={{ color: '#34d399', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>1. Table Setup &amp; Dealing</Text>
               <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
                 • Players: Alice, Bob, and Charlie. Each receives 7 dealt cards.{'\n'}
-                • Table Setup Card: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>4♥</Text> is flipped. (All four 4s are Table Jokers = 0 pts!){'\n'}
+                • Table Setup Card: <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>7♦</Text> is flipped. (All four 7s are Table Jokers = 0 pts!){'\n'}
                 • Discard Pile Starter: <Text style={{ color: '#ffffff', fontWeight: 'bold' }}>8♣</Text> is flipped face-up.{'\n'}
-                • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (Joker = 0), A♥ (1). Hand Total = 40 pts.
+                • Alice's Starting Hand: K♠ (10), Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 4♠ (4), A♥ (1). Hand Total = 44 pts.
               </Text>
             </View>
 
@@ -370,7 +370,7 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
               <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
                 • Action: Alice discards heavy King of Spades (K♠ = 10 pts) to the pile.{'\n'}
                 • Draw: Alice draws 2♦ (2 pts) from the face-down deck.{'\n'}
-                • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (0), A♥ (1) = 32 pts (reduced from 40).
+                • Alice's New Hand: Q♦ (10), 9♣ (9), 5♠ (5), 5♦ (5), 2♦ (2), 4♠ (4), A♥ (1) = 36 pts (reduced from 44).
               </Text>
             </View>
 
@@ -385,16 +385,16 @@ export const SevenCardsLeastHowToPlayPage: React.FC<Props> = ({ onNavigate, user
             <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
               <Text style={{ color: '#38bdf8', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>4. Turn 4 (Alice): Multi-Card Pair Shedding</Text>
               <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
-                • Alice discards her matching pair of Fives (5♠ + 5♦ = 10 pts shed in one move).{'\n'}
-                • Alice draws 3♣ (3 pts) from the deck.{'\n'}
-                • Alice's Hand is now: 4♠ (Joker = 0), A♥ (1), 2♦ (2), 3♣ (3) = <Text style={{ color: '#34d399', fontWeight: 'bold' }}>Total 6 points!</Text>
+                • Alice discards 5♠ and 5♦, then draws 3♣. Her hand is now Q♦, 9♣, 2♦, 4♠, A♥, and 3♣. Her total is 10 + 9 + 2 + 4 + 1 + 3 = 29 points.{'\n'}
+                • Notice that discarding two cards and drawing one reduced her hand size from 7 cards down to 6 cards.
               </Text>
             </View>
 
             <View style={{ backgroundColor: 'rgba(2, 6, 23, 0.6)', padding: 14, borderRadius: 10, marginTop: 10 }}>
-              <Text style={{ color: '#34d399', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>5. The Victory Declaration &amp; Hand Reveal</Text>
+              <Text style={{ color: '#34d399', fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>5. Later Turn: Valid Low-Score Call &amp; Hand Reveal</Text>
               <Text style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 22 }}>
-                • On her next turn, Alice's hand is ≤ 10 points. She taps <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text>{'\n'}
+                • In later turns, Alice discards her remaining high liabilities (Q♦ and 9♣). After drawing low replacements, her hand is reduced to: 2♦ (2), 3♣ (3), and A♥ (1) = <Text style={{ color: '#34d399', fontWeight: 'bold' }}>Total 6 points!</Text>{'\n'}
+                • Because her hand total is ≤ 10 points on her turn, Alice taps <Text style={{ color: '#fbbf24', fontWeight: 'bold' }}>"LEAST!"</Text>{'\n'}
                 • All hands revealed: Alice has 6 pts, Bob has 14 pts, Charlie has 23 pts.{'\n'}
                 • Outcome: Alice strictly holds the lowest score! Alice scores <Text style={{ color: '#34d399', fontWeight: 'bold' }}>0 penalty points</Text>. Bob receives +8 pts (14 − 6), Charlie receives +17 pts (23 − 6).
               </Text>
