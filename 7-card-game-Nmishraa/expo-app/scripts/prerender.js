@@ -836,7 +836,7 @@ const routes = [
     title: 'Play 7 Cards Least Online Free – Multiplayer Card Game With Friends',
     description: 'Play 7 Cards Least online for free with friends, family, or online players. Create private rooms, join with 4-digit codes, instant play in your browser with no download.',
     canonical: 'https://cards.gnanamai.com/multiplayer',
-    robots: 'noindex, follow',
+    robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     h1: 'Play 7 Cards Least Online Free – Multiplayer',
     h2: 'Create private rooms, invite friends via WhatsApp, or join instant online player tables.',
     breadcrumbs: [
@@ -904,7 +904,7 @@ const routes = [
     title: '7 Cards Least Against AI – Play Free Online',
     description: 'Play 7 Cards Least against computer AI bots online for free. Practice your card shedding strategy, test Joker plays, and play instant solo matches with zero wait.',
     canonical: 'https://cards.gnanamai.com/play-against-ai',
-    robots: 'noindex, follow',
+    robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     h1: '7 Cards Least Against Computer AI',
     h2: 'Practice your card shedding tactics singleplayer against smart computer bots.',
     breadcrumbs: [
