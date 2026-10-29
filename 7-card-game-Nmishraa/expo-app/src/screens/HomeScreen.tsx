@@ -496,7 +496,7 @@ export const HomeScreen: React.FC<Props> = ({
               />
             </View>
             {/* H1 for Search Engine Discoverability */}
-            <Text style={styles.h1Title} accessibilityRole="header" aria-level={1}>7 Cards Least Game Online – Play Free With Friends &amp; AI</Text>
+            <Text style={styles.h1Title} accessibilityRole="header" aria-level={1}>Play 7 Cards Least Online – Free Web Card Game</Text>
             <Text style={styles.introParagraph}>
               Play 7 Cards Least online for free. Enjoy real-time multiplayer card games with friends or practice solo against computer AI. No download required.
             </Text>
